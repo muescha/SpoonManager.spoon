@@ -99,18 +99,21 @@ Allowed values:
 
 ## API
 
-### Source factories
+The API has three layers:
 
-Create source or definition builders. These calls do not install anything.
+- source factories create a source
+- source builders refine that source into a Spoon definition
+- definition and manager actions install or update Spoons
 
-```lua
-spoon.SpoonManager.from.github(repository[, options])
-spoon.SpoonManager.from.zip(url)
-spoon.SpoonManager.from.localZip(path)
-spoon.SpoonManager.from.localFolder(path)
-```
+All builder calls use dot notation and do not install anything until `install()` or `update()` is called.
 
-`from.github(repository[, options])` accepts:
+### `SpoonManager.from.github(repository[, options])`
+
+Creates a GitHub source builder.
+
+`repository` is the GitHub repository in `owner/repo` form.
+
+`options` may contain:
 
 ```lua
 {
@@ -120,65 +123,354 @@ spoon.SpoonManager.from.localFolder(path)
 }
 ```
 
-There is also one built-in source alias:
+Example, repository root is the Spoon:
 
 ```lua
-spoon.SpoonManager.from.default
+spoon.SpoonManager.from.github("muescha/MySpoon.spoon")
+    .asSpoon("MySpoon")
+    .install()
 ```
 
-It points to `Hammerspoon/Spoons` on branch `master` and uses this ZIP convention:
+Example, Spoon is in a subfolder:
+
+```lua
+spoon.SpoonManager.from.github("muescha/SpoonRepo", {
+    branch = "main",
+})
+    .folder("Source/MySpoon.spoon")
+    .install()
+```
+
+### `SpoonManager.from.zip(url)`
+
+Creates a definition builder from a remote ZIP URL.
+
+Use this when you already know the exact ZIP URL. The ZIP may contain a `.spoon` folder, a single root folder with `init.lua`, or `init.lua` directly at the ZIP root.
+
+Free ZIP sources should usually be followed by `.asSpoon(name)` so SpoonManager knows the installation name.
+
+Example:
+
+```lua
+spoon.SpoonManager.from.zip("https://example.com/MySpoon.zip")
+    .asSpoon("MySpoon")
+    .install()
+```
+
+Example, GitHub latest release asset as a plain ZIP URL:
+
+```lua
+spoon.SpoonManager.from.zip(
+    "https://github.com/muescha/MySpoon.spoon/releases/latest/download/MySpoon.zip"
+)
+    .asSpoon("MySpoon")
+    .install()
+```
+
+### `SpoonManager.from.localZip(path)`
+
+Creates a definition builder from a local ZIP file.
+
+`path` may use `~` when Hammerspoon can resolve it with `hs.fs.pathToAbsolute()`.
+
+Local ZIP sources should usually be followed by `.asSpoon(name)` so SpoonManager knows the installation name.
+
+Example:
+
+```lua
+spoon.SpoonManager.from.localZip("~/Downloads/MySpoon.zip")
+    .asSpoon("MySpoon")
+    .install()
+```
+
+### `SpoonManager.from.localFolder(path)`
+
+Creates a definition builder from a local folder.
+
+The folder must contain an `init.lua` file. If the folder name ends in `.spoon`, the Spoon name is inferred automatically.
+
+Example:
+
+```lua
+spoon.SpoonManager.from.localFolder("~/Projects/MySpoon.spoon")
+    .install()
+```
+
+Example, override the installed Spoon name:
+
+```lua
+spoon.SpoonManager.from.localFolder("~/Projects/experimental")
+    .asSpoon("MySpoon")
+    .install()
+```
+
+### `SpoonManager.from.default`
+
+Built-in source alias for the official Hammerspoon/Spoons repository.
+
+It points to:
+
+```text
+Hammerspoon/Spoons
+```
+
+on branch:
+
+```text
+master
+```
+
+and uses this ZIP convention:
 
 ```text
 Spoons/{name}.spoon.zip
 ```
 
-### Source builder
-
-Source builders describe where a Spoon can come from.
+Example:
 
 ```lua
-source.branch(name)
-source.ref(name)
-source.spoonZipPattern(pattern)
-source.spoonFolderPattern(pattern)
-source.spoon(name)
-source.folder(path)
-source.releaseLatest()
-source.release(name)
-source.asset(name)
-source.asSpoon(name)
-source.build()
+spoon.SpoonManager.from.default
+    .spoon("Emojis")
+    .install()
 ```
 
-`spoon(name)` creates a Spoon definition from a known Spoon name. With `from.default`, this resolves directly to:
+### `source.branch(name)`
 
-```text
-https://github.com/Hammerspoon/Spoons/raw/master/Spoons/{name}.spoon.zip
-```
+Returns a new source builder using the given branch name.
 
-`folder(path)` selects a folder inside the source. For GitHub sources this installs via the generated repository archive and extracts only the selected folder.
+This is mostly useful for GitHub sources.
 
-`releaseLatest().asset(name)` resolves to GitHub's stable latest-release asset URL:
-
-```text
-https://github.com/owner/repo/releases/latest/download/name
-```
-
-### Definition builder
-
-Definition builders describe one installable Spoon.
+Example:
 
 ```lua
-definition.asSpoon(name)
-definition.use(options)
-definition.onLocalChanges(behavior)
-definition.add()
-definition.install()
-definition.update()
-definition.build()
+spoon.SpoonManager.from.github("muescha/SpoonRepo")
+    .branch("develop")
+    .folder("Source/MySpoon.spoon")
+    .install()
 ```
 
-`use(options)` stores options passed to `hs.spoons.use()` after install or skip:
+### `source.ref(name)`
+
+Alias for `source.branch(name)`.
+
+Use it when the source should be described more generally as a ref.
+
+Example:
+
+```lua
+spoon.SpoonManager.from.github("muescha/SpoonRepo")
+    .ref("main")
+    .folder("Source/MySpoon.spoon")
+    .install()
+```
+
+### `source.spoonZipPattern(pattern)`
+
+Returns a new source builder that knows how to turn a Spoon name into a ZIP path.
+
+The pattern may contain `{name}`.
+
+Example:
+
+```lua
+local repo =
+    spoon.SpoonManager.from.github("muescha/SpoonRepo")
+        .branch("main")
+        .spoonZipPattern("dist/{name}.zip")
+
+repo.spoon("MySpoon")
+    .install()
+```
+
+This resolves to:
+
+```text
+https://github.com/muescha/SpoonRepo/raw/main/dist/MySpoon.zip
+```
+
+### `source.spoonFolderPattern(pattern)`
+
+Returns a new source builder that knows how to turn a Spoon name into a folder path.
+
+The pattern may contain `{name}`.
+
+Example:
+
+```lua
+local repo =
+    spoon.SpoonManager.from.github("muescha/SpoonRepo")
+        .branch("main")
+        .spoonFolderPattern("Source/{name}.spoon")
+
+repo.spoon("MySpoon")
+    .install()
+```
+
+### `source.spoon(name)`
+
+Creates a Spoon definition from a known Spoon name.
+
+With `from.default`, this resolves directly to the official Spoon ZIP:
+
+```lua
+spoon.SpoonManager.from.default
+    .spoon("TimeMachineProgress")
+    .install()
+```
+
+Resolved URL:
+
+```text
+https://github.com/Hammerspoon/Spoons/raw/master/Spoons/TimeMachineProgress.spoon.zip
+```
+
+With a custom ZIP pattern:
+
+```lua
+spoon.SpoonManager.from.github("muescha/SpoonRepo")
+    .spoonZipPattern("build/{name}.zip")
+    .spoon("MySpoon")
+    .install()
+```
+
+### `source.folder(path)`
+
+Creates a Spoon definition from a folder inside the source.
+
+For GitHub sources, SpoonManager downloads the generated repository archive and extracts only the selected folder.
+
+Example:
+
+```lua
+spoon.SpoonManager.from.github("Hammerspoon/Spoons")
+    .branch("master")
+    .folder("Source/TimeMachineProgress.spoon")
+    .install()
+```
+
+If the folder does not end in `.spoon`, use `asSpoon()`:
+
+```lua
+spoon.SpoonManager.from.github("muescha/SpoonRepo")
+    .folder("Source/deepfolder")
+    .asSpoon("DeepFolder")
+    .install()
+```
+
+### `source.releaseLatest()`
+
+Returns a new GitHub release source for the latest stable release.
+
+This does not call the GitHub API. It uses GitHub's stable latest-release download path once `asset(name)` is selected.
+
+Example:
+
+```lua
+spoon.SpoonManager.from.github("muescha/MySpoon.spoon")
+    .releaseLatest()
+    .asset("MySpoon.zip")
+    .asSpoon("MySpoon")
+    .install()
+```
+
+Resolved URL:
+
+```text
+https://github.com/muescha/MySpoon.spoon/releases/latest/download/MySpoon.zip
+```
+
+### `source.release(name)`
+
+Returns a new GitHub release source for a specific release tag.
+
+Example:
+
+```lua
+spoon.SpoonManager.from.github("muescha/MySpoon.spoon")
+    .release("v1.2.0")
+    .asset("MySpoon.zip")
+    .asSpoon("MySpoon")
+    .install()
+```
+
+Resolved URL:
+
+```text
+https://github.com/muescha/MySpoon.spoon/releases/download/v1.2.0/MySpoon.zip
+```
+
+### `source.asset(name)`
+
+Selects a release asset and returns a Spoon definition.
+
+Usually used after `releaseLatest()` or `release(name)`.
+
+Example:
+
+```lua
+spoon.SpoonManager.from.github("muescha/MySpoon.spoon")
+    .releaseLatest()
+    .asset("MySpoon.zip")
+    .asSpoon("MySpoon")
+    .install()
+```
+
+### `source.asSpoon(name)`
+
+Creates a Spoon definition from the current source and forces the installed Spoon name.
+
+This is useful when the repository root is the Spoon, or when the source path does not end in `.spoon`.
+
+Example, repository root:
+
+```lua
+spoon.SpoonManager.from.github("muescha/MySpoon.spoon")
+    .asSpoon("MySpoon")
+    .install()
+```
+
+Example, selected folder with custom install name:
+
+```lua
+spoon.SpoonManager.from.github("muescha/SpoonRepo")
+    .folder("Source/deepfolder")
+    .asSpoon("DeepFolder")
+    .install()
+```
+
+### `source.build()`
+
+Returns the plain Lua table behind a source builder.
+
+This is useful for debugging or for writing a future `spoonify.json`.
+
+Example:
+
+```lua
+local source =
+    spoon.SpoonManager.from.github("muescha/SpoonRepo")
+        .branch("main")
+
+print(hs.inspect(source.build()))
+```
+
+### `definition.asSpoon(name)`
+
+Returns a new definition with a specific installed Spoon name.
+
+Example:
+
+```lua
+spoon.SpoonManager.from.zip("https://example.com/download.zip")
+    .asSpoon("MySpoon")
+    .install()
+```
+
+### `definition.use(options)`
+
+Returns a new definition with options that are passed to `hs.spoons.use()` after install, update, or install-skip.
+
+Accepted options are the same style as `hs.spoons.use()`:
 
 ```lua
 {
@@ -190,7 +482,38 @@ definition.build()
 }
 ```
 
-`onLocalChanges(behavior)` accepts:
+Example:
+
+```lua
+spoon.SpoonManager.from.default
+    .spoon("TimeMachineProgress")
+    .use({
+        start = true,
+    })
+    .install()
+```
+
+Example with config and callback:
+
+```lua
+spoon.SpoonManager.from.default
+    .spoon("SomeSpoon")
+    .use({
+        config = {
+            enabled = true,
+        },
+        fn = function(loadedSpoon)
+            print("Loaded " .. loadedSpoon.name)
+        end,
+    })
+    .install()
+```
+
+### `definition.onLocalChanges(behavior)`
+
+Returns a new definition with explicit behavior for existing or locally changed Spoons.
+
+Accepted values:
 
 ```text
 abort
@@ -198,24 +521,224 @@ backup
 overwrite
 ```
 
-### Manager actions
+`abort` is the default.
+
+Example, backup before replacing:
 
 ```lua
-spoon.SpoonManager.add(definition[, ...])
-spoon.SpoonManager.clear()
-spoon.SpoonManager.install([definition[, ...]])
-spoon.SpoonManager.update([definition[, ...]])
+spoon.SpoonManager.from.default
+    .spoon("TimeMachineProgress")
+    .onLocalChanges("backup")
+    .update()
 ```
 
-`add()` stores definitions in `SpoonManager.definitions`.
+Example, force overwrite:
+
+```lua
+spoon.SpoonManager.from.default
+    .spoon("TimeMachineProgress")
+    .onLocalChanges("overwrite")
+    .update()
+```
+
+### `definition.add()`
+
+Adds this definition to `SpoonManager.definitions` and returns the same definition.
+
+It does not install anything by itself.
+
+Example:
+
+```lua
+spoon.SpoonManager.from.default
+    .spoon("Emojis")
+    .use({
+        start = true,
+    })
+    .add()
+
+spoon.SpoonManager.install()
+```
+
+### `definition.install()`
+
+Installs this definition synchronously.
+
+If the Spoon is already installed, `install()` skips the download and only applies `use()` options.
+
+Example:
+
+```lua
+local result, err =
+    spoon.SpoonManager.from.default
+        .spoon("Emojis")
+        .install()
+
+if not result then
+    print(err)
+end
+```
+
+Example with use options:
+
+```lua
+spoon.SpoonManager.from.default
+    .spoon("TimeMachineProgress")
+    .use({
+        start = true,
+    })
+    .install()
+```
+
+### `definition.update()`
+
+Updates this definition synchronously.
+
+Unlike `install()`, `update()` fetches the external source again. Before replacing an existing Spoon, it checks whether the local files still match the checksum stored from the last SpoonManager install or update.
+
+Example:
+
+```lua
+local result, err =
+    spoon.SpoonManager.from.default
+        .spoon("TimeMachineProgress")
+        .update()
+
+if not result then
+    print(err)
+end
+```
+
+Example with backup if local files are unmanaged or changed:
+
+```lua
+spoon.SpoonManager.from.default
+    .spoon("TimeMachineProgress")
+    .onLocalChanges("backup")
+    .update()
+```
+
+### `definition.build()`
+
+Returns the plain Lua table behind a definition builder.
+
+This is useful for debugging, storing definitions, or generating a future `spoonify.json`.
+
+Example:
+
+```lua
+local definition =
+    spoon.SpoonManager.from.default
+        .spoon("Emojis")
+        .use({
+            start = true,
+        })
+
+print(hs.inspect(definition.build()))
+```
+
+### `SpoonManager.add(definition[, ...])`
+
+Adds one or more definitions to `SpoonManager.definitions`.
+
+It does not install anything by itself.
+
+Example:
+
+```lua
+local emojis =
+    spoon.SpoonManager.from.default
+        .spoon("Emojis")
+
+local timeMachine =
+    spoon.SpoonManager.from.default
+        .spoon("TimeMachineProgress")
+        .use({
+            start = true,
+        })
+
+spoon.SpoonManager.add(emojis, timeMachine)
+spoon.SpoonManager.install()
+```
+
+### `SpoonManager.clear()`
 
 `clear()` removes all definitions currently stored in `SpoonManager.definitions`.
 It only clears the in-memory definition list. It does not remove installed
 Spoons and it does not delete install metadata from `installed.json`.
 
-`install()` with arguments installs those definitions. Without arguments, it installs the added definitions.
+Example:
 
-`update()` works the same way, but fetches the external source again instead of skipping an already installed Spoon.
+```lua
+spoon.SpoonManager.add(
+    spoon.SpoonManager.from.default.spoon("Emojis")
+)
+
+spoon.SpoonManager.clear()
+spoon.SpoonManager.install()
+```
+
+In this example, `install()` has nothing to do after `clear()`.
+
+### `SpoonManager.install([definition[, ...]])`
+
+Installs definitions synchronously.
+
+With arguments, it installs the passed definitions.
+
+Without arguments, it installs definitions previously added with `SpoonManager.add()` or `definition.add()`.
+
+Example with arguments:
+
+```lua
+local emojis =
+    spoon.SpoonManager.from.default
+        .spoon("Emojis")
+
+spoon.SpoonManager.install(emojis)
+```
+
+Example with added definitions:
+
+```lua
+spoon.SpoonManager.from.default
+    .spoon("Emojis")
+    .add()
+
+spoon.SpoonManager.from.default
+    .spoon("TimeMachineProgress")
+    .add()
+
+spoon.SpoonManager.install()
+```
+
+### `SpoonManager.update([definition[, ...]])`
+
+Updates definitions synchronously.
+
+With arguments, it updates the passed definitions.
+
+Without arguments, it updates definitions previously added with `SpoonManager.add()` or `definition.add()`.
+
+Example:
+
+```lua
+spoon.SpoonManager.from.default
+    .spoon("TimeMachineProgress")
+    .add()
+
+spoon.SpoonManager.update()
+```
+
+Example with explicit definition:
+
+```lua
+local timeMachine =
+    spoon.SpoonManager.from.default
+        .spoon("TimeMachineProgress")
+
+spoon.SpoonManager.update(timeMachine)
+```
 
 ### Results
 
