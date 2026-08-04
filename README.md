@@ -811,6 +811,37 @@ spoon.SpoonManager.from.default
     .update()
 ```
 
+### `SpoonManager.onLocalChanges(behavior)`
+
+Sets the default behavior for existing or locally changed Spoons.
+
+This default is used by `install()` and `update()` unless a definition sets its own behavior with `definition.onLocalChanges(behavior)`.
+
+Example, default to backup:
+
+```lua
+spoon.SpoonManager.onLocalChanges(
+    spoon.SpoonManager.options.localChanges.backup
+)
+
+spoon.SpoonManager.from.default
+    .spoon("TimeMachineProgress")
+    .update()
+```
+
+Example, definition overrides the manager default:
+
+```lua
+spoon.SpoonManager.onLocalChanges(
+    spoon.SpoonManager.options.localChanges.backup
+)
+
+spoon.SpoonManager.from.default
+    .spoon("TimeMachineProgress")
+    .onLocalChanges(spoon.SpoonManager.options.localChanges.abort)
+    .update()
+```
+
 ### `definition.onLocalChanges(behavior)`
 
 Returns a new definition with explicit behavior for existing or locally changed Spoons.

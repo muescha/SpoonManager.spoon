@@ -63,6 +63,16 @@ function obj._isLocalChangesBehavior(behavior)
     return false
 end
 
+--- SpoonManager.onLocalChanges(behavior) -> SpoonManager
+--- Function
+--- Set the default behavior for existing or locally changed Spoons.
+function obj.onLocalChanges(behavior)
+    assert(obj._isLocalChangesBehavior(behavior), "Invalid local changes behavior: " .. tostring(behavior))
+
+    obj.installOptions.onLocalChanges = behavior
+    return obj
+end
+
 local spoonPath = hs.spoons.scriptPath()
 local function loadLib(name)
     return dofile(spoonPath .. "/lib/" .. name .. ".lua")
