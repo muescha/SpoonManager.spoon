@@ -170,7 +170,6 @@ local function inferSpoonName(value, kind)
     cleaned = cleaned:gsub("/+$", "")
 
     local last = cleaned:match("([^/]+)$") or cleaned
-    last = last:gsub("%.spoon%.zip$", "")
     last = last:gsub("%.zip$", "")
     last = last:gsub("%.spoon$", "")
 

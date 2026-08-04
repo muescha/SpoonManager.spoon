@@ -194,10 +194,11 @@ SpoonManager tries to infer the installed Spoon name when no explicit name is gi
 The inferred name is normalized by removing these suffixes:
 
 ```text
-.spoon.zip
 .zip
 .spoon
 ```
+
+Suffixes are removed in order, so `name.spoon.zip` becomes `name.spoon` and then `name`.
 
 Examples:
 
