@@ -3,7 +3,7 @@ local GitHub = {}
 function GitHub.archiveUrl(source)
     local ref = source.ref or "main"
     return string.format(
-        "%s/%s/archive/refs/heads/%s.zip",
+        "%s/%s/archive/%s.zip",
         source.baseUrl or "https://github.com",
         source.repository,
         ref
