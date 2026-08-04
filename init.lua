@@ -140,7 +140,7 @@ local function safeName(name)
         return nil
     end
 
-    name = tostring(name):gsub("%.spoon$", "")
+    name = tostring(name)
     if name:find("[/\\]") or name:find("%.%.", 1, true) then
         return nil
     end
@@ -148,13 +148,33 @@ local function safeName(name)
     return name
 end
 
-local function inferSpoonNameFromPath(path)
-    if not path then
+local function inferSpoonName(value)
+    if not value then
         return nil
     end
 
-    local last = path:gsub("/+$", ""):match("([^/]+)$")
+    local cleaned = tostring(value)
+    cleaned = cleaned:gsub("[?#].*$", "")
+    cleaned = cleaned:gsub("/+$", "")
+
+    local last = cleaned:match("([^/]+)$") or cleaned
+    last = last:gsub("%.spoon%.zip$", "")
+    last = last:gsub("%.zip$", "")
+    last = last:gsub("%.spoon$", "")
+
     return safeName(last)
+end
+
+local function inferSpoonNameFromSource(source)
+    if not source then
+        return nil
+    end
+
+    return inferSpoonName(source.name)
+        or inferSpoonName(source.path)
+        or inferSpoonName(source.asset)
+        or inferSpoonName(source.url)
+        or inferSpoonName(source.repository)
 end
 
 local function substitutePattern(pattern, name)
@@ -280,7 +300,7 @@ end
 local function normalizeDefinition(definition)
     local def = copyTable(definition)
     def.options = mergeTables(obj.installOptions, def.options or {})
-    def.name = safeName(def.name or inferSpoonNameFromPath(def.source and def.source.path))
+    def.name = inferSpoonName(def.name) or inferSpoonNameFromSource(def.source)
     return def
 end
 
@@ -586,7 +606,7 @@ local function definitionFromState(state)
 
     api.asSpoon = function(name)
         local nextDef = copyTable(def)
-        nextDef.name = safeName(name)
+        nextDef.name = inferSpoonName(name)
         return definitionFromState(nextDef)
     end
 
@@ -625,6 +645,15 @@ local function sourceFromState(state)
     local source = copyTable(state)
     local api = {}
 
+    local function rootDefinition()
+        return definitionFromState({
+            name = inferSpoonNameFromSource(source),
+            source = mergeTables(source, {
+                type = source.type == "github" and "github-repository" or source.type,
+            }),
+        })
+    end
+
     api.build = function()
         return copyTable(source)
     end
@@ -650,7 +679,7 @@ local function sourceFromState(state)
     end
 
     api.spoon = function(name)
-        local spoonName = safeName(name)
+        local spoonName = inferSpoonName(name)
         assert(spoonName, "Invalid Spoon name")
 
         if source.spoonZipPattern then
@@ -679,7 +708,7 @@ local function sourceFromState(state)
     api.folder = function(path)
         if source.type == "local-folder" then
             return definitionFromState({
-                name = inferSpoonNameFromPath(path),
+                name = inferSpoonName(path),
                 source = {
                     type = "local-folder",
                     path = pathJoin(source.path, path),
@@ -689,7 +718,7 @@ local function sourceFromState(state)
         end
 
         return definitionFromState({
-            name = inferSpoonNameFromPath(path),
+            name = inferSpoonName(path),
             source = mergeTables(source, {
                 type = source.type == "github" and "github-folder" or "folder",
                 path = path,
@@ -715,18 +744,38 @@ local function sourceFromState(state)
         local nextSource = copyTable(source)
         nextSource.asset = assetName
         return definitionFromState({
-            name = inferSpoonNameFromPath(assetName),
+            name = inferSpoonName(assetName),
             source = nextSource,
         })
     end
 
     api.asSpoon = function(name)
         return definitionFromState({
-            name = safeName(name),
+            name = inferSpoonName(name),
             source = mergeTables(source, {
                 type = source.type == "github" and "github-repository" or source.type,
             }),
         })
+    end
+
+    api.use = function(useOptions)
+        return rootDefinition().use(useOptions)
+    end
+
+    api.onLocalChanges = function(behavior)
+        return rootDefinition().onLocalChanges(behavior)
+    end
+
+    api.add = function()
+        return rootDefinition().add()
+    end
+
+    api.install = function()
+        return rootDefinition().install()
+    end
+
+    api.update = function()
+        return rootDefinition().update()
     end
 
     return setmetatable(api, Source)
@@ -737,6 +786,7 @@ end
 --- Create a Spoon definition from a remote zip URL.
 function obj.from.zip(url)
     return definitionFromState({
+        name = inferSpoonName(url),
         source = {
             type = "zip",
             url = url,
@@ -748,10 +798,13 @@ end
 --- Function
 --- Create a Spoon definition from a local zip file.
 function obj.from.localZip(path)
+    path = localPath(path)
+
     return definitionFromState({
+        name = inferSpoonName(path),
         source = {
             type = "local-zip",
-            path = localPath(path),
+            path = path,
         },
     })
 end
@@ -763,7 +816,7 @@ function obj.from.localFolder(path)
     path = localPath(path)
 
     return definitionFromState({
-        name = inferSpoonNameFromPath(path),
+        name = inferSpoonName(path),
         source = {
             type = "local-folder",
             path = path,
@@ -780,6 +833,7 @@ function obj.from.github(repository, options)
         type = "github",
         provider = "github",
         repository = repository,
+        name = inferSpoonName(repository),
         ref = options.ref or options.branch or "main",
         baseUrl = options.baseUrl or "https://github.com",
     })

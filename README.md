@@ -157,6 +157,128 @@ Allowed values:
 - `"backup"`: move the existing Spoon aside first
 - `"overwrite"`: replace the existing Spoon
 
+## Name Inference
+
+SpoonManager tries to infer the installed Spoon name when no explicit name is given.
+
+The inferred name is normalized by removing these suffixes:
+
+```text
+.spoon.zip
+.zip
+.spoon
+```
+
+Examples:
+
+| Input | Inferred Spoon name |
+|---|---|
+| `name.zip` | `name` |
+| `name.spoon.zip` | `name` |
+| `name.spoon` | `name` |
+| `folder/lastfoldername` | `lastfoldername` |
+| `folder/lastfoldername.spoon` | `lastfoldername` |
+| `user/reponame` | `reponame` |
+| `user/reponame.spoon` | `reponame` |
+| `asset("name.zip")` | `name` |
+| `asset("name.spoon.zip")` | `name` |
+
+Remote ZIP URL:
+
+```lua
+spoon.SpoonManager.from.zip("https://example.com/name.spoon.zip")
+    .install()
+```
+
+Installs as:
+
+```text
+name
+```
+
+Local ZIP:
+
+```lua
+spoon.SpoonManager.from.localZip("~/Downloads/name.zip")
+    .install()
+```
+
+Installs as:
+
+```text
+name
+```
+
+Local folder:
+
+```lua
+spoon.SpoonManager.from.localFolder("~/Projects/name.spoon")
+    .install()
+```
+
+Installs as:
+
+```text
+name
+```
+
+GitHub repository root:
+
+```lua
+spoon.SpoonManager.from.github("user/reponame.spoon")
+    .install()
+```
+
+Installs as:
+
+```text
+reponame
+```
+
+GitHub folder:
+
+```lua
+spoon.SpoonManager.from.github("user/repo")
+    .folder("Source/deepfolder.spoon")
+    .install()
+```
+
+Installs as:
+
+```text
+deepfolder
+```
+
+GitHub release asset:
+
+```lua
+spoon.SpoonManager.from.github("user/repo")
+    .releaseLatest()
+    .asset("name.spoon.zip")
+    .install()
+```
+
+Installs as:
+
+```text
+name
+```
+
+Use `.asSpoon(name)` to override the inferred name:
+
+```lua
+spoon.SpoonManager.from.github("user/repo")
+    .folder("Source/deepfolder")
+    .asSpoon("BetterName")
+    .install()
+```
+
+Installs as:
+
+```text
+BetterName
+```
+
 ## API
 
 The API has three layers:
@@ -187,9 +309,10 @@ Example, repository root is the Spoon:
 
 ```lua
 spoon.SpoonManager.from.github("muescha/MySpoon.spoon")
-    .asSpoon("MySpoon")
     .install()
 ```
+
+This infers the Spoon name as `MySpoon`.
 
 Example, Spoon is in a subfolder:
 
@@ -207,7 +330,7 @@ Creates a definition builder from a remote ZIP URL.
 
 Use this when you already know the exact ZIP URL. The ZIP may contain a `.spoon` folder, a single root folder with `init.lua`, or `init.lua` directly at the ZIP root.
 
-Free ZIP sources should usually be followed by `.asSpoon(name)` so SpoonManager knows the installation name.
+The Spoon name is inferred from the ZIP URL. Use `.asSpoon(name)` to override it.
 
 Example:
 
@@ -233,7 +356,7 @@ Creates a definition builder from a local ZIP file.
 
 `path` may use `~` when Hammerspoon can resolve it with `hs.fs.pathToAbsolute()`.
 
-Local ZIP sources should usually be followed by `.asSpoon(name)` so SpoonManager knows the installation name.
+The Spoon name is inferred from the ZIP filename. Use `.asSpoon(name)` to override it.
 
 Example:
 
@@ -496,6 +619,84 @@ spoon.SpoonManager.from.github("muescha/SpoonRepo")
     .folder("Source/deepfolder")
     .asSpoon("DeepFolder")
     .install()
+```
+
+### `source.use(options)`
+
+Shortcut for repository-root installs. It creates a definition from the current source, infers the name, and applies `definition.use(options)`.
+
+Example:
+
+```lua
+spoon.SpoonManager.from.github("muescha/MySpoon.spoon")
+    .use({
+        start = true,
+    })
+    .install()
+```
+
+This is equivalent to:
+
+```lua
+spoon.SpoonManager.from.github("muescha/MySpoon.spoon")
+    .asSpoon("MySpoon")
+    .use({
+        start = true,
+    })
+    .install()
+```
+
+### `source.onLocalChanges(behavior)`
+
+Shortcut for repository-root installs. It creates a definition from the current source, infers the name, and applies `definition.onLocalChanges(behavior)`.
+
+Example:
+
+```lua
+spoon.SpoonManager.from.github("muescha/MySpoon.spoon")
+    .onLocalChanges("backup")
+    .update()
+```
+
+### `source.add()`
+
+Shortcut for repository-root installs. It creates a definition from the current source, infers the name, and adds it to `SpoonManager.definitions`.
+
+Example:
+
+```lua
+spoon.SpoonManager.from.github("muescha/MySpoon.spoon")
+    .add()
+
+spoon.SpoonManager.install()
+```
+
+### `source.install()`
+
+Shortcut for repository-root installs. It creates a definition from the current source, infers the name, and installs it.
+
+Example:
+
+```lua
+spoon.SpoonManager.from.github("muescha/MySpoon.spoon")
+    .install()
+```
+
+Installs as:
+
+```text
+MySpoon
+```
+
+### `source.update()`
+
+Shortcut for repository-root updates. It creates a definition from the current source, infers the name, and updates it.
+
+Example:
+
+```lua
+spoon.SpoonManager.from.github("muescha/MySpoon.spoon")
+    .update()
 ```
 
 ### `source.build()`
