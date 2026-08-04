@@ -117,7 +117,6 @@ SpoonManager.spoon/
     ├── Name.lua
     ├── Paths.lua
     ├── Registry.lua
-    ├── Source.lua
     └── Util.lua
 ```
 
@@ -130,7 +129,6 @@ The modules have narrow responsibilities:
 - `Name.lua`: Spoon name inference and name logging
 - `Paths.lua`: install and metadata paths
 - `Registry.lua`: `installed.json` read/write
-- `Source.lua`: source builder methods
 - `Util.lua`: small shared helpers
 
 ## Examples
@@ -345,17 +343,39 @@ Name inference and explicit name overrides are logged at debug level. See [Logge
 
 ## API
 
-The API has three layers:
+The API has two layers:
 
-- source factories create a source
-- source builders refine that source into a Spoon definition
+- `SpoonManager.from.*` factories create definition builders
 - definition and manager actions install or update Spoons
 
 All builder calls use dot notation and do not install anything until `install()` or `update()` is called.
 
+A definition contains the Spoon name, source information, use options, and install options. It can start broad, such as a GitHub repository, and become more specific with calls like `folder(...)`, `asset(...)`, or `asSpoon(...)`.
+
+### `SpoonManager.from.config(config)`
+
+Creates a definition builder from a plain Lua table.
+
+Use this when a definition was previously exported with `definition.toConfig()` or loaded from a future manifest file.
+
+Example:
+
+```lua
+local config =
+    spoon.SpoonManager.from.default
+        .spoon("Emojis")
+        .use({
+            start = true,
+        })
+        .toConfig()
+
+spoon.SpoonManager.from.config(config)
+    .install()
+```
+
 ### `SpoonManager.from.github(repository[, options])`
 
-Creates a GitHub source builder.
+Creates a GitHub repository definition.
 
 `repository` is the GitHub repository in `owner/repo` form.
 
@@ -489,9 +509,9 @@ spoon.SpoonManager.from.default
     .install()
 ```
 
-### `source.branch(name)`
+### `definition.branch(name)`
 
-Returns a new source builder using the given branch name.
+Returns a new definition using the given branch name.
 
 This is a readable shortcut for branch-based GitHub sources.
 
@@ -508,9 +528,9 @@ spoon.SpoonManager.from.github("muescha/SpoonRepo")
     .install()
 ```
 
-### `source.ref(name)`
+### `definition.ref(name)`
 
-Returns a new source builder using a raw GitHub ref.
+Returns a new definition using a raw GitHub ref.
 
 Use this when the source should point to something more general than a branch. GitHub archive and raw URLs accept branches, tags, and commit SHAs in the same ref position.
 
@@ -534,9 +554,9 @@ spoon.SpoonManager.from.github("muescha/SpoonRepo")
     .install()
 ```
 
-### `source.spoonZipPattern(pattern)`
+### `definition.spoonZipPattern(pattern)`
 
-Returns a new source builder that knows how to turn a Spoon name into a ZIP path.
+Returns a new definition that knows how to turn a Spoon name into a ZIP path.
 
 The pattern may contain `{name}`.
 
@@ -558,9 +578,9 @@ This resolves to:
 https://github.com/muescha/SpoonRepo/raw/main/dist/MySpoon.zip
 ```
 
-### `source.spoonFolderPattern(pattern)`
+### `definition.spoonFolderPattern(pattern)`
 
-Returns a new source builder that knows how to turn a Spoon name into a folder path.
+Returns a new definition that knows how to turn a Spoon name into a folder path.
 
 The pattern may contain `{name}`.
 
@@ -576,7 +596,7 @@ repo.spoon("MySpoon")
     .install()
 ```
 
-### `source.spoon(name)`
+### `definition.spoon(name)`
 
 Creates a Spoon definition from a known Spoon name.
 
@@ -603,9 +623,9 @@ spoon.SpoonManager.from.github("muescha/SpoonRepo")
     .install()
 ```
 
-### `source.folder(path)`
+### `definition.folder(path)`
 
-Creates a Spoon definition from a folder inside the source.
+Creates a Spoon definition from a folder inside the repository or local folder.
 
 For GitHub sources, SpoonManager downloads the generated repository archive and extracts only the selected folder.
 
@@ -641,9 +661,9 @@ spoon.SpoonManager.from.github("muescha/SpoonRepo")
     .install()
 ```
 
-### `source.releaseLatest()`
+### `definition.releaseLatest()`
 
-Returns a new GitHub release source for the latest stable release.
+Returns a new GitHub release definition for the latest stable release.
 
 This does not call the GitHub API. It uses GitHub's stable latest-release download path once `asset(name)` is selected.
 
@@ -663,9 +683,9 @@ Resolved URL:
 https://github.com/muescha/MySpoon.spoon/releases/latest/download/MySpoon.zip
 ```
 
-### `source.release(name)`
+### `definition.release(name)`
 
-Returns a new GitHub release source for a specific release tag.
+Returns a new GitHub release definition for a specific release tag.
 
 Example:
 
@@ -683,7 +703,7 @@ Resolved URL:
 https://github.com/muescha/MySpoon.spoon/releases/download/v1.2.0/MySpoon.zip
 ```
 
-### `source.asset(name)`
+### `definition.asset(name)`
 
 Selects a release asset and returns a Spoon definition.
 
@@ -701,141 +721,24 @@ spoon.SpoonManager.from.github("muescha/MySpoon.spoon")
     .install()
 ```
 
-### `source.asSpoon(name)`
-
-Creates a Spoon definition from the current source and forces the installed Spoon name.
-
-This is useful when the inferred name is not the name you want. For example, a folder named `Source/deepfolder` is inferred as `deepfolder`; use `asSpoon("DeepFolder")` if the installed Spoon should be named `DeepFolder`.
-
-Example, repository root:
-
-```lua
-spoon.SpoonManager.from.github("muescha/MySpoon.spoon")
-    .asSpoon("MySpoon")
-    .install()
-```
-
-Example, selected folder with custom install name:
-
-```lua
-spoon.SpoonManager.from.github("muescha/SpoonRepo")
-    .folder("Source/deepfolder")
-    .asSpoon("DeepFolder")
-    .install()
-```
-
-### `source.use(options)`
-
-Creates a repository-root Spoon definition and stores options that are applied through `hs.spoons.use()` after install, update, or install-skip.
-
-Use this when the whole source should be installed as one Spoon and you want to load, configure, bind hotkeys, or start it in the same step.
-
-Example:
-
-```lua
-spoon.SpoonManager.from.github("muescha/MySpoon.spoon")
-    .use({
-        start = true,
-    })
-    .install()
-```
-
-Example with config and hotkeys:
-
-```lua
-spoon.SpoonManager.from.github("muescha/MySpoon.spoon")
-    .use({
-        config = {
-            enabled = true,
-        },
-        hotkeys = {
-            toggle = {
-                { "cmd", "alt" },
-                "T",
-            },
-        },
-        start = true,
-    })
-    .install()
-```
-
-### `source.onLocalChanges(behavior)`
-
-Shortcut for repository-root installs. It creates a definition from the current source, infers the name, and applies `definition.onLocalChanges(behavior)`.
-
-Example:
-
-```lua
-spoon.SpoonManager.from.github("muescha/MySpoon.spoon")
-    .onLocalChanges("backup")
-    .update()
-```
-
-### `source.add()`
-
-Shortcut for repository-root installs. It creates a definition from the current source, infers the name, and adds it to `SpoonManager.definitions`.
-
-Example:
-
-```lua
-spoon.SpoonManager.from.github("muescha/MySpoon.spoon")
-    .add()
-
-spoon.SpoonManager.install()
-```
-
-### `source.install()`
-
-Shortcut for repository-root installs. It creates a definition from the current source, infers the name, and installs it.
-
-Example:
-
-```lua
-spoon.SpoonManager.from.github("muescha/MySpoon.spoon")
-    .install()
-```
-
-Installs as:
-
-```text
-MySpoon
-```
-
-### `source.update()`
-
-Shortcut for repository-root updates. It creates a definition from the current source, infers the name, and updates it.
-
-Example:
-
-```lua
-spoon.SpoonManager.from.github("muescha/MySpoon.spoon")
-    .update()
-```
-
-### `source.build()`
-
-Returns the plain Lua table behind a source builder.
-
-This is useful for debugging or for writing a future `spoonify.json`.
-
-Example:
-
-```lua
-local source =
-    spoon.SpoonManager.from.github("muescha/SpoonRepo")
-        .branch("main")
-
-print(hs.inspect(source.build()))
-```
-
 ### `definition.asSpoon(name)`
 
 Returns a new definition with a specific installed Spoon name.
+
+This is useful when the inferred name is not the name you want. For example, a folder named `Source/deepfolder` is inferred as `deepfolder`; use `asSpoon("DeepFolder")` if the installed Spoon should be named `DeepFolder`.
 
 Example:
 
 ```lua
 spoon.SpoonManager.from.zip("https://example.com/download.zip")
+    .asSpoon("MySpoon")
+    .install()
+```
+
+Example, repository root:
+
+```lua
+spoon.SpoonManager.from.github("muescha/MySpoon.spoon")
     .asSpoon("MySpoon")
     .install()
 ```
@@ -992,7 +895,7 @@ spoon.SpoonManager.from.default
     .update()
 ```
 
-### `definition.build()`
+### `definition.toConfig()`
 
 Returns the plain Lua table behind a definition builder.
 
@@ -1008,7 +911,7 @@ local definition =
             start = true,
         })
 
-print(hs.inspect(definition.build()))
+print(hs.inspect(definition.toConfig()))
 ```
 
 ### `SpoonManager.add(definition[, ...])`
