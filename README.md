@@ -104,18 +104,10 @@ Allowed values:
 Create source or definition builders. These calls do not install anything.
 
 ```lua
-spoon.SpoonManager.from.default
-spoon.SpoonManager.from.internal
 spoon.SpoonManager.from.github(repository[, options])
 spoon.SpoonManager.from.zip(url)
 spoon.SpoonManager.from.localZip(path)
 spoon.SpoonManager.from.localFolder(path)
-```
-
-`from.default` and `from.internal` point to the official Hammerspoon/Spoons repository and use this ZIP convention:
-
-```text
-Spoons/{name}.spoon.zip
 ```
 
 `from.github(repository[, options])` accepts:
@@ -126,6 +118,18 @@ Spoons/{name}.spoon.zip
     ref = "main",
     baseUrl = "https://github.com",
 }
+```
+
+There is also one built-in source alias:
+
+```lua
+spoon.SpoonManager.from.default
+```
+
+It points to `Hammerspoon/Spoons` on branch `master` and uses this ZIP convention:
+
+```text
+Spoons/{name}.spoon.zip
 ```
 
 ### Source builder

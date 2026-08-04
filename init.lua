@@ -856,10 +856,8 @@ function obj.update(...)
     return runDefinitions("update", ...)
 end
 
-obj.from.internal = obj.from.github("Hammerspoon/Spoons", {
+obj.from.default = obj.from.github("Hammerspoon/Spoons", {
     branch = "master",
 }).spoonZipPattern("Spoons/{name}.spoon.zip")
-
-obj.from.default = obj.from.internal
 
 return obj
