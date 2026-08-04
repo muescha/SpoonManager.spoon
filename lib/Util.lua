@@ -103,4 +103,21 @@ function Util.localPath(path)
     return path
 end
 
+function Util.isZipPath(value)
+    if type(value) ~= "string" then
+        return false
+    end
+
+    local path = value:gsub("[?#].*$", ""):lower()
+    return path:match("%.zip$") ~= nil
+end
+
+function Util.requireZipPath(value, label)
+    if not Util.isZipPath(value) then
+        error(string.format("%s must point to a .zip file: %s", label or "ZIP source", tostring(value)), 3)
+    end
+
+    return value
+end
+
 return Util

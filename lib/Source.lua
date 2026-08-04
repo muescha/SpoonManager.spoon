@@ -38,6 +38,8 @@ return function(context)
         api.ref = api.branch
 
         api.spoonZipPattern = function(pattern)
+            util.requireZipPath(pattern, "Spoon ZIP pattern")
+
             local nextSource = util.copyTable(source)
             nextSource.spoonZipPattern = pattern
             return fromState(nextSource)
@@ -112,6 +114,8 @@ return function(context)
         end
 
         api.asset = function(assetName)
+            util.requireZipPath(assetName, "Release asset")
+
             local nextSource = util.copyTable(source)
             nextSource.asset = assetName
             return definition.fromState({

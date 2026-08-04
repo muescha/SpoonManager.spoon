@@ -70,6 +70,8 @@ end
 --- Function
 --- Create a Spoon definition from a remote zip URL.
 function obj.from.zip(url)
+    Util.requireZipPath(url, "Remote ZIP URL")
+
     return context.definition.fromState({
         name = context.name.infer(url, "URL"),
         source = {
@@ -84,6 +86,7 @@ end
 --- Create a Spoon definition from a local zip file.
 function obj.from.localZip(path)
     path = Util.localPath(path)
+    Util.requireZipPath(path, "Local ZIP path")
 
     return context.definition.fromState({
         name = context.name.infer(path, "local zip path"),

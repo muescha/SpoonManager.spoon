@@ -398,6 +398,8 @@ Creates a definition builder from a remote ZIP URL.
 
 Use this when you already know the exact ZIP URL. The ZIP may contain a `.spoon` folder, a single root folder with `init.lua`, or `init.lua` directly at the ZIP root.
 
+The URL must point to a `.zip` file. Other archive formats are rejected.
+
 The Spoon name is inferred from the ZIP URL. Use `.asSpoon(name)` to override it.
 
 Example:
@@ -423,6 +425,8 @@ spoon.SpoonManager.from.zip(
 Creates a definition builder from a local ZIP file.
 
 `path` may use `~` when Hammerspoon can resolve it with `hs.fs.pathToAbsolute()`.
+
+The path must point to a `.zip` file. Other archive formats are rejected.
 
 The Spoon name is inferred from the ZIP filename. Use `.asSpoon(name)` to override it.
 
@@ -684,6 +688,8 @@ https://github.com/muescha/MySpoon.spoon/releases/download/v1.2.0/MySpoon.zip
 Selects a release asset and returns a Spoon definition.
 
 Usually used after `releaseLatest()` or `release(name)`.
+
+The asset name must end in `.zip`. Other archive formats are rejected.
 
 Example:
 

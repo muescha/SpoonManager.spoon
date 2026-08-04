@@ -51,6 +51,18 @@ return function(context)
             return nil, "Spoon definition requires a Spoon name. Add .asSpoon(\"Name\")."
         end
 
+        if definition.source.type == "zip" and not util.isZipPath(definition.source.url) then
+            return nil, "Remote ZIP URL must point to a .zip file"
+        end
+
+        if definition.source.type == "local-zip" and not util.isZipPath(definition.source.path) then
+            return nil, "Local ZIP path must point to a .zip file"
+        end
+
+        if definition.source.type == "github-release" and not util.isZipPath(definition.source.asset) then
+            return nil, "GitHub release asset must point to a .zip file"
+        end
+
         return true
     end
 
