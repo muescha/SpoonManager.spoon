@@ -250,10 +250,17 @@ Batch actions return:
 After a successful install or update, SpoonManager stores install metadata here:
 
 ```text
-~/.hammerspoon/SpoonManager/installed.json
+~/.hammerspoon/.config/SpoonManager/installed.json
 ```
 
 It contains the source and a checksum of the installed Spoon folder. That checksum is used to detect local changes before `update()`.
+
+The directory can be overridden:
+
+```lua
+spoon.SpoonManager.configDir =
+    hs.configdir .. "/.config/SpoonManager"
+```
 
 ## Notes
 

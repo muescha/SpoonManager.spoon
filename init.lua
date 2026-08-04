@@ -52,6 +52,8 @@ local function pathJoin(...)
     return path
 end
 
+obj.configDir = pathJoin(hs.configdir, ".config", "SpoonManager")
+
 local function localPath(path)
     if hs.fs.pathToAbsolute then
         return hs.fs.pathToAbsolute(path) or path
@@ -241,7 +243,7 @@ local function checksumDirectory(path)
 end
 
 local function registryPath()
-    return pathJoin(hs.configdir, "SpoonManager", "installed.json")
+    return pathJoin(obj.configDir, "installed.json")
 end
 
 local function readRegistry()
