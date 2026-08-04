@@ -279,6 +279,8 @@ Installs as:
 BetterName
 ```
 
+Name inference and explicit name overrides are logged at debug level through `SpoonManager.logger`.
+
 ## API
 
 The API has three layers:
