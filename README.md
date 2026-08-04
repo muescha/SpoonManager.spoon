@@ -248,7 +248,7 @@ Examples:
 Remote ZIP URL:
 
 ```lua
-spoon.SpoonManager.from.zip("https://example.com/name.spoon.zip")
+spoon.SpoonManager.from.remoteZip("https://example.com/name.spoon.zip")
     .install()
 ```
 
@@ -414,7 +414,7 @@ spoon.SpoonManager.from.github("muescha/SpoonRepo", {
     .install()
 ```
 
-### `SpoonManager.from.zip(url)`
+### `SpoonManager.from.remoteZip(url)`
 
 Creates a definition builder from a remote ZIP URL.
 
@@ -427,7 +427,7 @@ The Spoon name is inferred from the ZIP URL. Use `.asSpoon(name)` to override it
 Example:
 
 ```lua
-spoon.SpoonManager.from.zip("https://example.com/MySpoon.zip")
+spoon.SpoonManager.from.remoteZip("https://example.com/MySpoon.zip")
     .asSpoon("MySpoon")
     .install()
 ```
@@ -435,7 +435,7 @@ spoon.SpoonManager.from.zip("https://example.com/MySpoon.zip")
 Example, GitHub latest release asset as a plain ZIP URL:
 
 ```lua
-spoon.SpoonManager.from.zip(
+spoon.SpoonManager.from.remoteZip(
     "https://github.com/muescha/MySpoon.spoon/releases/latest/download/MySpoon.zip"
 )
     .asSpoon("MySpoon")
@@ -732,7 +732,7 @@ This is useful when the inferred name is not the name you want. For example, a f
 Example:
 
 ```lua
-spoon.SpoonManager.from.zip("https://example.com/download.zip")
+spoon.SpoonManager.from.remoteZip("https://example.com/download.zip")
     .asSpoon("MySpoon")
     .install()
 ```

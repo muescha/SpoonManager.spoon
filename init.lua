@@ -108,10 +108,10 @@ function obj.from.config(config)
     return context.definition.fromState(config)
 end
 
---- SpoonManager.from.zip(url) -> definition
+--- SpoonManager.from.remoteZip(url) -> definition
 --- Function
 --- Create a Spoon definition from a remote zip URL.
-function obj.from.zip(url)
+function obj.from.remoteZip(url)
     Util.requireZipPath(url, "Remote ZIP URL")
 
     return context.definition.fromState({
