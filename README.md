@@ -209,6 +209,10 @@ spoon.SpoonManager.update([definition[, ...]])
 
 `add()` stores definitions in `SpoonManager.definitions`.
 
+`clear()` removes all definitions currently stored in `SpoonManager.definitions`.
+It only clears the in-memory definition list. It does not remove installed
+Spoons and it does not delete install metadata from `installed.json`.
+
 `install()` with arguments installs those definitions. Without arguments, it installs the added definitions.
 
 `update()` works the same way, but fetches the external source again instead of skipping an already installed Spoon.
