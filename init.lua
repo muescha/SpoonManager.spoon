@@ -60,10 +60,16 @@ context.registry = loadLib("Registry")(context)
 context.archive = loadLib("Archive")(context)
 context.installer = loadLib("Installer")(context)
 context.definition = loadLib("Definition")(context)
-context.source = loadLib("Source")(context)
 
 function obj._installDefinition(definition, action)
     return context.installer.installDefinition(definition, action)
+end
+
+--- SpoonManager.from.config(config) -> definition
+--- Function
+--- Create a Spoon definition from a plain Lua table.
+function obj.from.config(config)
+    return context.definition.fromState(config)
 end
 
 --- SpoonManager.from.zip(url) -> definition
@@ -112,18 +118,20 @@ function obj.from.localFolder(path)
     })
 end
 
---- SpoonManager.from.github(repository[, options]) -> source
+--- SpoonManager.from.github(repository[, options]) -> definition
 --- Function
---- Create a GitHub source.
+--- Create a GitHub repository definition.
 function obj.from.github(repository, options)
     options = options or {}
-    return context.source.fromState({
-        type = "github",
-        provider = "github",
-        repository = repository,
+    return context.definition.fromState({
         name = context.name.infer(repository, "repository"),
-        ref = options.ref or options.branch or "main",
-        baseUrl = options.baseUrl or "https://github.com",
+        source = {
+            type = "github-repository",
+            provider = "github",
+            repository = repository,
+            ref = options.ref or options.branch or "main",
+            baseUrl = options.baseUrl or "https://github.com",
+        },
     })
 end
 
@@ -134,8 +142,8 @@ function obj.add(...)
     local definitions = { ... }
 
     for _, definition in ipairs(definitions) do
-        if definition.build then
-            table.insert(obj.definitions, definition.build())
+        if definition.toConfig then
+            table.insert(obj.definitions, definition.toConfig())
         else
             table.insert(obj.definitions, Util.copyTable(definition))
         end
@@ -167,7 +175,7 @@ local function runDefinitions(action, ...)
     }
 
     for _, definition in ipairs(definitions) do
-        local installed, err = obj._installDefinition(definition.build and definition.build() or definition, action)
+        local installed, err = obj._installDefinition(definition.toConfig and definition.toConfig() or definition, action)
         if installed then
             if installed.skipped then
                 table.insert(result.skipped, installed)
