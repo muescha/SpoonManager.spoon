@@ -595,7 +595,21 @@ spoon.SpoonManager.from.github("Hammerspoon/Spoons")
     .install()
 ```
 
-If the folder does not end in `.spoon`, use `asSpoon()`:
+If the folder does not end in `.spoon`, SpoonManager still infers the name from the last folder segment:
+
+```lua
+spoon.SpoonManager.from.github("muescha/SpoonRepo")
+    .folder("Source/deepfolder")
+    .install()
+```
+
+Inferred Spoon name:
+
+```text
+deepfolder
+```
+
+Use `asSpoon()` only when the inferred name is not the name you want to install:
 
 ```lua
 spoon.SpoonManager.from.github("muescha/SpoonRepo")
@@ -666,7 +680,7 @@ spoon.SpoonManager.from.github("muescha/MySpoon.spoon")
 
 Creates a Spoon definition from the current source and forces the installed Spoon name.
 
-This is useful when the repository root is the Spoon, or when the source path does not end in `.spoon`.
+This is useful when the inferred name is not the name you want. For example, a folder named `Source/deepfolder` is inferred as `deepfolder`; use `asSpoon("DeepFolder")` if the installed Spoon should be named `DeepFolder`.
 
 Example, repository root:
 
