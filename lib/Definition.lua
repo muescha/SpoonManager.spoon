@@ -20,13 +20,22 @@ return function(context)
         end
 
         api.branch = function(branchName)
+            util.requireString(branchName, "Branch name")
+
             local nextDef = util.copyTable(def)
             nextDef.source = util.copyTable(nextDef.source or {})
             nextDef.source.ref = branchName
             return fromState(nextDef)
         end
 
-        api.ref = api.branch
+        api.ref = function(refName)
+            util.requireString(refName, "Ref name")
+
+            local nextDef = util.copyTable(def)
+            nextDef.source = util.copyTable(nextDef.source or {})
+            nextDef.source.ref = refName
+            return fromState(nextDef)
+        end
 
         api.spoonZipPattern = function(pattern)
             util.requireZipPath(pattern, "Spoon ZIP pattern")
@@ -38,6 +47,8 @@ return function(context)
         end
 
         api.spoonFolderPattern = function(pattern)
+            util.requireString(pattern, "Spoon folder pattern")
+
             local nextDef = util.copyTable(def)
             nextDef.source = util.copyTable(nextDef.source or {})
             nextDef.source.spoonFolderPattern = pattern
@@ -45,6 +56,8 @@ return function(context)
         end
 
         api.spoon = function(value)
+            util.requireString(value, "Spoon name")
+
             local spoonName = nameResolver.infer(value, "Spoon name")
             assert(spoonName, "Invalid Spoon name")
 
@@ -73,6 +86,8 @@ return function(context)
         end
 
         api.folder = function(path)
+            util.requireString(path, "Folder path")
+
             local source = def.source or {}
             local nextSource
             local inferredFrom
@@ -108,6 +123,8 @@ return function(context)
         end
 
         api.release = function(releaseName)
+            util.requireString(releaseName, "Release name")
+
             local nextDef = util.copyTable(def)
             nextDef.source = util.mergeTables(nextDef.source or {}, {
                 type = "github-release",
@@ -128,6 +145,8 @@ return function(context)
         end
 
         api.asSpoon = function(value)
+            util.requireString(value, "Spoon name")
+
             local nextDef = util.copyTable(def)
             nextDef.name = nameResolver.infer(value, "explicit Spoon name")
             nameResolver.logExplicit(nextDef.name, value)

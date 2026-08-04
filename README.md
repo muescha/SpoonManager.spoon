@@ -354,6 +354,8 @@ All builder calls use dot notation and do not install anything until `install()`
 
 A definition contains the Spoon name, source information, use options, and install options. It can start broad, such as a GitHub repository, and become more specific with calls like `folder(...)`, `asset(...)`, or `asSpoon(...)`.
 
+Builder arguments that describe names, paths, refs, URLs, patterns, releases, or assets must be strings. Passing a table, number, or another builder object raises an error instead of being converted with `tostring()`.
+
 ### `SpoonManager.from.config(config)`
 
 Creates a definition builder from a plain Lua table.

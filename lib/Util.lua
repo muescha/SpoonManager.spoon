@@ -96,11 +96,21 @@ function Util.fileExists(path)
 end
 
 function Util.localPath(path)
+    Util.requireString(path, "Local path")
+
     if hs.fs.pathToAbsolute then
         return hs.fs.pathToAbsolute(path) or path
     end
 
     return path
+end
+
+function Util.requireString(value, label)
+    if type(value) ~= "string" then
+        error(string.format("%s must be a string, got %s", label or "Value", type(value)), 3)
+    end
+
+    return value
 end
 
 function Util.isZipPath(value)
@@ -113,6 +123,8 @@ function Util.isZipPath(value)
 end
 
 function Util.requireZipPath(value, label)
+    Util.requireString(value, label or "ZIP source")
+
     if not Util.isZipPath(value) then
         error(string.format("%s must point to a .zip file: %s", label or "ZIP source", tostring(value)), 3)
     end

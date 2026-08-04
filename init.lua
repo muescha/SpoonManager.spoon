@@ -158,7 +158,19 @@ end
 --- Function
 --- Create a GitHub repository definition.
 function obj.from.github(repository, options)
+    Util.requireString(repository, "GitHub repository")
+
     options = options or {}
+    if options.branch then
+        Util.requireString(options.branch, "GitHub branch")
+    end
+    if options.ref then
+        Util.requireString(options.ref, "GitHub ref")
+    end
+    if options.baseUrl then
+        Util.requireString(options.baseUrl, "GitHub base URL")
+    end
+
     return context.definition.fromState({
         name = context.nameResolver.infer(repository, "repository"),
         source = {
