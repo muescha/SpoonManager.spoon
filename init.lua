@@ -139,9 +139,9 @@ end
 --- Function
 --- Add one or more Spoon definitions to the managed definition list.
 function obj.add(...)
-    local definitions = { ... }
+    local items = { ... }
 
-    for _, definition in ipairs(definitions) do
+    for _, definition in ipairs(items) do
         if definition.toConfig then
             table.insert(obj.definitions, definition.toConfig())
         else
