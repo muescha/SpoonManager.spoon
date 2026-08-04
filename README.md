@@ -102,6 +102,37 @@ For quieter output, use:
 spoon.SpoonManager.logger.setLogLevel("info")
 ```
 
+## Project Structure
+
+`init.lua` is intentionally small. It defines the public Spoon object and wires the modules in `lib/` together.
+
+```text
+SpoonManager.spoon/
+├── init.lua
+└── lib/
+    ├── Archive.lua
+    ├── Definition.lua
+    ├── GitHub.lua
+    ├── Installer.lua
+    ├── Name.lua
+    ├── Paths.lua
+    ├── Registry.lua
+    ├── Source.lua
+    └── Util.lua
+```
+
+The modules have narrow responsibilities:
+
+- `Archive.lua`: download and extract ZIP files
+- `Definition.lua`: builder methods for one installable Spoon
+- `GitHub.lua`: GitHub URL construction
+- `Installer.lua`: install, update, local-change checks, and `hs.spoons.use()`
+- `Name.lua`: Spoon name inference and name logging
+- `Paths.lua`: install and metadata paths
+- `Registry.lua`: `installed.json` read/write
+- `Source.lua`: source builder methods
+- `Util.lua`: small shared helpers
+
 ## Examples
 
 Install from the default Hammerspoon Spoons repository using the classic ZIP convention:
