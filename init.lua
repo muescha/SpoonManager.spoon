@@ -466,6 +466,7 @@ local function installFromFolder(definition, sourceFolder)
 
     return {
         success = true,
+        action = "install",
         name = definition.name,
         path = destination,
         source = definition.source,
@@ -500,36 +501,71 @@ local function installFromRemoteZip(definition, url)
     return result, installErr
 end
 
-function obj._installDefinition(definition)
+function obj._installDefinition(definition, action)
     local def = normalizeDefinition(definition)
     local valid, validationError = validateDefinition(def)
     if not valid then
         return nil, validationError
     end
 
+    action = action or "install"
+
+    if action == "install" and fileExists(targetPath(def.name)) then
+        applyUse(def)
+        return {
+            success = true,
+            action = "install",
+            skipped = true,
+            reason = "already-installed",
+            name = def.name,
+            path = targetPath(def.name),
+            source = def.source,
+            use = def.use,
+        }
+    end
+
     local source = def.source
 
     if source.type == "local-folder" then
-        return installFromFolder(def, source.path)
+        local result, err = installFromFolder(def, source.path)
+        if result then
+            result.action = action
+        end
+        return result, err
     end
 
     if source.type == "local-zip" then
         local tmpdir = trim(hs.execute("/usr/bin/mktemp -d"))
         local result, err = installFromZipFile(def, source.path, tmpdir)
         removePath(tmpdir)
+        if result then
+            result.action = action
+        end
         return result, err
     end
 
     if source.type == "zip" then
-        return installFromRemoteZip(def, source.url)
+        local result, err = installFromRemoteZip(def, source.url)
+        if result then
+            result.action = action
+        end
+        return result, err
     end
 
     if source.type == "github-release" then
-        return installFromRemoteZip(def, githubReleaseAssetUrl(source))
+        local result, err = installFromRemoteZip(def, githubReleaseAssetUrl(source))
+        if result then
+            result.action = action
+        end
+        return result, err
     end
 
     if source.type == "github-folder" or source.type == "github-repository" then
-        return installFromRemoteZip(def, githubArchiveUrl(source))
+        local result, err = installFromRemoteZip(def, githubArchiveUrl(source))
+        if result then
+            result.action = action
+        end
+        return result, err
     end
 
     return nil, "Unsupported source type: " .. tostring(source.type)
@@ -570,7 +606,11 @@ local function definitionFromState(state)
     end
 
     api.install = function()
-        return obj._installDefinition(def)
+        return obj._installDefinition(def, "install")
+    end
+
+    api.update = function()
+        return obj._installDefinition(def, "update")
     end
 
     return setmetatable(api, Definition)
@@ -771,19 +811,25 @@ end
 --- SpoonManager.install([...]) -> result
 --- Function
 --- Install the passed definitions, or all definitions added with `.add()`.
-function obj.install(...)
+local function runDefinitions(action, ...)
     local passed = { ... }
     local definitions = #passed > 0 and passed or obj.definitions
     local result = {
         success = true,
+        action = action,
         installed = {},
+        skipped = {},
         errors = {},
     }
 
     for _, definition in ipairs(definitions) do
-        local installed, err = obj._installDefinition(definition.build and definition.build() or definition)
+        local installed, err = obj._installDefinition(definition.build and definition.build() or definition, action)
         if installed then
-            table.insert(result.installed, installed)
+            if installed.skipped then
+                table.insert(result.skipped, installed)
+            else
+                table.insert(result.installed, installed)
+            end
         else
             result.success = false
             table.insert(result.errors, {
@@ -797,11 +843,15 @@ function obj.install(...)
     return result
 end
 
+function obj.install(...)
+    return runDefinitions("install", ...)
+end
+
 --- SpoonManager.update([...]) -> result
 --- Function
---- Reinstall managed definitions using their stored source. Local changes abort by default.
+--- Reinstall managed definitions from their source. Local changes abort by default.
 function obj.update(...)
-    return obj.install(...)
+    return runDefinitions("update", ...)
 end
 
 obj.from.internal = obj.from.github("Hammerspoon/Spoons", {
