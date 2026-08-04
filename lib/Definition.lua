@@ -4,7 +4,7 @@ return function(context)
 
     local github = context.github
     local manager = context.manager
-    local name = context.name
+    local nameResolver = context.nameResolver
     local util = context.util
 
     local function substitutePattern(pattern, spoonName)
@@ -45,7 +45,7 @@ return function(context)
         end
 
         api.spoon = function(value)
-            local spoonName = name.infer(value, "Spoon name")
+            local spoonName = nameResolver.infer(value, "Spoon name")
             assert(spoonName, "Invalid Spoon name")
 
             local source = def.source or {}
@@ -93,7 +93,7 @@ return function(context)
             end
 
             return fromState(util.mergeTables(def, {
-                name = name.infer(path, inferredFrom),
+                name = nameResolver.infer(path, inferredFrom),
                 source = nextSource,
             }))
         end
@@ -120,7 +120,7 @@ return function(context)
             util.requireZipPath(assetName, "Release asset")
 
             local nextDef = util.copyTable(def)
-            nextDef.name = name.infer(assetName, "asset name")
+            nextDef.name = nameResolver.infer(assetName, "asset name")
             nextDef.source = util.mergeTables(nextDef.source or {}, {
                 asset = assetName,
             })
@@ -129,8 +129,8 @@ return function(context)
 
         api.asSpoon = function(value)
             local nextDef = util.copyTable(def)
-            nextDef.name = name.infer(value, "explicit Spoon name")
-            name.logExplicit(nextDef.name, value)
+            nextDef.name = nameResolver.infer(value, "explicit Spoon name")
+            nameResolver.logExplicit(nextDef.name, value)
             return fromState(nextDef)
         end
 

@@ -4,7 +4,7 @@ return function(context)
     local github = context.github
     local logger = context.logger
     local manager = context.manager
-    local name = context.name
+    local nameResolver = context.nameResolver
     local paths = context.paths
     local registry = context.registry
     local util = context.util
@@ -34,7 +34,7 @@ return function(context)
     function Installer.normalizeDefinition(definition)
         local def = util.copyTable(definition)
         def.options = util.mergeTables(manager.installOptions, def.options or {})
-        def.name = name.infer(def.name, "definition name") or name.inferFromSource(def.source)
+        def.name = nameResolver.infer(def.name, "definition name") or nameResolver.inferFromSource(def.source)
         return def
     end
 

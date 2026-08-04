@@ -54,7 +54,7 @@ local context = {
     util = Util,
 }
 
-context.name = loadLib("Name")(context)
+context.nameResolver = loadLib("NameResolver")(context)
 context.paths = loadLib("Paths")(context)
 context.registry = loadLib("Registry")(context)
 context.archive = loadLib("Archive")(context)
@@ -79,7 +79,7 @@ function obj.from.zip(url)
     Util.requireZipPath(url, "Remote ZIP URL")
 
     return context.definition.fromState({
-        name = context.name.infer(url, "URL"),
+        name = context.nameResolver.infer(url, "URL"),
         source = {
             type = "zip",
             url = url,
@@ -95,7 +95,7 @@ function obj.from.localZip(path)
     Util.requireZipPath(path, "Local ZIP path")
 
     return context.definition.fromState({
-        name = context.name.infer(path, "local zip path"),
+        name = context.nameResolver.infer(path, "local zip path"),
         source = {
             type = "local-zip",
             path = path,
@@ -110,7 +110,7 @@ function obj.from.localFolder(path)
     path = Util.localPath(path)
 
     return context.definition.fromState({
-        name = context.name.infer(path, "local folder path"),
+        name = context.nameResolver.infer(path, "local folder path"),
         source = {
             type = "local-folder",
             path = path,
@@ -124,7 +124,7 @@ end
 function obj.from.github(repository, options)
     options = options or {}
     return context.definition.fromState({
-        name = context.name.infer(repository, "repository"),
+        name = context.nameResolver.infer(repository, "repository"),
         source = {
             type = "github-repository",
             provider = "github",

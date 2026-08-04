@@ -1,8 +1,8 @@
 return function(context)
-    local Name = {}
+    local NameResolver = {}
     local logger = context.logger
 
-    function Name.safe(name)
+    function NameResolver.safe(name)
         if not name or name == "" then
             return nil
         end
@@ -15,19 +15,19 @@ return function(context)
         return name
     end
 
-    function Name.logInferred(name, kind, value)
+    function NameResolver.logInferred(name, kind, value)
         if name then
             logger.df("Inferred Spoon name '%s' from %s '%s'", name, kind or "value", tostring(value))
         end
     end
 
-    function Name.logExplicit(name, value)
+    function NameResolver.logExplicit(name, value)
         if name then
             logger.df("Using explicit Spoon name '%s' from '%s'", name, tostring(value))
         end
     end
 
-    function Name.infer(value, kind)
+    function NameResolver.infer(value, kind)
         if not value then
             return nil
         end
@@ -40,22 +40,22 @@ return function(context)
         last = last:gsub("%.zip$", "")
         last = last:gsub("%.spoon$", "")
 
-        local inferred = Name.safe(last)
-        Name.logInferred(inferred, kind, value)
+        local inferred = NameResolver.safe(last)
+        NameResolver.logInferred(inferred, kind, value)
         return inferred
     end
 
-    function Name.inferFromSource(source)
+    function NameResolver.inferFromSource(source)
         if not source then
             return nil
         end
 
-        return Name.infer(source.name, "source name")
-            or Name.infer(source.path, "source path")
-            or Name.infer(source.asset, "asset name")
-            or Name.infer(source.url, "URL")
-            or Name.infer(source.repository, "repository")
+        return NameResolver.infer(source.name, "source name")
+            or NameResolver.infer(source.path, "source path")
+            or NameResolver.infer(source.asset, "asset name")
+            or NameResolver.infer(source.url, "URL")
+            or NameResolver.infer(source.repository, "repository")
     end
 
-    return Name
+    return NameResolver
 end

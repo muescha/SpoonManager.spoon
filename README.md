@@ -114,7 +114,7 @@ SpoonManager.spoon/
     ├── Definition.lua
     ├── GitHub.lua
     ├── Installer.lua
-    ├── Name.lua
+    ├── NameResolver.lua
     ├── Paths.lua
     ├── Registry.lua
     └── Util.lua
@@ -126,7 +126,7 @@ The modules have narrow responsibilities:
 - `Definition.lua`: builder methods for one installable Spoon
 - `GitHub.lua`: GitHub URL construction
 - `Installer.lua`: install, update, local-change checks, and `hs.spoons.use()`
-- `Name.lua`: Spoon name inference and name logging
+- `NameResolver.lua`: Spoon name inference and name logging
 - `Paths.lua`: install and metadata paths
 - `Registry.lua`: `installed.json` read/write
 - `Util.lua`: small shared helpers
