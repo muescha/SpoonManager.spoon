@@ -52,7 +52,7 @@ return function(context)
 
             if source.spoonZipPattern then
                 local nextSource = {
-                    type = "zip",
+                    type = "remote-zip",
                     url = github.rawUrl(source, substitutePattern(source.spoonZipPattern, spoonName)),
                     origin = source,
                 }

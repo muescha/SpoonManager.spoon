@@ -420,6 +420,8 @@ Creates a definition builder from a remote ZIP URL.
 
 Use this when you already know the exact ZIP URL. The ZIP may contain a `.spoon` folder, a single root folder with `init.lua`, or `init.lua` directly at the ZIP root.
 
+In exported configs, this uses `source.type = "remote-zip"`.
+
 The URL must point to a `.zip` file. Other archive formats are rejected.
 
 The Spoon name is inferred from the ZIP URL. Use `.asSpoon(name)` to override it.
@@ -447,6 +449,8 @@ spoon.SpoonManager.from.remoteZip(
 Creates a definition builder from a local ZIP file.
 
 `path` may use `~` when Hammerspoon can resolve it with `hs.fs.pathToAbsolute()`.
+
+In exported configs, this uses `source.type = "local-zip"`.
 
 The path must point to a `.zip` file. Other archive formats are rejected.
 

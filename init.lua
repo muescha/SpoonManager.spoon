@@ -117,7 +117,7 @@ function obj.from.remoteZip(url)
     return context.definition.fromState({
         name = context.nameResolver.infer(url, "URL"),
         source = {
-            type = "zip",
+            type = "remote-zip",
             url = url,
         },
     })

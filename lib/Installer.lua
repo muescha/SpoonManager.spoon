@@ -51,7 +51,7 @@ return function(context)
             return nil, "Spoon definition requires a Spoon name. Add .asSpoon(\"Name\")."
         end
 
-        if definition.source.type == "zip" and not util.isZipPath(definition.source.url) then
+        if definition.source.type == "remote-zip" and not util.isZipPath(definition.source.url) then
             return nil, "Remote ZIP URL must point to a .zip file"
         end
 
@@ -218,7 +218,7 @@ return function(context)
             local tmpdir = util.trim(hs.execute("/usr/bin/mktemp -d"))
             result, err = Installer.installFromZipFile(def, source.path, tmpdir)
             util.removePath(tmpdir, logger)
-        elseif source.type == "zip" then
+        elseif source.type == "remote-zip" then
             result, err = Installer.installFromRemoteZip(def, source.url)
         elseif source.type == "github-release" then
             result, err = Installer.installFromRemoteZip(def, github.releaseAssetUrl(source))
