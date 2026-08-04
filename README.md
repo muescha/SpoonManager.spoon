@@ -701,7 +701,9 @@ spoon.SpoonManager.from.github("muescha/SpoonRepo")
 
 ### `source.use(options)`
 
-Shortcut for repository-root installs. It creates a definition from the current source, infers the name, and applies `definition.use(options)`.
+Creates a repository-root Spoon definition and stores options that are applied through `hs.spoons.use()` after install, update, or install-skip.
+
+Use this when the whole source should be installed as one Spoon and you want to load, configure, bind hotkeys, or start it in the same step.
 
 Example:
 
@@ -713,12 +715,20 @@ spoon.SpoonManager.from.github("muescha/MySpoon.spoon")
     .install()
 ```
 
-This is equivalent to:
+Example with config and hotkeys:
 
 ```lua
 spoon.SpoonManager.from.github("muescha/MySpoon.spoon")
-    .asSpoon("MySpoon")
     .use({
+        config = {
+            enabled = true,
+        },
+        hotkeys = {
+            toggle = {
+                { "cmd", "alt" },
+                "T",
+            },
+        },
         start = true,
     })
     .install()
