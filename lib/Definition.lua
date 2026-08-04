@@ -141,6 +141,8 @@ return function(context)
         end
 
         api.onLocalChanges = function(behavior)
+            assert(manager._isLocalChangesBehavior(behavior), "Invalid local changes behavior: " .. tostring(behavior))
+
             local nextDef = util.copyTable(def)
             nextDef.options = util.mergeTables(nextDef.options or {}, { onLocalChanges = behavior })
             return fromState(nextDef)

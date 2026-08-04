@@ -33,9 +33,35 @@ obj.logger = hs.logger.new("SpoonManager")
 obj.from = {}
 obj.definitions = {}
 
-obj.installOptions = {
-    onLocalChanges = "abort",
+--- SpoonManager.options
+--- Variable
+--- Public constants used by the builder API.
+---
+--- Contains:
+---  * `localChanges.abort`
+---  * `localChanges.backup`
+---  * `localChanges.overwrite`
+obj.options = {
+    localChanges = {
+        abort = "abort",
+        backup = "backup",
+        overwrite = "overwrite",
+    },
 }
+
+obj.installOptions = {
+    onLocalChanges = obj.options.localChanges.abort,
+}
+
+function obj._isLocalChangesBehavior(behavior)
+    for _, value in pairs(obj.options.localChanges) do
+        if behavior == value then
+            return true
+        end
+    end
+
+    return false
+end
 
 local spoonPath = hs.spoons.scriptPath()
 local function loadLib(name)

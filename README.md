@@ -206,15 +206,17 @@ Override per definition:
 ```lua
 spoon.SpoonManager.from.default
     .spoon("Emojis")
-    .onLocalChanges("backup")
+    .onLocalChanges(spoon.SpoonManager.options.localChanges.backup)
     .install()
 ```
 
 Allowed values:
 
-- `"abort"`: default
-- `"backup"`: move the existing Spoon aside first
-- `"overwrite"`: replace the existing Spoon
+- `spoon.SpoonManager.options.localChanges.abort`: default
+- `spoon.SpoonManager.options.localChanges.backup`: move the existing Spoon aside first
+- `spoon.SpoonManager.options.localChanges.overwrite`: replace the existing Spoon
+
+The plain strings `"abort"`, `"backup"`, and `"overwrite"` also work, but the constants are easier for an LSP server to suggest.
 
 ## Name Inference
 
@@ -786,16 +788,39 @@ spoon.SpoonManager.from.default
     .install()
 ```
 
+### `SpoonManager.options.localChanges`
+
+Constants for `definition.onLocalChanges(behavior)`.
+
+Using constants avoids typo-prone strings and gives Lua language servers concrete fields to suggest.
+
+Values:
+
+```lua
+spoon.SpoonManager.options.localChanges.abort
+spoon.SpoonManager.options.localChanges.backup
+spoon.SpoonManager.options.localChanges.overwrite
+```
+
+Example:
+
+```lua
+spoon.SpoonManager.from.default
+    .spoon("TimeMachineProgress")
+    .onLocalChanges(spoon.SpoonManager.options.localChanges.backup)
+    .update()
+```
+
 ### `definition.onLocalChanges(behavior)`
 
 Returns a new definition with explicit behavior for existing or locally changed Spoons.
 
 Accepted values:
 
-```text
-abort
-backup
-overwrite
+```lua
+spoon.SpoonManager.options.localChanges.abort
+spoon.SpoonManager.options.localChanges.backup
+spoon.SpoonManager.options.localChanges.overwrite
 ```
 
 `abort` is the default.
@@ -805,7 +830,7 @@ Example, backup before replacing:
 ```lua
 spoon.SpoonManager.from.default
     .spoon("TimeMachineProgress")
-    .onLocalChanges("backup")
+    .onLocalChanges(spoon.SpoonManager.options.localChanges.backup)
     .update()
 ```
 
@@ -814,7 +839,7 @@ Example, force overwrite:
 ```lua
 spoon.SpoonManager.from.default
     .spoon("TimeMachineProgress")
-    .onLocalChanges("overwrite")
+    .onLocalChanges(spoon.SpoonManager.options.localChanges.overwrite)
     .update()
 ```
 
@@ -891,7 +916,7 @@ Example with backup if local files are unmanaged or changed:
 ```lua
 spoon.SpoonManager.from.default
     .spoon("TimeMachineProgress")
-    .onLocalChanges("backup")
+    .onLocalChanges(spoon.SpoonManager.options.localChanges.backup)
     .update()
 ```
 

@@ -63,6 +63,10 @@ return function(context)
             return nil, "GitHub release asset must point to a .zip file"
         end
 
+        if definition.options and definition.options.onLocalChanges and not manager._isLocalChangesBehavior(definition.options.onLocalChanges) then
+            return nil, "Invalid local changes behavior: " .. tostring(definition.options.onLocalChanges)
+        end
+
         return true
     end
 
@@ -73,14 +77,14 @@ return function(context)
             return true
         end
 
-        local behavior = definition.options.onLocalChanges or "abort"
+        local behavior = definition.options.onLocalChanges or manager.options.localChanges.abort
 
         if not installed or not installed.checksum then
-            if behavior == "overwrite" then
+            if behavior == manager.options.localChanges.overwrite then
                 return true
             end
 
-            if behavior == "backup" then
+            if behavior == manager.options.localChanges.backup then
                 local backupPath = destination .. ".backup-" .. os.date("!%Y%m%dT%H%M%SZ")
                 local _, ok = util.movePath(destination, backupPath, logger)
                 if ok then
@@ -97,11 +101,11 @@ return function(context)
             return true
         end
 
-        if behavior == "overwrite" then
+        if behavior == manager.options.localChanges.overwrite then
             return true
         end
 
-        if behavior == "backup" then
+        if behavior == manager.options.localChanges.backup then
             local backupPath = destination .. ".backup-" .. os.date("!%Y%m%dT%H%M%SZ")
             local _, ok = util.movePath(destination, backupPath, logger)
             if ok then
