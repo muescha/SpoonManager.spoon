@@ -369,6 +369,10 @@ Creates a GitHub source builder.
 }
 ```
 
+If neither `branch` nor `ref` is given, SpoonManager uses `main`.
+
+The built-in `SpoonManager.from.default` source is the exception: it points to `Hammerspoon/Spoons` and explicitly uses `master`, because that repository still uses `master`.
+
 Example, repository root is the Spoon:
 
 ```lua
@@ -486,6 +490,10 @@ spoon.SpoonManager.from.default
 Returns a new source builder using the given branch name.
 
 This is mostly useful for GitHub sources.
+
+If no branch is configured, GitHub sources use `main`.
+
+`SpoonManager.from.default` already has `master` configured, so you normally do not need to call `branch("master")` there.
 
 Example:
 
