@@ -72,6 +72,36 @@ spoon.SpoonManager.configDir =
     hs.configdir .. "/.config/SpoonManager"
 ```
 
+## Logger
+
+SpoonManager uses a regular Hammerspoon logger:
+
+```lua
+spoon.SpoonManager.logger
+```
+
+Enable debug logging after loading the Spoon:
+
+```lua
+hs.loadSpoon("SpoonManager")
+
+spoon.SpoonManager.logger.setLogLevel("debug")
+```
+
+Debug logging is useful while developing or when checking how SpoonManager resolved a source.
+For example, name inference and explicit name overrides are logged at debug level:
+
+```text
+Inferred Spoon name 'TimeMachineProgress' from folder path 'Source/TimeMachineProgress.spoon'
+Using explicit Spoon name 'BetterName' from 'BetterName'
+```
+
+For quieter output, use:
+
+```lua
+spoon.SpoonManager.logger.setLogLevel("info")
+```
+
 ## Examples
 
 Install from the default Hammerspoon Spoons repository using the classic ZIP convention:
@@ -279,7 +309,7 @@ Installs as:
 BetterName
 ```
 
-Name inference and explicit name overrides are logged at debug level through `SpoonManager.logger`.
+Name inference and explicit name overrides are logged at debug level. See [Logger](#logger).
 
 ## API
 
