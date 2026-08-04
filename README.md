@@ -489,7 +489,7 @@ spoon.SpoonManager.from.default
 
 Returns a new source builder using the given branch name.
 
-This is mostly useful for GitHub sources.
+This is a readable shortcut for branch-based GitHub sources.
 
 If no branch is configured, GitHub sources use `main`.
 
@@ -506,15 +506,26 @@ spoon.SpoonManager.from.github("muescha/SpoonRepo")
 
 ### `source.ref(name)`
 
-Alias for `source.branch(name)`.
+Returns a new source builder using a raw GitHub ref.
 
-Use it when the source should be described more generally as a ref.
+Use this when the source should point to something more general than a branch. GitHub archive and raw URLs accept branches, tags, and commit SHAs in the same ref position.
 
-Example:
+For branches, prefer `branch(name)` because it makes the intent clearer. Use `ref(name)` for tags, commits, or unusual refs.
+
+Example, tag:
 
 ```lua
 spoon.SpoonManager.from.github("muescha/SpoonRepo")
-    .ref("main")
+    .ref("v1.2.3")
+    .folder("Source/MySpoon.spoon")
+    .install()
+```
+
+Example, commit:
+
+```lua
+spoon.SpoonManager.from.github("muescha/SpoonRepo")
+    .ref("abc123def456")
     .folder("Source/MySpoon.spoon")
     .install()
 ```
