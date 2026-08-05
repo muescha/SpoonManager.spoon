@@ -1,0 +1,40 @@
+{
+  "action": "install",
+  "definition": {
+    "source": {
+      "baseUrl": "https://github.com",
+      "provider": "github",
+      "repository": "muescha/SpoonRepo",
+      "revision_branch": "main",
+      "type": "github"
+    },
+    "target": {
+      "name_withName": "DeepFolder",
+      "selection_folder": "Source/deepfolder"
+    }
+  },
+  "from": {
+    "archiveUrl": "https://github.com/muescha/SpoonRepo/archive/main.zip",
+    "folder": "Source/deepfolder",
+    "type": "github-folder"
+  },
+  "resolved": {
+    "archiveUrl": "https://github.com/muescha/SpoonRepo/archive/main.zip",
+    "executionSource": {
+      "baseUrl": "https://github.com",
+      "path": "Source/deepfolder",
+      "provider": "github",
+      "repository": "muescha/SpoonRepo",
+      "revision_branch": "main",
+      "type": "github-folder"
+    },
+    "extractFolder": "Source/deepfolder",
+    "installName": "DeepFolder",
+    "sourceType": "github-folder"
+  },
+  "to": {
+    "name": "DeepFolder",
+    "path": "/tmp/hammerspoon-test/Spoons/DeepFolder.spoon",
+    "type": "spoon"
+  }
+}

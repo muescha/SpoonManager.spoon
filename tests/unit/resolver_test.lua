@@ -1,0 +1,42 @@
+return function(T)
+    T.test("resolver maps github repository root", function()
+        local definition =
+            T.SpoonManager.from.github("muescha/MySpoon.spoon")
+                .toConfig()
+
+        local command = T.context.resolver.toCommand(definition, "install")
+
+        T.assertEqual(command.from.type, "github-repository")
+        T.assertEqual(command.from.archiveUrl, "https://github.com/muescha/MySpoon.spoon/archive/main.zip")
+        T.assertEqual(command.to.name, "MySpoon")
+    end)
+
+    T.test("resolver maps github folder pattern", function()
+        local definition =
+            T.SpoonManager.from.github("owner/repo")
+                .branch("main")
+                .spoonFolderPattern("Source/{name}.spoon")
+                .spoon("A")
+                .toConfig()
+
+        local command = T.context.resolver.toCommand(definition, "update")
+
+        T.assertEqual(command.action, "update")
+        T.assertEqual(command.from.type, "github-folder")
+        T.assertEqual(command.from.folder, "Source/A.spoon")
+        T.assertEqual(command.to.name, "A")
+    end)
+
+    T.test("resolver maps local folder selection", function()
+        local definition =
+            T.SpoonManager.from.localFolder("~/Projects/SpoonRepo")
+                .folder("Source/A.spoon")
+                .toConfig()
+
+        local command = T.context.resolver.toCommand(definition, "install")
+
+        T.assertEqual(command.from.type, "local-folder")
+        T.assertEqual(command.from.path, "/Users/test/Projects/SpoonRepo/Source/A.spoon")
+        T.assertEqual(command.to.name, "A")
+    end)
+end
