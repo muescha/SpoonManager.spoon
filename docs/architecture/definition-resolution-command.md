@@ -185,10 +185,10 @@ If `source.revision_branch = "master"` already exists and the user calls `.ref("
 branch('master') already set; cannot call ref('v1.2.3').
 ```
 
-Source-changing methods also need to fail after the Spoon selection has been finalized. This can be handled with a source-specific wrapper.
+Source-changing methods also need to fail after the Spoon selection has been finalized. Keep this check explicit instead of hiding it in an overly generic setter.
 
 ```lua
-local function setSourceExclusive(definition, group, method, value)
+local function ensureNoSelection(definition, method, value)
     local selectedMethod, selectedValue =
         findFlatGroupValue(definition.spoon, "selection")
 
@@ -199,17 +199,17 @@ local function setSourceExclusive(definition, group, method, value)
             Util.createLabel(method, value)
         ), 3)
     end
-
-    definition.source = definition.source or {}
-    setExclusive(definition.source, group, method, value)
 end
 ```
 
-Source methods use `setSourceExclusive`:
+Source methods use two direct steps:
 
 ```lua
-setSourceExclusive(definition, "revision", "branch", branchName)
-setSourceExclusive(definition, "pattern", "spoonFolderPattern", pattern)
+ensureNoSelection(definition, "branch", branchName)
+setExclusive(definition.source, "revision", "branch", branchName)
+
+ensureNoSelection(definition, "spoonFolderPattern", pattern)
+setExclusive(definition.source, "pattern", "spoonFolderPattern", pattern)
 ```
 
 Endpoint and target methods use `setExclusive` directly:
