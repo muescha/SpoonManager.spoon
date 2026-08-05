@@ -1,0 +1,115 @@
+{
+  "version": 1,
+  "installRoot": "/tmp/spoonmanager-network-test",
+  "tests": [
+    {
+      "id": "github-folder",
+      "enabled": false,
+      "description": "Install a Spoon from a folder inside a GitHub repository archive.",
+      "source": {
+        "type": "github-folder",
+        "repository": "Hammerspoon/Spoons",
+        "branch": "master",
+        "folder": "Source/WindowSigils.spoon"
+      },
+      "target": {
+        "name": "WindowSigils"
+      },
+      "expect": {
+        "files": [
+          "init.lua"
+        ]
+      }
+    },
+    {
+      "id": "spoon-repo",
+      "enabled": false,
+      "description": "Install a named Spoon from a repository using Source/{name}.spoon.",
+      "source": {
+        "type": "spoon-repo",
+        "repository": "Hammerspoon/Spoons",
+        "branch": "master"
+      },
+      "target": {
+        "spoon": "WindowSigils"
+      },
+      "expect": {
+        "files": [
+          "init.lua"
+        ]
+      }
+    },
+    {
+      "id": "spoon-repo-zip",
+      "enabled": false,
+      "description": "Install a named Spoon from a repository using Spoons/{name}.spoon.zip.",
+      "source": {
+        "type": "spoon-repo-zip",
+        "repository": "Hammerspoon/Spoons",
+        "branch": "master"
+      },
+      "target": {
+        "spoon": "WindowSigils"
+      },
+      "expect": {
+        "files": [
+          "init.lua"
+        ]
+      }
+    },
+    {
+      "id": "github-repository",
+      "enabled": false,
+      "description": "Install a Spoon where the GitHub repository root is the Spoon root.",
+      "source": {
+        "type": "github-repository",
+        "repository": "owner/TestSpoon.spoon",
+        "branch": "main"
+      },
+      "target": {
+        "name": "TestSpoon"
+      },
+      "expect": {
+        "files": [
+          "init.lua"
+        ]
+      }
+    },
+    {
+      "id": "github-release",
+      "enabled": false,
+      "description": "Install a Spoon from a GitHub release ZIP asset.",
+      "source": {
+        "type": "github-release",
+        "repository": "owner/TestSpoon.spoon",
+        "release": "latest",
+        "asset": "TestSpoon.zip"
+      },
+      "target": {
+        "name": "TestSpoon"
+      },
+      "expect": {
+        "files": [
+          "init.lua"
+        ]
+      }
+    },
+    {
+      "id": "remote-zip",
+      "enabled": false,
+      "description": "Install a Spoon from an arbitrary remote ZIP URL.",
+      "source": {
+        "type": "remote-zip",
+        "url": "https://example.com/TestSpoon.zip"
+      },
+      "target": {
+        "name": "TestSpoon"
+      },
+      "expect": {
+        "files": [
+          "init.lua"
+        ]
+      }
+    }
+  ]
+}
