@@ -42,7 +42,7 @@ release assets, and remote ZIP URLs that are stable enough for end-to-end testin
       "installPathAfterTest": false
     }
   },
-  "explainDir": "tests/integration",
+  "explainPathTemplate": "tests/integration/network.test.{timestamp}.{id}.explain.json",
   "tests": []
 }
 ```
@@ -57,10 +57,14 @@ release assets, and remote ZIP URLs that are stable enough for end-to-end testin
 each network test. The runner expands placeholders before each test and loads
 SpoonManager with that test-specific `hs.configdir`.
 
+`explainPathTemplate` controls the exact JSON snapshot path written for each
+network test. Relative paths are resolved from the repository root.
+
 Supported placeholders:
 
 ```text
 {installRoot}
+{installPath}
 {id}
 {sourceType}
 {name}
@@ -102,19 +106,17 @@ fresh fake Hammerspoon config directory.
 after that test finishes. It defaults to false so the installed files remain
 available for inspection.
 
-Each test may override `installPathTemplate` and `cleanup.test.*` if a specific
-case should use a different location or cleanup behavior.
+Each test may override `installPathTemplate`, `explainPathTemplate`, and
+`cleanup.test.*` if a specific case should use a different location or cleanup
+behavior.
 
 For safety, the runner only accepts install roots below `/tmp/` whose path contains
 `spoonmanager`.
 
-`explainDir` controls where per-test explanation snapshots are written. Relative
-paths are resolved from the repository root.
-
 Each enabled test writes:
 
 ```text
-{explainDir}/network.test.{test-id}.explain.json
+tests/integration/network.test.{timestamp}.{test-id}.explain.json
 ```
 
 These files are run artifacts and are ignored by git.
@@ -441,7 +443,7 @@ The runner:
 5. Optionally clean the test-specific install path before the test.
 6. For each `enabled` test, build the corresponding SpoonManager definition.
 7. Point the Hammerspoon stub at the test-specific install path.
-8. Write `network.test.{test-id}.explain.json`.
+8. Write the path resolved from `explainPathTemplate`.
 9. Run `definition.install()` synchronously.
 10. Verify expected files below the temporary install path.
 11. Run the same install again and assert `result.skipped == true`.

@@ -19,6 +19,10 @@ local function pathJoin(...)
     return path:gsub("/+", "/")
 end
 
+local function parentDir(path)
+    return path:match("^(.*)/[^/]*$") or "."
+end
+
 local function ensureDir(path)
     os.execute("/bin/mkdir -p " .. shellQuote(path))
 end
@@ -319,13 +323,27 @@ local function buildDefinition(SpoonManager, test)
     return definition
 end
 
-local function explainPathFor(test)
-    local explainDir = config.explainDir or "tests/integration"
-    if explainDir:sub(1, 1) ~= "/" then
-        explainDir = pathJoin(repoRoot, explainDir)
+local function explainPathFor(test, installRoot, installPath)
+    local template = test.explainPathTemplate
+        or config.explainPathTemplate
+        or "tests/integration/network.test.{timestamp}.{id}.explain.json"
+
+    assertString(template, "explainPathTemplate")
+
+    local explainPath = renderTemplate(template, {
+        installRoot = installRoot,
+        installPath = installPath,
+        id = test.id,
+        sourceType = sourceLabel(test),
+        name = targetLabel(test),
+        timestamp = runTimestamp,
+    })
+
+    if explainPath:sub(1, 1) ~= "/" then
+        explainPath = pathJoin(repoRoot, explainPath)
     end
-    ensureDir(explainDir)
-    return pathJoin(explainDir, "network.test." .. safeId(test.id) .. ".explain.json")
+    ensureDir(parentDir(explainPath))
+    return explainPath
 end
 
 local function assertExpectedFiles(test, result)
@@ -360,7 +378,7 @@ for _, test in ipairs(config.tests or {}) do
             stubHammerspoon(installPath)
             local SpoonManager = dofile(repoRoot .. "/init.lua")
             local definition = buildDefinition(SpoonManager, test)
-            json.write(explainPathFor(test), definition.explain("install"))
+            json.write(explainPathFor(test, installRoot, installPath), definition.explain("install"))
 
             local result, installErr = definition.install()
             if not result then

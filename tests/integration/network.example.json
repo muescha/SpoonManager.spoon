@@ -12,7 +12,7 @@
       "installPathAfterTest": false
     }
   },
-  "explainDir": "tests/integration",
+  "explainPathTemplate": "tests/integration/network.test.{timestamp}.{id}.explain.json",
   "tests": [
     {
       "id": "github-folder",
