@@ -43,6 +43,8 @@ release assets, and remote ZIP URLs that are stable enough for end-to-end testin
     }
   },
   "explainPathTemplate": "tests/integration/network.test.{timestamp}.{id}.explain.json",
+  "runnerPathTemplate": "tests/integration/network.test.{timestamp}.{id}.result.json",
+  "logPathTemplate": "tests/integration/network.test.{timestamp}.{id}.log.json",
   "tests": []
 }
 ```
@@ -59,6 +61,14 @@ SpoonManager with that test-specific `hs.configdir`.
 
 `explainPathTemplate` controls the exact JSON snapshot path written for each
 network test. Relative paths are resolved from the repository root.
+
+`runnerPathTemplate` controls the exact JSON path for the test-run result. It
+records whether the test passed, which source and target were used, where the
+test installed files, and any error if the run failed.
+
+`logPathTemplate` controls the exact JSON path for structured log output captured
+from the Hammerspoon logger stub. This includes debug messages emitted through
+`logger.df(...)`.
 
 Supported placeholders:
 
@@ -106,20 +116,59 @@ fresh fake Hammerspoon config directory.
 after that test finishes. It defaults to false so the installed files remain
 available for inspection.
 
-Each test may override `installPathTemplate`, `explainPathTemplate`, and
-`cleanup.test.*` if a specific case should use a different location or cleanup
-behavior.
+Each test may override `installPathTemplate`, `explainPathTemplate`,
+`runnerPathTemplate`, `logPathTemplate`, and `cleanup.test.*` if a specific case
+should use a different location or cleanup behavior.
 
 For safety, the runner only accepts install roots below `/tmp/` whose path contains
 `spoonmanager`.
 
-Each enabled test writes:
+Each enabled test writes three JSON artifacts:
 
 ```text
 tests/integration/network.test.{timestamp}.{test-id}.explain.json
+tests/integration/network.test.{timestamp}.{test-id}.result.json
+tests/integration/network.test.{timestamp}.{test-id}.log.json
 ```
 
 These files are run artifacts and are ignored by git.
+
+The result artifact has this general shape:
+
+```json
+{
+  "id": "github-folder",
+  "success": true,
+  "timestamp": "2026-08-05-14-30-12",
+  "installRoot": "/tmp/spoonmanager-network-test",
+  "installPath": "/tmp/spoonmanager-network-test/testinstalls/...",
+  "explainPath": "...explain.json",
+  "runnerPath": "...result.json",
+  "logPath": "...log.json",
+  "source": {},
+  "target": {},
+  "install": {},
+  "secondInstall": {}
+}
+```
+
+On failure, `success` is false and `error` contains the traceback.
+
+The log artifact has this shape:
+
+```json
+{
+  "id": "github-folder",
+  "success": true,
+  "timestamp": "2026-08-05-14-30-12",
+  "logs": [
+    {
+      "level": "debug",
+      "message": "Inferred Spoon name 'WindowSigils' from source path 'Source/WindowSigils.spoon'"
+    }
+  ]
+}
+```
 
 Each test entry has this shape:
 
@@ -447,9 +496,11 @@ The runner:
 9. Run `definition.install()` synchronously.
 10. Verify expected files below the temporary install path.
 11. Run the same install again and assert `result.skipped == true`.
-12. Print the resolved install path.
-13. Optionally clean the test-specific install path after the test.
-14. Optionally clean `installRoot` after all tests.
+12. Write the path resolved from `runnerPathTemplate`.
+13. Write the path resolved from `logPathTemplate`.
+14. Print the resolved install path.
+15. Optionally clean the test-specific install path after the test.
+16. Optionally clean `installRoot` after all tests.
 
 The first implementation intentionally does not run update/local-change checks yet.
 Those can be added once the happy-path network installs are stable.

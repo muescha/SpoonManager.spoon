@@ -78,7 +78,7 @@ end
 
 local function renderTemplate(template, values)
     return (template:gsub("{([%w_]+)}", function(key)
-        if key == "installRoot" then
+        if key == "installRoot" or key == "installPath" then
             return tostring(values[key] or "")
         end
         return safeId(values[key] or "")
@@ -180,18 +180,64 @@ local function cleanInstallPathAfterTest(test, installPath)
     end
 end
 
-local function stubHammerspoon(installRoot)
+local function artifactPathFor(test, installRoot, installPath, templateKey, defaultTemplate)
+    local template = test[templateKey]
+        or config[templateKey]
+        or defaultTemplate
+
+    assertString(template, templateKey)
+
+    local artifactPath = renderTemplate(template, {
+        installRoot = installRoot,
+        installPath = installPath,
+        id = test.id,
+        sourceType = sourceLabel(test),
+        name = targetLabel(test),
+        timestamp = runTimestamp,
+    })
+
+    if artifactPath:sub(1, 1) ~= "/" then
+        artifactPath = pathJoin(repoRoot, artifactPath)
+    end
+    ensureDir(parentDir(artifactPath))
+    return artifactPath
+end
+
+local function stubHammerspoon(installRoot, logs)
+    local function logMessage(level, fmt, ...)
+        local message = string.format(fmt or "%s", ...)
+        table.insert(logs, {
+            level = level,
+            message = message,
+        })
+        if level == "error" then
+            io.stderr:write(message .. "\n")
+        end
+    end
+
     hs = {
         configdir = installRoot,
         logger = {
             new = function()
                 return {
-                    df = function() end,
-                    ef = function(fmt, ...)
-                        io.stderr:write(string.format(fmt or "%s", ...) .. "\n")
+                    d = function(message)
+                        logMessage("debug", "%s", message)
                     end,
-                    i = function() end,
-                    w = function() end,
+                    df = function(fmt, ...)
+                        logMessage("debug", fmt, ...)
+                    end,
+                    e = function(message)
+                        logMessage("error", "%s", message)
+                    end,
+                    ef = function(fmt, ...)
+                        logMessage("error", fmt, ...)
+                    end,
+                    i = function(message)
+                        logMessage("info", "%s", message)
+                    end,
+                    w = function(message)
+                        logMessage("warn", "%s", message)
+                    end,
                 }
             end,
         },
@@ -324,26 +370,33 @@ local function buildDefinition(SpoonManager, test)
 end
 
 local function explainPathFor(test, installRoot, installPath)
-    local template = test.explainPathTemplate
-        or config.explainPathTemplate
-        or "tests/integration/network.test.{timestamp}.{id}.explain.json"
+    return artifactPathFor(
+        test,
+        installRoot,
+        installPath,
+        "explainPathTemplate",
+        "tests/integration/network.test.{timestamp}.{id}.explain.json"
+    )
+end
 
-    assertString(template, "explainPathTemplate")
+local function runnerPathFor(test, installRoot, installPath)
+    return artifactPathFor(
+        test,
+        installRoot,
+        installPath,
+        "runnerPathTemplate",
+        "tests/integration/network.test.{timestamp}.{id}.result.json"
+    )
+end
 
-    local explainPath = renderTemplate(template, {
-        installRoot = installRoot,
-        installPath = installPath,
-        id = test.id,
-        sourceType = sourceLabel(test),
-        name = targetLabel(test),
-        timestamp = runTimestamp,
-    })
-
-    if explainPath:sub(1, 1) ~= "/" then
-        explainPath = pathJoin(repoRoot, explainPath)
-    end
-    ensureDir(parentDir(explainPath))
-    return explainPath
+local function logPathFor(test, installRoot, installPath)
+    return artifactPathFor(
+        test,
+        installRoot,
+        installPath,
+        "logPathTemplate",
+        "tests/integration/network.test.{timestamp}.{id}.log.json"
+    )
 end
 
 local function assertExpectedFiles(test, result)
@@ -369,16 +422,25 @@ for _, test in ipairs(config.tests or {}) do
 
         io.write("network test: " .. test.id .. " ... ")
         local installPath
+        local explainPath
+        local runnerPath
+        local logPath
+        local logs = {}
+        local runnerResult
 
         local ok, err = xpcall(function()
             installPath = installPathFor(test, installRoot)
+            explainPath = explainPathFor(test, installRoot, installPath)
+            runnerPath = runnerPathFor(test, installRoot, installPath)
+            logPath = logPathFor(test, installRoot, installPath)
+
             cleanInstallPathBeforeTest(test, installPath)
             ensureDir(installPath)
 
-            stubHammerspoon(installPath)
+            stubHammerspoon(installPath, logs)
             local SpoonManager = dofile(repoRoot .. "/init.lua")
             local definition = buildDefinition(SpoonManager, test)
-            json.write(explainPathFor(test, installRoot, installPath), definition.explain("install"))
+            json.write(explainPath, definition.explain("install"))
 
             local result, installErr = definition.install()
             if not result then
@@ -393,15 +455,63 @@ for _, test in ipairs(config.tests or {}) do
             if not skipped.skipped then
                 error("second install should have skipped an already installed Spoon")
             end
+
+            runnerResult = {
+                id = test.id,
+                description = test.description,
+                success = true,
+                timestamp = runTimestamp,
+                installRoot = installRoot,
+                installPath = installPath,
+                explainPath = explainPath,
+                runnerPath = runnerPath,
+                logPath = logPath,
+                source = test.source,
+                target = test.target,
+                install = result,
+                secondInstall = skipped,
+            }
         end, debug.traceback)
 
         if ok then
             passed = passed + 1
+            json.write(runnerPath, runnerResult)
+            json.write(logPath, {
+                id = test.id,
+                success = true,
+                timestamp = runTimestamp,
+                logs = logs,
+            })
             print("ok (" .. installPath .. ")")
             cleanInstallPathAfterTest(test, installPath)
         else
             print("failed")
             print(err)
+            if runnerPath then
+                json.write(runnerPath, {
+                    id = test.id,
+                    description = test.description,
+                    success = false,
+                    timestamp = runTimestamp,
+                    installRoot = installRoot,
+                    installPath = installPath,
+                    explainPath = explainPath,
+                    runnerPath = runnerPath,
+                    logPath = logPath,
+                    source = test.source,
+                    target = test.target,
+                    error = err,
+                })
+            end
+            if logPath then
+                json.write(logPath, {
+                    id = test.id,
+                    success = false,
+                    timestamp = runTimestamp,
+                    error = err,
+                    logs = logs,
+                })
+            end
             if installPath then
                 cleanInstallPathAfterTest(test, installPath)
             end

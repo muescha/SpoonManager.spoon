@@ -13,6 +13,8 @@
     }
   },
   "explainPathTemplate": "tests/integration/network.test.{timestamp}.{id}.explain.json",
+  "runnerPathTemplate": "tests/integration/network.test.{timestamp}.{id}.result.json",
+  "logPathTemplate": "tests/integration/network.test.{timestamp}.{id}.log.json",
   "tests": [
     {
       "id": "github-folder",
