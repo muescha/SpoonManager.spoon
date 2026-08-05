@@ -435,15 +435,16 @@ Creates a GitHub repository definition.
 {
     branch = "main",
     ref = "main",
+    defaultBranch = "main",
     baseUrl = "https://github.com",
 }
 ```
 
 If neither `branch` nor `ref` is given, SpoonManager uses `main`.
 
-The default `main` is only applied when building GitHub URLs. It is not stored in exported configs unless you explicitly call `branch("main")` or pass `{ branch = "main" }`.
+The default `main` is only applied when building GitHub URLs. It is not stored in exported configs unless you explicitly set `defaultBranch`, call `branch("main")`, or pass `{ branch = "main" }`.
 
-The built-in `SpoonManager.from.default` source is the exception: it points to `Hammerspoon/Spoons` and explicitly uses `master`, because that repository still uses `master`.
+`defaultBranch` is a URL fallback, not a selected branch. It does not block later `.branch(...)` or `.ref(...)` calls.
 
 Example, repository root is the Spoon:
 
@@ -611,7 +612,7 @@ It is equivalent to:
 
 ```lua
 spoon.SpoonManager.from.spoonRepoZip("Hammerspoon/Spoons", {
-    branch = "master",
+    defaultBranch = "master",
 })
 ```
 
@@ -635,6 +636,15 @@ spoon.SpoonManager.from.default
     .install()
 ```
 
+Example, override the default fallback branch:
+
+```lua
+spoon.SpoonManager.from.default
+    .branch("main")
+    .spoon("Emojis")
+    .install()
+```
+
 ### `definition.branch(name)`
 
 Returns a new definition using the given branch name.
@@ -645,7 +655,7 @@ If no branch or ref is configured, GitHub sources use `main` while resolving URL
 
 In exported configs, `branch(name)` uses `source.revision_branch = name`. `ref(name)` uses `source.revision_ref = name`.
 
-`SpoonManager.from.default` already has `master` configured, so you normally do not need to call `branch("master")` there.
+`SpoonManager.from.default` has `defaultBranch = "master"` as a fallback for the official repository, but that fallback does not block `.branch(...)` or `.ref(...)`.
 
 Example:
 
@@ -1180,7 +1190,7 @@ Example output:
         provider = "github",
         repository = "Hammerspoon/Spoons",
         baseUrl = "https://github.com",
-        revision_branch = "master",
+        defaultBranch = "master",
         pattern_spoonZipPattern = "Spoons/{name}.spoon.zip",
     },
     target = {

@@ -3,11 +3,11 @@
     "action": "install",
     "from": {
       "type": "remote-zip",
-      "url": "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/TimeMachineProgress.spoon.zip"
+      "url": "https://github.com/Hammerspoon/Spoons/raw/main/Spoons/Emojis.spoon.zip"
     },
     "to": {
-      "name": "TimeMachineProgress",
-      "path": "/tmp/hammerspoon-test/Spoons/TimeMachineProgress.spoon",
+      "name": "Emojis",
+      "path": "/tmp/hammerspoon-test/Spoons/Emojis.spoon",
       "type": "spoon"
     }
   },
@@ -18,15 +18,16 @@
       "pattern_spoonZipPattern": "Spoons/{name}.spoon.zip",
       "provider": "github",
       "repository": "Hammerspoon/Spoons",
+      "revision_branch": "main",
       "type": "github"
     },
     "target": {
-      "selection_spoon": "TimeMachineProgress"
+      "selection_spoon": "Emojis"
     }
   },
   "resolved": {
-    "installName": "TimeMachineProgress",
+    "installName": "Emojis",
     "sourceType": "remote-zip",
-    "url": "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/TimeMachineProgress.spoon.zip"
+    "url": "https://github.com/Hammerspoon/Spoons/raw/main/Spoons/Emojis.spoon.zip"
   }
 }

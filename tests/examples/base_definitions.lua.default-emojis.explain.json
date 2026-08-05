@@ -14,10 +14,10 @@
   "definition": {
     "source": {
       "baseUrl": "https://github.com",
+      "defaultBranch": "master",
       "pattern_spoonZipPattern": "Spoons/{name}.spoon.zip",
       "provider": "github",
       "repository": "Hammerspoon/Spoons",
-      "revision_branch": "master",
       "type": "github"
     },
     "target": {

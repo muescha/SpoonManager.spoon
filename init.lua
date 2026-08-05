@@ -219,6 +219,9 @@ function obj.from.github(repository, options)
     if options.baseUrl then
         Util.requireString(options.baseUrl, "GitHub base URL")
     end
+    if options.defaultBranch then
+        Util.requireString(options.defaultBranch, "GitHub default branch")
+    end
 
     local source = {
         type = "github",
@@ -226,6 +229,10 @@ function obj.from.github(repository, options)
         repository = repository,
         baseUrl = options.baseUrl or "https://github.com",
     }
+
+    if options.defaultBranch then
+        source.defaultBranch = options.defaultBranch
+    end
 
     if options.ref then
         source.revision_ref = options.ref
@@ -255,7 +262,7 @@ function obj.from.spoonRepoZip(repository, options)
 end
 
 obj.from.default = obj.from.spoonRepoZip("Hammerspoon/Spoons", {
-    branch = "master",
+    defaultBranch = "master",
 })
 
 --- SpoonManager.add(...) -> SpoonManager
