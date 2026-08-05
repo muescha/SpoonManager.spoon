@@ -166,7 +166,7 @@ function M.new(options)
 
     function api.assertMatchesJson(snapshotPath, actual)
         local json = encodeJson(actual)
-        local fullPath = api.repoRoot .. "/tests/snapshots/" .. snapshotPath
+        local fullPath = api.repoRoot .. "/tests/" .. snapshotPath
 
         if os.getenv("SPOONMANAGER_UPDATE_SNAPSHOTS") == "1" then
             writeFile(fullPath, json)

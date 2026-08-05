@@ -143,7 +143,7 @@ Conceptual helper:
 function assertMatchesJson(snapshotPath, actual)
     local normalized = normalizeForSnapshot(actual)
     local json = encodeCanonicalJson(normalized)
-    local fullPath = pathJoin(repoRoot, "tests", "snapshots", snapshotPath)
+    local fullPath = pathJoin(repoRoot, "tests", snapshotPath)
 
     if os.getenv("SPOONMANAGER_UPDATE_SNAPSHOTS") == "1" then
         writeFile(fullPath, json)
@@ -433,17 +433,17 @@ tests/
 │   ├── assertions.lua
 │   └── fixtures.lua
 ├── examples/
+│   ├── default_spoon.config.json
+│   ├── default_spoon.command.json
 │   ├── default_spoon.lua
+│   ├── github_folder.config.json
+│   ├── github_folder.command.json
 │   ├── github_folder.lua
+│   ├── github_release_latest.command.json
+│   ├── github_release_tag.command.json
 │   ├── github_release.lua
 │   ├── local_folder.lua
 │   └── local_zip.lua
-├── snapshots/
-│   └── examples/
-│       ├── default_spoon.config.json
-│       ├── default_spoon.command.json
-│       ├── github_folder.config.json
-│       └── github_folder.command.json
 ├── unit/
 │   ├── name_resolver_test.lua
 │   ├── definition_test.lua
