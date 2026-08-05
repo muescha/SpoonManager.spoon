@@ -39,4 +39,15 @@ return function(T)
         T.assertEqual(command.from.path, "/Users/test/Projects/SpoonRepo/Source/A.spoon")
         T.assertEqual(command.to.name, "A")
     end)
+
+    T.test("archive selection accepts command folder field", function()
+        local selection = T.context.archive.prepareZipSelection({
+            source = {
+                type = "github-folder",
+                folder = "Source/A.spoon",
+            },
+        })
+
+        T.assertEqual(selection.path, "Source/A.spoon")
+    end)
 end

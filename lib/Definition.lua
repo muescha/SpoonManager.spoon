@@ -4,6 +4,7 @@ return function(context)
 
     local manager = context.manager
     local nameResolver = context.nameResolver
+    local resolver = context.resolver
     local util = context.util
 
     local function ensureSection(definition, sectionName)
@@ -71,6 +72,10 @@ return function(context)
 
         api.toConfig = function()
             return util.copyTable(def)
+        end
+
+        api.explain = function(action)
+            return resolver.explain(def, action)
         end
 
         api.branch = function(branchName)

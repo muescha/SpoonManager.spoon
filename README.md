@@ -1061,6 +1061,35 @@ Example output:
 }
 ```
 
+### `definition.explain([action])`
+
+Returns all derived views for a definition without installing anything.
+
+Use this when you want to inspect how SpoonManager understands a builder chain:
+
+```lua
+local explanation =
+    spoon.SpoonManager.from.default
+        .spoon("Emojis")
+        .explain("install")
+
+print(hs.inspect(explanation.definition))
+print(hs.inspect(explanation.resolved))
+print(hs.inspect(explanation.command))
+```
+
+Shape:
+
+```lua
+{
+    definition = {}, -- original declarative config
+    resolved = {},   -- derived values such as installName and URL
+    command = {},    -- executable install/update command
+}
+```
+
+`explain()` is intentionally the verbose view. `toConfig()` returns only the original definition, and the internal command contains only the executable `from` and `to` fields.
+
 ### `SpoonManager.add(definition[, ...])`
 
 Adds one or more definitions to `SpoonManager.definitions`.
@@ -1211,7 +1240,7 @@ After a successful install or update, SpoonManager stores install metadata here:
 ~/.hammerspoon/.config/SpoonManager/installed.json
 ```
 
-It contains the original definition, the resolved install data, the effective execution source, and a checksum of the installed Spoon folder. That checksum is used to detect local changes before `update()`.
+It contains the original definition, the resolved install data, the effective command source, and a checksum of the installed Spoon folder. That checksum is used to detect local changes before `update()`.
 
 Shape:
 

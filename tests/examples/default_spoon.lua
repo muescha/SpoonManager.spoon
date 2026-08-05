@@ -26,4 +26,16 @@ return function(T)
         T.assertEqual(command.to.name, "Emojis")
         T.assertMatchesJson("examples/default_spoon.lua.command.json", command)
     end)
+
+    T.test("example: default spoon explain", function()
+        local explanation =
+            T.SpoonManager.from.default
+                .spoon("Emojis")
+                .explain("install")
+
+        T.assertEqual(explanation.definition.target.selection_spoon, "Emojis")
+        T.assertEqual(explanation.resolved.installName, "Emojis")
+        T.assertEqual(explanation.command.from.type, "remote-zip")
+        T.assertMatchesJson("examples/default_spoon.lua.explain.json", explanation)
+    end)
 end

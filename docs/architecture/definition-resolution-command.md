@@ -120,6 +120,18 @@ Example:
 
 The installer should execute commands, not interpret builder history directly.
 
+The command should stay small. It should not embed the full `definition` or `resolved` view. When all views are needed together, use an explanation object:
+
+```lua
+{
+    definition = { ... },
+    resolved = { ... },
+    command = { ... },
+}
+```
+
+This keeps executable tasks easy to read while still allowing debugging, GUI previews, and snapshot examples.
+
 ### Installed Record
 
 An installed record is written to the local SpoonManager registry after a command succeeds. It is not part of `spoonify.json`; it describes the local machine state.

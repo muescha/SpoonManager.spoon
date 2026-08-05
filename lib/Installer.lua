@@ -33,13 +33,14 @@ return function(context)
     function Installer.normalizeDefinition(definition)
         local def = util.copyTable(definition)
         local command = resolver.toCommand(definition)
+        local resolved = resolver.resolveDefinition(definition)
 
         def.definition = util.copyTable(definition)
         def.options = util.mergeTables(manager.installOptions, def.options or {})
         def.command = command
-        def.resolved = command.resolved
+        def.resolved = resolved
         def.name = def.resolved.installName
-        def.source = def.resolved.executionSource
+        def.source = command.from
         return def
     end
 
@@ -62,10 +63,6 @@ return function(context)
 
         if definition.source.type == "local-zip" and not util.isZipPath(definition.source.path) then
             return nil, "Local ZIP path must point to a .zip file"
-        end
-
-        if definition.source.type == "github-release" and not util.isZipPath(definition.source.asset) then
-            return nil, "GitHub release asset must point to a .zip file"
         end
 
         if definition.options and definition.options.onLocalChanges and not manager._isLocalChangesBehavior(definition.options.onLocalChanges) then

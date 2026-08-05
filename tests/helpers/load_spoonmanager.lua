@@ -14,6 +14,7 @@ return function(repoRoot)
     context.nameResolver = dofile(repoRoot .. "/lib/NameResolver.lua")(context)
     context.paths = dofile(repoRoot .. "/lib/Paths.lua")(context)
     context.resolver = dofile(repoRoot .. "/lib/Resolver.lua")(context)
+    context.archive = dofile(repoRoot .. "/lib/Archive.lua")(context)
 
     return SpoonManager, context
 end

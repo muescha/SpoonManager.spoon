@@ -32,7 +32,7 @@ return function(context)
         local selection = {}
 
         if source.type == "github-folder" then
-            selection.path = source.path
+            selection.path = source.folder or source.path
         elseif source.type == "github-repository" then
             selection.path = nil
         end
