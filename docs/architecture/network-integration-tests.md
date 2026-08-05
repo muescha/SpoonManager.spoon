@@ -77,10 +77,10 @@ With the example template, installed Spoons land below:
 /tmp/spoonmanager-network-test/testinstalls/{timestamp}/{id}/Spoons/{name}.spoon
 ```
 
-`timestamp` is generated once per runner invocation in compact UTC ISO form:
+`timestamp` is generated once per runner invocation in a path-friendly UTC form:
 
 ```text
-YYYYMMDDTHHMMSSZ
+YYYY-MM-DD-HH-MM-SS-000
 ```
 
 This keeps tests that install the same Spoon name from overwriting each other and
