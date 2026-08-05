@@ -1,91 +1,5 @@
 local M = {}
 
-local function sortedKeys(tbl)
-    local keys = {}
-    for key in pairs(tbl) do
-        table.insert(keys, key)
-    end
-    table.sort(keys, function(a, b)
-        return tostring(a) < tostring(b)
-    end)
-    return keys
-end
-
-local function isArray(tbl)
-    local count = 0
-    local max = 0
-
-    for key in pairs(tbl) do
-        if type(key) ~= "number" or key < 1 or key % 1 ~= 0 then
-            return false
-        end
-
-        count = count + 1
-        if key > max then
-            max = key
-        end
-    end
-
-    return max == count
-end
-
-local function encodeString(value)
-    value = value:gsub("\\", "\\\\")
-    value = value:gsub("\"", "\\\"")
-    value = value:gsub("\b", "\\b")
-    value = value:gsub("\f", "\\f")
-    value = value:gsub("\n", "\\n")
-    value = value:gsub("\r", "\\r")
-    value = value:gsub("\t", "\\t")
-    return "\"" .. value .. "\""
-end
-
-local function encodeJson(value, indent)
-    indent = indent or 0
-    local valueType = type(value)
-
-    if valueType == "nil" then
-        return "null"
-    end
-
-    if valueType == "boolean" or valueType == "number" then
-        return tostring(value)
-    end
-
-    if valueType == "string" then
-        return encodeString(value)
-    end
-
-    if valueType ~= "table" then
-        error("Cannot encode value of type " .. valueType)
-    end
-
-    local nextIndent = indent + 2
-    local prefix = string.rep(" ", nextIndent)
-    local suffix = string.rep(" ", indent)
-    local parts = {}
-
-    if isArray(value) then
-        for index = 1, #value do
-            table.insert(parts, prefix .. encodeJson(value[index], nextIndent))
-        end
-        if #parts == 0 then
-            return "[]"
-        end
-        return "[\n" .. table.concat(parts, ",\n") .. "\n" .. suffix .. "]"
-    end
-
-    for _, key in ipairs(sortedKeys(value)) do
-        table.insert(parts, prefix .. encodeString(tostring(key)) .. ": " .. encodeJson(value[key], nextIndent))
-    end
-
-    if #parts == 0 then
-        return "{}"
-    end
-
-    return "{\n" .. table.concat(parts, ",\n") .. "\n" .. suffix .. "}"
-end
-
 local function readFile(path)
     local file = io.open(path, "r")
     if not file then
@@ -114,6 +28,7 @@ local function writeFile(path, value)
 end
 
 function M.new(options)
+    local json = dofile(options.repoRoot .. "/tests/helpers/json.lua")
     local api = {
         repoRoot = options.repoRoot,
         tests = options.tests,
@@ -165,11 +80,11 @@ function M.new(options)
     end
 
     function api.assertMatchesJson(snapshotPath, actual)
-        local json = encodeJson(actual)
+        local encoded = json.encode(actual)
         local fullPath = api.repoRoot .. "/tests/" .. snapshotPath
 
         if os.getenv("SPOONMANAGER_UPDATE_SNAPSHOTS") == "1" then
-            writeFile(fullPath, json)
+            writeFile(fullPath, encoded)
             return
         end
 
@@ -178,7 +93,7 @@ function M.new(options)
             error("Snapshot missing: " .. fullPath, 2)
         end
 
-        if expected:gsub("%s+$", "") ~= json then
+        if expected:gsub("%s+$", "") ~= encoded then
             error("Snapshot mismatch: " .. snapshotPath, 2)
         end
     end
