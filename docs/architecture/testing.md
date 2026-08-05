@@ -20,7 +20,20 @@ That keeps the project easy to run:
 lua tests/run.lua
 ```
 
-A larger Lua test framework can come later if the project outgrows the simple runner. For now, the most valuable tests are examples with assertions.
+For version 1, SpoonManager should not use an external test framework. The project should provide its own tiny runner in `tests/run.lua`.
+
+The runner should provide only the small primitives the project needs:
+
+```lua
+test(name, fn)
+assertEqual(actual, expected)
+assertTrue(value)
+assertFalse(value)
+assertError(fn, expectedMessagePattern)
+assertMatchesJson(snapshotPath, actual)
+```
+
+A larger Lua test framework can come later if the project outgrows this. For now, the most valuable tests are examples with assertions and golden JSON snapshots.
 
 Use two complementary assertion styles:
 
@@ -107,6 +120,44 @@ Snapshot tests should use canonical JSON:
 - consistent indentation
 - no platform-specific temporary paths
 - no timestamps unless replaced with placeholders
+
+The same snapshot assertion should support two modes.
+
+Normal mode checks the current result against the committed snapshot:
+
+```sh
+lua tests/run.lua
+```
+
+Update mode writes or refreshes the snapshot file:
+
+```sh
+SPOONMANAGER_UPDATE_SNAPSHOTS=1 lua tests/run.lua
+```
+
+This avoids separate "snapshot creation tests". The same test creates or verifies its snapshot depending on the environment.
+
+Conceptual helper:
+
+```lua
+function assertMatchesJson(snapshotPath, actual)
+    local normalized = normalizeForSnapshot(actual)
+    local json = encodeCanonicalJson(normalized)
+    local fullPath = pathJoin(repoRoot, "tests", "snapshots", snapshotPath)
+
+    if os.getenv("SPOONMANAGER_UPDATE_SNAPSHOTS") == "1" then
+        writeFile(fullPath, json)
+        return
+    end
+
+    local expected = readFile(fullPath)
+    if expected ~= json then
+        error("Snapshot mismatch: " .. snapshotPath)
+    end
+end
+```
+
+Updating snapshots should be an explicit developer action. After running update mode, the developer reviews the git diff and commits the snapshot changes only when the new output is intentional.
 
 Example normalized installed snapshot:
 
