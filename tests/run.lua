@@ -15,7 +15,11 @@ T.SpoonManager, T.context = loadSpoonManager(repoRoot)
 local testFiles = {
     "tests/examples/default_spoon.lua",
     "tests/examples/github_folder.lua",
+    "tests/examples/github_patterns.lua",
     "tests/examples/github_release.lua",
+    "tests/examples/github_repository.lua",
+    "tests/examples/local_sources.lua",
+    "tests/examples/zip_sources.lua",
     "tests/unit/name_resolver_test.lua",
     "tests/unit/definition_test.lua",
     "tests/unit/resolver_test.lua",

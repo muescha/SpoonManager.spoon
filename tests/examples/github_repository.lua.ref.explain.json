@@ -1,0 +1,28 @@
+{
+  "command": {
+    "action": "update",
+    "from": {
+      "archiveUrl": "https://github.com/muescha/DeepFolder.spoon/archive/v1.2.3.zip",
+      "type": "github-repository"
+    },
+    "to": {
+      "name": "DeepFolder",
+      "path": "/tmp/hammerspoon-test/Spoons/DeepFolder.spoon",
+      "type": "spoon"
+    }
+  },
+  "definition": {
+    "source": {
+      "baseUrl": "https://github.com",
+      "provider": "github",
+      "repository": "muescha/DeepFolder.spoon",
+      "revision_ref": "v1.2.3",
+      "type": "github"
+    }
+  },
+  "resolved": {
+    "archiveUrl": "https://github.com/muescha/DeepFolder.spoon/archive/v1.2.3.zip",
+    "installName": "DeepFolder",
+    "sourceType": "github-repository"
+  }
+}

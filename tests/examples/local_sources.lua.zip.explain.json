@@ -1,0 +1,25 @@
+{
+  "command": {
+    "action": "install",
+    "from": {
+      "path": "/Users/test/Downloads/DeepFolder.spoon.zip",
+      "type": "local-zip"
+    },
+    "to": {
+      "name": "DeepFolder",
+      "path": "/tmp/hammerspoon-test/Spoons/DeepFolder.spoon",
+      "type": "spoon"
+    }
+  },
+  "definition": {
+    "source": {
+      "path": "/Users/test/Downloads/DeepFolder.spoon.zip",
+      "type": "local-zip"
+    }
+  },
+  "resolved": {
+    "installName": "DeepFolder",
+    "localPath": "/Users/test/Downloads/DeepFolder.spoon.zip",
+    "sourceType": "local-zip"
+  }
+}

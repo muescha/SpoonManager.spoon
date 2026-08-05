@@ -1,0 +1,25 @@
+{
+  "command": {
+    "action": "install",
+    "from": {
+      "type": "remote-zip",
+      "url": "https://example.com/downloads/DeepFolder.spoon.zip"
+    },
+    "to": {
+      "name": "DeepFolder",
+      "path": "/tmp/hammerspoon-test/Spoons/DeepFolder.spoon",
+      "type": "spoon"
+    }
+  },
+  "definition": {
+    "source": {
+      "type": "remote-zip",
+      "url": "https://example.com/downloads/DeepFolder.spoon.zip"
+    }
+  },
+  "resolved": {
+    "installName": "DeepFolder",
+    "sourceType": "remote-zip",
+    "url": "https://example.com/downloads/DeepFolder.spoon.zip"
+  }
+}
