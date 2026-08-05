@@ -33,6 +33,7 @@ return function(context)
 
     function Installer.normalizeDefinition(definition)
         local def = util.copyTable(definition)
+        def.definition = util.copyTable(definition)
         def.options = util.mergeTables(manager.installOptions, def.options or {})
         def.resolved = resolver.resolveDefinition(def)
         def.name = def.resolved.installName
