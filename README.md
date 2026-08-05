@@ -147,7 +147,7 @@ Install a Spoon from a folder inside a GitHub repository:
 spoon.SpoonManager.from.github("muescha/SpoonRepo")
     .branch("main")
     .folder("Source/deepfolder")
-    .asSpoon("DeepFolder")
+    .withName("DeepFolder")
     .install()
 ```
 
@@ -157,7 +157,7 @@ Install from the latest GitHub release asset:
 spoon.SpoonManager.from.github("muescha/DeepFolder.spoon")
     .releaseLatest()
     .asset("DeepFolder.zip")
-    .asSpoon("DeepFolder")
+    .withName("DeepFolder")
     .install()
 ```
 
@@ -181,7 +181,7 @@ local emojis =
 local deepFolder =
     spoon.SpoonManager.from.github("muescha/SpoonRepo")
         .folder("Source/deepfolder")
-        .asSpoon("DeepFolder")
+        .withName("DeepFolder")
 
 spoon.SpoonManager.add(emojis, deepFolder)
 spoon.SpoonManager.install()
@@ -326,12 +326,12 @@ Installs as:
 name
 ```
 
-Use `.asSpoon(name)` to override the inferred name:
+Use `.withName(name)` to override the inferred name:
 
 ```lua
 spoon.SpoonManager.from.github("user/repo")
     .folder("Source/deepfolder")
-    .asSpoon("BetterName")
+    .withName("BetterName")
     .install()
 ```
 
@@ -352,11 +352,11 @@ The API has two layers:
 
 All builder calls use dot notation and do not install anything until `install()` or `update()` is called.
 
-A definition contains the Spoon name, source information, use options, and install options. It can start broad, such as a GitHub repository, and become more specific with calls like `folder(...)`, `asset(...)`, or `asSpoon(...)`.
+A definition contains the Spoon name, source information, use options, and install options. It can start broad, such as a GitHub repository, and become more specific with calls like `folder(...)`, `asset(...)`, or `withName(...)`.
 
 Builder arguments that describe names, paths, refs, URLs, patterns, releases, or assets must be strings. Passing a table, number, or another builder object raises an error instead of being converted with `tostring()`.
 
-Builder methods do not silently overwrite each other. Each group can be set once per definition: revision (`branch`/`ref`), Spoon pattern, selection (`spoon`/`folder`/`asset`), release, target name (`asSpoon`), and local-change behavior. If you need another Spoon from the same repository, keep the base definition and call the method there again.
+Builder methods do not silently overwrite each other. Each group can be set once per definition: revision (`branch`/`ref`), Spoon pattern, selection (`spoon`/`folder`/`asset`), release, target name (`withName`), and local-change behavior. If you need another Spoon from the same repository, keep the base definition and call the method there again.
 
 ### `SpoonManager.from.config(config)`
 
@@ -430,13 +430,13 @@ In exported configs, this uses `source.type = "remote-zip"`.
 
 The URL must point to a `.zip` file. Other archive formats are rejected.
 
-The Spoon name is inferred from the ZIP URL. Use `.asSpoon(name)` to override it.
+The Spoon name is inferred from the ZIP URL. Use `.withName(name)` to override it.
 
 Example:
 
 ```lua
 spoon.SpoonManager.from.remoteZip("https://example.com/MySpoon.zip")
-    .asSpoon("MySpoon")
+    .withName("MySpoon")
     .install()
 ```
 
@@ -446,7 +446,7 @@ Example, GitHub latest release asset as a plain ZIP URL:
 spoon.SpoonManager.from.remoteZip(
     "https://github.com/muescha/MySpoon.spoon/releases/latest/download/MySpoon.zip"
 )
-    .asSpoon("MySpoon")
+    .withName("MySpoon")
     .install()
 ```
 
@@ -460,13 +460,13 @@ In exported configs, this uses `source.type = "local-zip"`.
 
 The path must point to a `.zip` file. Other archive formats are rejected.
 
-The Spoon name is inferred from the ZIP filename. Use `.asSpoon(name)` to override it.
+The Spoon name is inferred from the ZIP filename. Use `.withName(name)` to override it.
 
 Example:
 
 ```lua
 spoon.SpoonManager.from.localZip("~/Downloads/MySpoon.zip")
-    .asSpoon("MySpoon")
+    .withName("MySpoon")
     .install()
 ```
 
@@ -487,7 +487,7 @@ Example, override the installed Spoon name:
 
 ```lua
 spoon.SpoonManager.from.localFolder("~/Projects/experimental")
-    .asSpoon("MySpoon")
+    .withName("MySpoon")
     .install()
 ```
 
@@ -666,12 +666,12 @@ Inferred Spoon name:
 deepfolder
 ```
 
-Use `asSpoon()` only when the inferred name is not the name you want to install:
+Use `withName()` only when the inferred name is not the name you want to install:
 
 ```lua
 spoon.SpoonManager.from.github("muescha/SpoonRepo")
     .folder("Source/deepfolder")
-    .asSpoon("DeepFolder")
+    .withName("DeepFolder")
     .install()
 ```
 
@@ -687,7 +687,7 @@ Example:
 spoon.SpoonManager.from.github("muescha/MySpoon.spoon")
     .releaseLatest()
     .asset("MySpoon.zip")
-    .asSpoon("MySpoon")
+    .withName("MySpoon")
     .install()
 ```
 
@@ -707,7 +707,7 @@ Example:
 spoon.SpoonManager.from.github("muescha/MySpoon.spoon")
     .release("v1.2.0")
     .asset("MySpoon.zip")
-    .asSpoon("MySpoon")
+    .withName("MySpoon")
     .install()
 ```
 
@@ -731,21 +731,21 @@ Example:
 spoon.SpoonManager.from.github("muescha/MySpoon.spoon")
     .releaseLatest()
     .asset("MySpoon.zip")
-    .asSpoon("MySpoon")
+    .withName("MySpoon")
     .install()
 ```
 
-### `definition.asSpoon(name)`
+### `definition.withName(name)`
 
 Returns a new definition with a specific installed Spoon name.
 
-This is useful when the inferred name is not the name you want. For example, a folder named `Source/deepfolder` is inferred as `deepfolder`; use `asSpoon("DeepFolder")` if the installed Spoon should be named `DeepFolder`.
+This is useful when the inferred name is not the name you want. For example, a folder named `Source/deepfolder` is inferred as `deepfolder`; use `withName("DeepFolder")` if the installed Spoon should be named `DeepFolder`.
 
 Example:
 
 ```lua
 spoon.SpoonManager.from.remoteZip("https://example.com/download.zip")
-    .asSpoon("MySpoon")
+    .withName("MySpoon")
     .install()
 ```
 
@@ -753,7 +753,7 @@ Example, repository root:
 
 ```lua
 spoon.SpoonManager.from.github("muescha/MySpoon.spoon")
-    .asSpoon("MySpoon")
+    .withName("MySpoon")
     .install()
 ```
 

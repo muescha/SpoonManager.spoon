@@ -48,7 +48,7 @@ return function(context)
         end
 
         if not definition.name then
-            return nil, "Spoon definition requires a Spoon name. Add .asSpoon(\"Name\")."
+            return nil, "Spoon definition requires a Spoon name. Add .withName(\"Name\")."
         end
 
         if definition.source.type == "remote-zip" and not util.isZipPath(definition.source.url) then

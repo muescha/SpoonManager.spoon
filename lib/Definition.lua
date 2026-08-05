@@ -84,7 +84,7 @@ return function(context)
         end
 
         if definition.explicitName and not used.targetName then
-            used.targetName = util.createLabel("asSpoon", definition.explicitName)
+            used.targetName = util.createLabel("withName", definition.explicitName)
         end
     end
 
@@ -247,11 +247,11 @@ return function(context)
             return fromState(nextDef)
         end
 
-        api.asSpoon = function(value)
+        api.withName = function(value)
             util.requireString(value, "Spoon name")
 
             local nextDef = util.copyTable(def)
-            markUsed(nextDef, "targetName", "asSpoon", value)
+            markUsed(nextDef, "targetName", "withName", value)
             setExplicitName(nextDef, nameResolver.infer(value, "explicit Spoon name"))
             nameResolver.logExplicit(nextDef.name, value)
             return fromState(nextDef)
