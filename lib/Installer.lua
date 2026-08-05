@@ -1,7 +1,6 @@
 return function(context)
     local Installer = {}
     local archive = context.archive
-    local github = context.github
     local logger = context.logger
     local manager = context.manager
     local paths = context.paths
@@ -33,9 +32,12 @@ return function(context)
 
     function Installer.normalizeDefinition(definition)
         local def = util.copyTable(definition)
+        local command = resolver.toCommand(definition)
+
         def.definition = util.copyTable(definition)
         def.options = util.mergeTables(manager.installOptions, def.options or {})
-        def.resolved = resolver.resolveDefinition(def)
+        def.command = command
+        def.resolved = command.resolved
         def.name = def.resolved.installName
         def.source = def.resolved.executionSource
         return def
@@ -191,7 +193,9 @@ return function(context)
 
     function Installer.installDefinition(definition, action)
         local def = Installer.normalizeDefinition(definition)
-        local command = resolver.toCommand(definition, action)
+        local command = util.copyTable(def.command)
+        command.action = action or "install"
+
         local valid, validationError = Installer.validateDefinition(def)
         if not valid then
             return nil, validationError
@@ -215,7 +219,7 @@ return function(context)
             }
         end
 
-        local source = def.source
+        local source = command.from
         local result, err
 
         if source.type == "local-folder" then
@@ -227,9 +231,9 @@ return function(context)
         elseif source.type == "remote-zip" then
             result, err = Installer.installFromRemoteZip(def, source.url)
         elseif source.type == "github-release" then
-            result, err = Installer.installFromRemoteZip(def, github.releaseAssetUrl(source))
+            result, err = Installer.installFromRemoteZip(def, source.url)
         elseif source.type == "github-folder" or source.type == "github-repository" then
-            result, err = Installer.installFromRemoteZip(def, github.archiveUrl(source))
+            result, err = Installer.installFromRemoteZip(def, source.archiveUrl)
         else
             return nil, "Unsupported source type: " .. tostring(source.type)
         end
