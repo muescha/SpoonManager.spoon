@@ -139,6 +139,115 @@ Example:
 }
 ```
 
+## Source Safety
+
+Manifests should avoid direct local filesystem paths. A public or remote `spoonify.json` must not require values such as:
+
+```json
+{
+  "source": {
+    "type": "local-folder",
+    "path": "/Users/alice/Projects/Foo.spoon"
+  }
+}
+```
+
+Local paths are machine-specific and should be configured by the user, not by a remote manifest.
+
+Provider-based sources are preferred:
+
+```json
+{
+  "source": {
+    "type": "github",
+    "repository": "owner/repo",
+    "branch": "main",
+    "folder": "Source/Foo.spoon"
+  }
+}
+```
+
+For self-hosted providers, use `baseUrl`. This name is preferred over `host` because it includes the scheme.
+
+GitHub Enterprise example:
+
+```json
+{
+  "source": {
+    "type": "github",
+    "baseUrl": "https://github.company.com",
+    "repository": "team/spoons",
+    "branch": "main",
+    "spoonFolderPattern": "Source/{name}.spoon"
+  }
+}
+```
+
+GitLab example:
+
+```json
+{
+  "source": {
+    "type": "gitlab",
+    "baseUrl": "https://gitlab.company.com",
+    "repository": "team/spoons",
+    "branch": "main",
+    "spoonFolderPattern": "Source/{name}.spoon"
+  }
+}
+```
+
+Forgejo or Codeberg example:
+
+```json
+{
+  "source": {
+    "type": "forgejo",
+    "baseUrl": "https://codeberg.org",
+    "repository": "user/spoons",
+    "branch": "main",
+    "spoonFolderPattern": "Source/{name}.spoon"
+  }
+}
+```
+
+Direct remote ZIP URLs inside manifests should be denied by default. They can point to arbitrary hosts, so they should require explicit trust from the user.
+
+Possible API:
+
+```lua
+SpoonManager.trustManifestRemoteUrls(
+    "https://github.com",
+    "https://raw.githubusercontent.com",
+    "https://spoonify.sh"
+)
+```
+
+The API accepts URL-like strings but should internally trust only their origins.
+
+```text
+https://example.com/releases/Foo.zip -> https://example.com
+```
+
+Then this manifest source is allowed:
+
+```json
+{
+  "source": {
+    "type": "remote-zip",
+    "url": "https://spoonify.sh/downloads/Foo.zip"
+  }
+}
+```
+
+only if the user has trusted:
+
+```lua
+SpoonManager.trustManifestRemoteUrls("https://spoonify.sh")
+```
+
+Provider-based sources such as `github`, `gitlab`, and `forgejo` do not need the remote ZIP allowlist. They are resolved by provider-specific resolver logic.
+
 ## External Manifests
 
 `spoonify.json` should be a format, not only a file inside the source repository.
@@ -240,4 +349,3 @@ definition -> resolved definition -> command -> execute
 ```
 
 This keeps manifests small and portable. Local values such as the final install path, `hs.configdir`, user-level `withName(...)`, and local-change behavior should be resolved by SpoonManager, not hard-coded into the manifest.
-
