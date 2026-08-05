@@ -4,9 +4,9 @@ return function(context)
     local github = context.github
     local logger = context.logger
     local manager = context.manager
-    local nameResolver = context.nameResolver
     local paths = context.paths
     local registry = context.registry
+    local resolver = context.resolver
     local util = context.util
 
     function Installer.checksumDirectory(path)
@@ -34,75 +34,10 @@ return function(context)
     function Installer.normalizeDefinition(definition)
         local def = util.copyTable(definition)
         def.options = util.mergeTables(manager.installOptions, def.options or {})
-        def.resolved = Installer.resolveDefinition(def)
+        def.resolved = resolver.resolveDefinition(def)
         def.name = def.resolved.installName
         def.source = def.resolved.executionSource
         return def
-    end
-
-    function Installer.resolveDefinition(definition)
-        local source = definition.source or {}
-        local target = definition.target or {}
-        local installName = nameResolver.infer(target.name_withName, "explicit Spoon name")
-            or nameResolver.inferFromTarget(target)
-            or nameResolver.inferFromSource(source)
-
-        local executionSource = util.copyTable(source)
-        local resolved = {
-            installName = installName,
-        }
-
-        if source.type == "github" then
-            executionSource.type = "github-repository"
-
-            if target.selection_asset then
-                executionSource.type = "github-release"
-                executionSource.release = source.release or "latest"
-                executionSource.asset = target.selection_asset
-                resolved.sourceType = "github-release"
-                resolved.asset = target.selection_asset
-            elseif target.selection_folder then
-                executionSource.type = "github-folder"
-                executionSource.path = target.selection_folder
-                resolved.sourceType = "github-folder"
-                resolved.extractFolder = target.selection_folder
-            elseif target.selection_spoon and source.pattern_spoonZipPattern then
-                local path = source.pattern_spoonZipPattern:gsub("{name}", target.selection_spoon)
-                executionSource = {
-                    type = "remote-zip",
-                    url = github.rawUrl(source, path),
-                }
-                resolved.sourceType = "remote-zip"
-                resolved.url = executionSource.url
-            elseif target.selection_spoon and source.pattern_spoonFolderPattern then
-                local path = source.pattern_spoonFolderPattern:gsub("{name}", target.selection_spoon)
-                executionSource.type = "github-folder"
-                executionSource.path = path
-                resolved.sourceType = "github-folder"
-                resolved.extractFolder = path
-            else
-                resolved.sourceType = "github-repository"
-            end
-        elseif source.type == "local-folder" and target.selection_folder then
-            executionSource.path = util.pathJoin(source.path, target.selection_folder)
-            resolved.sourceType = "local-folder"
-            resolved.localPath = executionSource.path
-        else
-            resolved.sourceType = source.type
-        end
-
-        if executionSource.type == "github-folder" or executionSource.type == "github-repository" then
-            resolved.archiveUrl = github.archiveUrl(executionSource)
-        elseif executionSource.type == "github-release" then
-            resolved.url = github.releaseAssetUrl(executionSource)
-        elseif executionSource.type == "remote-zip" then
-            resolved.url = executionSource.url
-        elseif executionSource.type == "local-folder" or executionSource.type == "local-zip" then
-            resolved.localPath = executionSource.path
-        end
-
-        resolved.executionSource = executionSource
-        return resolved
     end
 
     function Installer.validateDefinition(definition)
@@ -255,6 +190,7 @@ return function(context)
 
     function Installer.installDefinition(definition, action)
         local def = Installer.normalizeDefinition(definition)
+        local command = resolver.toCommand(definition, action)
         local valid, validationError = Installer.validateDefinition(def)
         if not valid then
             return nil, validationError
@@ -271,6 +207,8 @@ return function(context)
                 reason = "already-installed",
                 name = def.name,
                 path = paths.targetPath(def.name),
+                command = command,
+                resolved = def.resolved,
                 source = def.source,
                 use = def.use,
             }
@@ -297,6 +235,8 @@ return function(context)
 
         if result then
             result.action = action
+            result.command = command
+            result.resolved = def.resolved
         end
         return result, err
     end
