@@ -131,6 +131,24 @@ The modules have narrow responsibilities:
 - `Registry.lua`: `installed.json` read/write
 - `Util.lua`: small shared helpers
 
+## Tests
+
+Run the plain Lua test runner from the repository root:
+
+```sh
+lua tests/run.lua
+```
+
+The tests include executable examples for the builder API and golden JSON snapshots for complete configs and commands.
+
+Update snapshots explicitly when an output change is intentional:
+
+```sh
+SPOONMANAGER_UPDATE_SNAPSHOTS=1 lua tests/run.lua
+```
+
+After updating snapshots, review the Git diff before committing.
+
 ## Examples
 
 Install from the default Hammerspoon Spoons repository using the classic ZIP convention:
