@@ -30,4 +30,22 @@ return function(T)
                 .asset("A.tar.gz")
         end, "Release asset must point to a %.zip file")
     end)
+
+    T.test("installer rejects non zip release asset from config", function()
+        local result, err =
+            T.SpoonManager.from.config({
+                source = {
+                    type = "github",
+                    repository = "owner/repo",
+                    release = "latest",
+                },
+                target = {
+                    selection_asset = "A.tar.gz",
+                    name_withName = "A",
+                },
+            }).install()
+
+        T.assertFalse(result)
+        T.assertEqual(err, "GitHub release asset must point to a .zip file")
+    end)
 end
