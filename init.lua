@@ -41,11 +41,17 @@ obj.definitions = {}
 ---  * `localChanges.abort`
 ---  * `localChanges.backup`
 ---  * `localChanges.overwrite`
+---  * `patterns.spoonRepo`
+---  * `patterns.spoonRepoZip`
 obj.options = {
     localChanges = {
         abort = "abort",
         backup = "backup",
         overwrite = "overwrite",
+    },
+    patterns = {
+        spoonRepo = "Source/{name}.spoon",
+        spoonRepoZip = "Spoons/{name}.spoon.zip",
     },
 }
 
@@ -237,7 +243,7 @@ end
 --- Create a GitHub Spoon source repository using Source/{name}.spoon.
 function obj.from.spoonRepo(repository, options)
     return obj.from.github(repository, options)
-        .spoonFolderPattern("Source/{name}.spoon")
+        .spoonFolderPattern(obj.options.patterns.spoonRepo)
 end
 
 --- SpoonManager.from.spoonRepoZip(repository[, options]) -> definition
@@ -245,7 +251,7 @@ end
 --- Create a GitHub Spoon ZIP repository using Spoons/{name}.spoon.zip.
 function obj.from.spoonRepoZip(repository, options)
     return obj.from.github(repository, options)
-        .spoonZipPattern("Spoons/{name}.spoon.zip")
+        .spoonZipPattern(obj.options.patterns.spoonRepoZip)
 end
 
 obj.from.default = obj.from.spoonRepoZip("Hammerspoon/Spoons", {

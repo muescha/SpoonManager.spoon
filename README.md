@@ -941,6 +941,44 @@ spoon.SpoonManager.from.default
     .install()
 ```
 
+### `SpoonManager.options.patterns`
+
+Constants for built-in Spoon repository path conventions.
+
+Using constants avoids duplicate hard-coded strings when you want to build the
+same conventions manually.
+
+Values:
+
+```lua
+spoon.SpoonManager.options.patterns.spoonRepo
+spoon.SpoonManager.options.patterns.spoonRepoZip
+```
+
+Current values:
+
+```lua
+spoon.SpoonManager.options.patterns.spoonRepo
+-- "Source/{name}.spoon"
+
+spoon.SpoonManager.options.patterns.spoonRepoZip
+-- "Spoons/{name}.spoon.zip"
+```
+
+`from.spoonRepo(...)` uses `options.patterns.spoonRepo`.
+`from.spoonRepoZip(...)` and `from.default` use `options.patterns.spoonRepoZip`.
+
+Example:
+
+```lua
+spoon.SpoonManager.from.github("muescha/SpoonRepo", {
+    branch = "main",
+})
+    .spoonFolderPattern(spoon.SpoonManager.options.patterns.spoonRepo)
+    .spoon("MySpoon")
+    .install()
+```
+
 ### `SpoonManager.options.localChanges`
 
 Constants for `definition.onLocalChanges(behavior)`.
