@@ -15,6 +15,14 @@ The core idea is that user-facing builder calls and manifest files should produc
 
 ## Layers
 
+The intended lifecycle is:
+
+```text
+definition -> resolved definition -> command -> installed record
+```
+
+`definition` is the durable input. `resolved` is an explainable derived view. `command` is the executable task. `installed` is the persistent local registry record after execution.
+
 ### Definition
 
 A definition describes what the user or manifest declared.
@@ -60,7 +68,7 @@ The source answers "where does the code come from?" The target section answers "
 
 ### Resolved Definition
 
-Resolution enriches a definition with derived values. These values are useful for debugging and execution, but they should not replace the original declarative input.
+Resolution enriches a definition with derived values. These values are useful for debugging, logging, GUI previews, and command construction, but they should not replace the original declarative input.
 
 Example:
 
@@ -86,9 +94,11 @@ Example:
 
 Resolution is where defaults are applied. For example, GitHub may default to `main` when neither `source.revision_branch` nor `source.revision_ref` is set. That default does not need to be written back into the user definition.
 
+The resolved table is not the source of truth, but keeping it around is useful because SpoonManager has to compute these values anyway. It can be returned by `explain(...)`, logged during installs, shown by a future GUI, and copied into install results for troubleshooting.
+
 ### Command
 
-A command is the final executable install/update task.
+A command is the final executable install/update task. It is built from the definition and resolved values.
 
 Example:
 
@@ -109,6 +119,44 @@ Example:
 ```
 
 The installer should execute commands, not interpret builder history directly.
+
+### Installed Record
+
+An installed record is written to the local SpoonManager registry after a command succeeds. It is not part of `spoonify.json`; it describes the local machine state.
+
+Example:
+
+```lua
+{
+    name = "Emojis",
+    path = "~/.hammerspoon/Spoons/Emojis.spoon",
+    installedAt = "2026-08-05T03:12:00Z",
+    updatedAt = "2026-08-05T03:12:00Z",
+    definition = {
+        source = {
+            type = "github",
+            repository = "Hammerspoon/Spoons",
+            revision_branch = "master",
+            pattern_spoonFolderPattern = "Source/{name}.spoon",
+        },
+        target = {
+            selection_spoon = "Emojis",
+        },
+    },
+    resolved = {
+        sourceType = "github-folder",
+        archiveUrl = "https://github.com/Hammerspoon/Spoons/archive/master.zip",
+        extractFolder = "Source/Emojis.spoon",
+        installName = "Emojis",
+    },
+    fingerprints = {
+        localHash = "sha256:...",
+        sourceRevision = "abc123",
+    },
+}
+```
+
+The installed record is needed for updates, local-change detection, removal, and status views such as "installed but not configured for use".
 
 ## Exclusive Groups
 
