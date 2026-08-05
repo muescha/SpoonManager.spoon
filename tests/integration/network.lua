@@ -34,7 +34,7 @@ local function fileExists(path)
         return true
     end
 
-    local ok = os.execute("/usr/bin/test -e " .. shellQuote(path))
+    local ok = os.execute("/bin/test -e " .. shellQuote(path))
     return ok == true or ok == 0
 end
 
@@ -413,6 +413,8 @@ end
 
 local enabled = 0
 local passed = 0
+local failed = 0
+local failures = {}
 local installRoot = installRootForRun()
 
 cleanInstallRootBeforeRun(installRoot)
@@ -487,6 +489,13 @@ for _, test in ipairs(config.tests or {}) do
             print("ok (" .. installPath .. ")")
             cleanInstallPathAfterTest(test, installPath)
         else
+            failed = failed + 1
+            local failureMessage = tostring(err):match("^[^\n]+") or tostring(err)
+            table.insert(failures, {
+                id = test.id,
+                message = failureMessage,
+            })
+
             print("failed")
             print(err)
             if runnerPath then
@@ -517,8 +526,6 @@ for _, test in ipairs(config.tests or {}) do
             if installPath then
                 cleanInstallPathAfterTest(test, installPath)
             end
-            cleanInstallRootAfterRun(installRoot)
-            os.exit(1)
         end
     end
 end
@@ -527,6 +534,13 @@ cleanInstallRootAfterRun(installRoot)
 
 if enabled == 0 then
     print("0 network tests enabled")
+elseif failed > 0 then
+    print(string.format("%d network tests passed, %d failed", passed, failed))
+    print("Failures:")
+    for _, failure in ipairs(failures) do
+        print(" - " .. failure.id .. ": " .. failure.message)
+    end
+    os.exit(1)
 else
     print(string.format("%d network tests passed", passed))
 end

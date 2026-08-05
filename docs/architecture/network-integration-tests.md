@@ -155,7 +155,7 @@ The result artifact has this general shape:
 }
 ```
 
-On failure, `success` is false and `error` contains the traceback.
+On failure, `success` is false and `error` contains the traceback. The runner keeps processing later enabled tests and reports all failures in test order at the end.
 
 The log artifact has this shape:
 
@@ -504,6 +504,7 @@ The runner:
 14. Print the resolved install path.
 15. Optionally clean the test-specific install path after the test.
 16. Optionally clean `installRoot` after all tests.
+17. Print an ordered failure summary and exit with code 1 when any enabled test failed.
 
 The first implementation intentionally does not run update/local-change checks yet.
 Those can be added once the happy-path network installs are stable.
