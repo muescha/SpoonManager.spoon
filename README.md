@@ -352,11 +352,37 @@ The API has two layers:
 
 All builder calls use dot notation and do not install anything until `install()` or `update()` is called.
 
-A definition contains the Spoon name, source information, use options, and install options. It can start broad, such as a GitHub repository, and become more specific with calls like `folder(...)`, `asset(...)`, or `withName(...)`.
+A definition contains the source information, target selection, use options, and install options. It can start broad, such as a GitHub repository, and become more specific with calls like `folder(...)`, `asset(...)`, or `withName(...)`.
+
+The public definition table keeps user-provided values close to the builder calls:
+
+```lua
+{
+    source = {
+        type = "github",
+        repository = "Hammerspoon/Spoons",
+        revision_branch = "master",
+        pattern_spoonZipPattern = "Spoons/{name}.spoon.zip",
+    },
+    target = {
+        selection_spoon = "Emojis",
+    },
+}
+```
+
+`source` answers where the files come from. `target` answers which Spoon is selected and what local name it should use.
 
 Builder arguments that describe names, paths, refs, URLs, patterns, releases, or assets must be strings. Passing a table, number, or another builder object raises an error instead of being converted with `tostring()`.
 
 Builder methods do not silently overwrite each other. Each group can be set once per definition: revision (`branch`/`ref`), Spoon pattern, selection (`spoon`/`folder`/`asset`), release, target name (`withName`), and local-change behavior. If you need another Spoon from the same repository, keep the base definition and call the method there again.
+
+Internally, SpoonManager resolves a definition into an executable command at the last moment:
+
+```text
+definition -> resolved -> command -> installed record
+```
+
+`definition.toConfig()` returns only the declarative definition. Install results and `installed.json` additionally include `resolved` and `command` data for debugging and update checks.
 
 ### `SpoonManager.from.config(config)`
 
@@ -527,9 +553,9 @@ Returns a new definition using the given branch name.
 
 This is a readable shortcut for branch-based GitHub sources.
 
-If no branch is configured, GitHub sources use `main`.
+If no branch or ref is configured, GitHub sources use `main` while resolving URLs.
 
-In exported configs, `branch(name)` uses `source.branch = name`. `ref(name)` uses `source.ref = name`.
+In exported configs, `branch(name)` uses `source.revision_branch = name`. `ref(name)` uses `source.revision_ref = name`.
 
 `SpoonManager.from.default` already has `master` configured, so you normally do not need to call `branch("master")` there.
 
@@ -574,6 +600,8 @@ Returns a new definition that knows how to turn a Spoon name into a ZIP path.
 
 The pattern may contain `{name}`.
 
+In exported configs, this uses `source.pattern_spoonZipPattern = pattern`.
+
 Example:
 
 ```lua
@@ -598,6 +626,8 @@ Returns a new definition that knows how to turn a Spoon name into a folder path.
 
 The pattern may contain `{name}`.
 
+In exported configs, this uses `source.pattern_spoonFolderPattern = pattern`.
+
 Example:
 
 ```lua
@@ -613,6 +643,8 @@ repo.spoon("MySpoon")
 ### `definition.spoon(name)`
 
 Creates a Spoon definition from a known Spoon name.
+
+In exported configs, this stores the selected Spoon in `target.selection_spoon`.
 
 With `from.default`, this resolves directly to the official Spoon ZIP:
 
@@ -640,6 +672,8 @@ spoon.SpoonManager.from.github("muescha/SpoonRepo")
 ### `definition.folder(path)`
 
 Creates a Spoon definition from a folder inside the repository or local folder.
+
+In exported configs, this stores the selected folder in `target.selection_folder`.
 
 For GitHub sources, SpoonManager downloads the generated repository archive and extracts only the selected folder.
 
@@ -725,6 +759,8 @@ Usually used after `releaseLatest()` or `release(name)`.
 
 The asset name must end in `.zip`. Other archive formats are rejected.
 
+In exported configs, this stores the selected asset in `target.selection_asset`.
+
 Example:
 
 ```lua
@@ -740,6 +776,8 @@ spoon.SpoonManager.from.github("muescha/MySpoon.spoon")
 Returns a new definition with a specific installed Spoon name.
 
 This is useful when the inferred name is not the name you want. For example, a folder named `Source/deepfolder` is inferred as `deepfolder`; use `withName("DeepFolder")` if the installed Spoon should be named `DeepFolder`.
+
+In exported configs, this uses `target.name_withName = name`.
 
 Example:
 
@@ -969,7 +1007,7 @@ Returns the plain Lua table behind a definition builder.
 
 This is useful for debugging, storing definitions, or generating a future `spoonify.json`.
 
-The returned table includes `_builder.used` metadata. SpoonManager uses it to keep the same "do not overwrite builder choices" checks when a config is loaded again with `SpoonManager.from.config(config)`.
+The returned table does not include private builder metadata. SpoonManager validates conflicts from the real definition fields, for example `source.revision_branch`, `source.revision_ref`, and `target.selection_folder`.
 
 Example:
 
@@ -982,6 +1020,27 @@ local definition =
         })
 
 print(hs.inspect(definition.toConfig()))
+```
+
+Example output:
+
+```lua
+{
+    source = {
+        type = "github",
+        provider = "github",
+        repository = "Hammerspoon/Spoons",
+        baseUrl = "https://github.com",
+        revision_branch = "master",
+        pattern_spoonZipPattern = "Spoons/{name}.spoon.zip",
+    },
+    target = {
+        selection_spoon = "Emojis",
+    },
+    use = {
+        start = true,
+    },
+}
 ```
 
 ### `SpoonManager.add(definition[, ...])`
@@ -1107,6 +1166,9 @@ On success:
     name = "Emojis",
     path = "~/.hammerspoon/Spoons/Emojis.spoon",
     source = {},
+    definition = {},
+    resolved = {},
+    command = {},
     use = {},
 }
 ```
@@ -1131,7 +1193,27 @@ After a successful install or update, SpoonManager stores install metadata here:
 ~/.hammerspoon/.config/SpoonManager/installed.json
 ```
 
-It contains the source and a checksum of the installed Spoon folder. That checksum is used to detect local changes before `update()`.
+It contains the original definition, the resolved install data, the effective execution source, and a checksum of the installed Spoon folder. That checksum is used to detect local changes before `update()`.
+
+Shape:
+
+```lua
+{
+    Emojis = {
+        name = "Emojis",
+        installedAt = "2026-08-05T03:12:00Z",
+        updatedAt = "2026-08-05T03:12:00Z",
+        path = "~/.hammerspoon/Spoons/Emojis.spoon",
+        definition = {},
+        resolved = {},
+        source = {},
+        use = {},
+        fingerprints = {
+            localHash = "sha256:...",
+        },
+    },
+}
+```
 
 The directory can be overridden:
 
