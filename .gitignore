@@ -1,2 +1,3 @@
 .idea/
 tests/integration/network.local.json
+tests/integration/network.test.*.explain.json

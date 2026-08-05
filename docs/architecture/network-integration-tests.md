@@ -31,6 +31,8 @@ release assets, and remote ZIP URLs that are stable enough for end-to-end testin
 {
   "version": 1,
   "installRoot": "/tmp/spoonmanager-network-test",
+  "cleanInstallRoot": true,
+  "explainDir": "tests/integration",
   "tests": []
 }
 ```
@@ -41,6 +43,21 @@ Installed Spoons should land below:
 ```text
 {installRoot}/Spoons/{name}.spoon
 ```
+
+When `cleanInstallRoot` is true, the runner removes `installRoot` before running.
+For safety, the runner only accepts install roots below `/tmp/` whose path contains
+`spoonmanager`.
+
+`explainDir` controls where per-test explanation snapshots are written. Relative
+paths are resolved from the repository root.
+
+Each enabled test writes:
+
+```text
+{explainDir}/network.test.{test-id}.explain.json
+```
+
+These files are run artifacts and are ignored by git.
 
 Each test entry has this shape:
 
@@ -325,23 +342,46 @@ Paths are relative to the installed Spoon directory:
 The first implementation only needs file-existence checks. Later checks can add
 result fields, registry checks, and local-change update behavior.
 
-## Runner Plan
+## Runner Usage
 
-The future runner should:
+The runner is:
 
-1. Refuse to run unless a local config path is explicitly passed.
-2. Load the JSON config.
-3. Point the Hammerspoon stub at `installRoot`.
-4. For each `enabled` test, build the corresponding SpoonManager definition.
-5. Run `definition.install()` synchronously.
-6. Verify expected files below the temporary install root.
-7. Run the same install again and assert `result.skipped == true`.
-8. Optionally run `definition.update()` and verify local-change behavior.
+```text
+tests/integration/network.lua
+```
 
-Suggested command:
+Suggested workflow:
+
+```sh
+cp tests/integration/network.example.json tests/integration/network.local.json
+```
+
+Then edit `network.local.json`, set one or more tests to:
+
+```json
+{
+  "enabled": true
+}
+```
+
+Run:
 
 ```sh
 /Users/muescha/.local/share/mise/installs/lua/5.4.4/bin/lua \
   tests/integration/network.lua \
   tests/integration/network.local.json
 ```
+
+The runner:
+
+1. Refuse to run unless a local config path is explicitly passed.
+2. Load the JSON config.
+3. Point the Hammerspoon stub at `installRoot`.
+4. For each `enabled` test, build the corresponding SpoonManager definition.
+5. Write `network.test.{test-id}.explain.json`.
+6. Run `definition.install()` synchronously.
+7. Verify expected files below the temporary install root.
+8. Run the same install again and assert `result.skipped == true`.
+
+The first implementation intentionally does not run update/local-change checks yet.
+Those can be added once the happy-path network installs are stable.

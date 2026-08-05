@@ -1,6 +1,8 @@
 {
   "version": 1,
   "installRoot": "/tmp/spoonmanager-network-test",
+  "cleanInstallRoot": true,
+  "explainDir": "tests/integration",
   "tests": [
     {
       "id": "github-folder",

@@ -23,6 +23,7 @@ local testFiles = {
     "tests/examples/local_sources.lua",
     "tests/examples/zip_sources.lua",
     "tests/unit/name_resolver_test.lua",
+    "tests/unit/json_test.lua",
     "tests/unit/definition_test.lua",
     "tests/unit/manager_test.lua",
     "tests/unit/resolver_test.lua",
