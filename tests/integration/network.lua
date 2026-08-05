@@ -71,91 +71,129 @@ local function assertString(value, label)
     end
 end
 
-local installRoot = config.installRoot or "/tmp/spoonmanager-network-test"
-assertString(installRoot, "installRoot")
-
-if installRoot:sub(1, 5) ~= "/tmp/" or not installRoot:match("spoonmanager") then
-    error("installRoot must be a /tmp path containing 'spoonmanager': " .. installRoot)
+local function renderTemplate(template, values)
+    return (template:gsub("{([%w_]+)}", function(key)
+        return safeId(values[key] or "")
+    end))
 end
 
-if config.cleanInstallRoot then
-    os.execute("/bin/rm -rf " .. shellQuote(installRoot))
+local function sourceLabel(test)
+    local source = test.source or {}
+    return source.type or "unknown"
 end
-ensureDir(installRoot)
 
-hs = {
-    configdir = installRoot,
-    logger = {
-        new = function()
-            return {
-                df = function() end,
-                ef = function(fmt, ...)
-                    io.stderr:write(string.format(fmt or "%s", ...) .. "\n")
-                end,
-                i = function() end,
-                w = function() end,
-            }
-        end,
-    },
-    spoons = {
-        scriptPath = function()
-            return repoRoot
-        end,
-        use = function()
-            return true
-        end,
-    },
-    fs = {
-        attributes = function(path)
-            if fileExists(path) then
-                return {}
-            end
-            return nil
-        end,
-        pathToAbsolute = function(path)
-            return path:gsub("^~", os.getenv("HOME") or "~")
-        end,
-    },
-    execute = function(command)
-        return runCommand(command)
-    end,
-    http = {
-        get = function(url)
-            local tmp = os.tmpname()
-            local command = table.concat({
-                "/usr/bin/curl",
-                "-L",
-                "-s",
-                "-w",
-                shellQuote("%{http_code}"),
-                "-o",
-                shellQuote(tmp),
-                shellQuote(url),
-            }, " ")
+local function targetLabel(test)
+    local target = test.target or {}
+    return target.name or target.spoon or test.id
+end
 
-            local statusText, ok = runCommand(command)
-            local status = tonumber(statusText)
-            local body = readFile(tmp, "rb") or ""
-            os.remove(tmp)
+local function installRootFor(test)
+    local template = test.templateInstallPath
+        or test.installRootTemplate
+        or config.templateInstallPath
+        or config.installRootTemplate
+        or config.installRoot
+        or "/tmp/spoonmanager-network-test/testinstalls/{id}"
 
-            if not ok and not status then
-                return 0, body, {}
-            end
+    assertString(template, "templateInstallPath")
 
-            return status or 0, body, {}
-        end,
-    },
-    json = {
-        encode = function(value)
-            return json.encode(value)
-        end,
-        read = function(path)
-            return json.read(path)
-        end,
-    },
-}
+    local installRoot = renderTemplate(template, {
+        id = test.id,
+        sourceType = sourceLabel(test),
+        name = targetLabel(test),
+    })
 
-local SpoonManager = dofile(repoRoot .. "/init.lua")
+    if installRoot:sub(1, 5) ~= "/tmp/" or not installRoot:match("spoonmanager") then
+        error("install root must be a /tmp path containing 'spoonmanager': " .. installRoot)
+    end
+
+    return installRoot
+end
+
+local function cleanInstallRootFor(test, installRoot)
+    local clean = test.cleanInstallRoot
+    if clean == nil then
+        clean = config.cleanInstallRoot
+    end
+
+    if clean then
+        os.execute("/bin/rm -rf " .. shellQuote(installRoot))
+    end
+end
+
+local function stubHammerspoon(installRoot)
+    hs = {
+        configdir = installRoot,
+        logger = {
+            new = function()
+                return {
+                    df = function() end,
+                    ef = function(fmt, ...)
+                        io.stderr:write(string.format(fmt or "%s", ...) .. "\n")
+                    end,
+                    i = function() end,
+                    w = function() end,
+                }
+            end,
+        },
+        spoons = {
+            scriptPath = function()
+                return repoRoot
+            end,
+            use = function()
+                return true
+            end,
+        },
+        fs = {
+            attributes = function(path)
+                if fileExists(path) then
+                    return {}
+                end
+                return nil
+            end,
+            pathToAbsolute = function(path)
+                return path:gsub("^~", os.getenv("HOME") or "~")
+            end,
+        },
+        execute = function(command)
+            return runCommand(command)
+        end,
+        http = {
+            get = function(url)
+                local tmp = os.tmpname()
+                local command = table.concat({
+                    "/usr/bin/curl",
+                    "-L",
+                    "-s",
+                    "-w",
+                    shellQuote("%{http_code}"),
+                    "-o",
+                    shellQuote(tmp),
+                    shellQuote(url),
+                }, " ")
+
+                local statusText, ok = runCommand(command)
+                local status = tonumber(statusText)
+                local body = readFile(tmp, "rb") or ""
+                os.remove(tmp)
+
+                if not ok and not status then
+                    return 0, body, {}
+                end
+
+                return status or 0, body, {}
+            end,
+        },
+        json = {
+            encode = function(value)
+                return json.encode(value)
+            end,
+            read = function(path)
+                return json.read(path)
+            end,
+        },
+    }
+end
 
 local function providerOptions(source)
     local options = {}
@@ -174,7 +212,7 @@ local function providerOptions(source)
     return options
 end
 
-local function buildDefinition(test)
+local function buildDefinition(SpoonManager, test)
     local source = test.source or {}
     local target = test.target or {}
     local definition
@@ -254,9 +292,16 @@ for _, test in ipairs(config.tests or {}) do
         assertString(test.id, "test.id")
 
         io.write("network test: " .. test.id .. " ... ")
+        local installRoot
 
         local ok, err = xpcall(function()
-            local definition = buildDefinition(test)
+            installRoot = installRootFor(test)
+            cleanInstallRootFor(test, installRoot)
+            ensureDir(installRoot)
+
+            stubHammerspoon(installRoot)
+            local SpoonManager = dofile(repoRoot .. "/init.lua")
+            local definition = buildDefinition(SpoonManager, test)
             json.write(explainPathFor(test), definition.explain("install"))
 
             local result, installErr = definition.install()
@@ -276,7 +321,7 @@ for _, test in ipairs(config.tests or {}) do
 
         if ok then
             passed = passed + 1
-            print("ok")
+            print("ok (" .. installRoot .. ")")
         else
             print("failed")
             print(err)
