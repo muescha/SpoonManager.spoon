@@ -2,7 +2,7 @@
 
 This note describes the intended internal model for SpoonManager.
 
-The core idea is that user-facing builder calls and manifest files should produce a simple declarative definition. That definition should keep the user-provided values as close to 1:1 as possible. SpoonManager can then resolve the definition into a concrete install command as the final step.
+The core idea is that user-facing builder calls and manifest files should produce a simple declarative definition. The definition keeps the user-provided values as close to 1:1 as possible. SpoonManager then resolves the definition into a concrete install command as the final step.
 
 ## Goals
 
@@ -11,6 +11,7 @@ The core idea is that user-facing builder calls and manifest files should produc
 - Make `toConfig()` useful for users, agents, GUI tools, and future manifests.
 - Make it possible to reconstruct a readable builder chain from a config.
 - Keep installer execution separate from source description.
+- Avoid `_builder` metadata by validating the real definition fields.
 
 ## Layers
 
@@ -22,12 +23,14 @@ Example:
 
 ```lua
 {
-    name = "Emojis",
     source = {
         type = "github",
         repository = "Hammerspoon/Spoons",
-        branch = "master",
-        folder = "Source/Emojis.spoon",
+        revision_branch = "master",
+        pattern_spoonFolderPattern = "Source/{name}.spoon",
+    },
+    spoon = {
+        selection_spoon = "Emojis",
     },
 }
 ```
@@ -36,23 +39,24 @@ Builder calls should map to this layer as directly as possible:
 
 ```text
 from.github("owner/repo")        -> source.repository = "owner/repo"
-branch("main")                  -> source.branch = "main"
-ref("v1.2.3")                   -> source.ref = "v1.2.3"
-folder("Source/A.spoon")        -> source.folder = "Source/A.spoon"
+branch("main")                  -> source.revision_branch = "main"
+ref("v1.2.3")                   -> source.revision_ref = "v1.2.3"
 remoteZip(url)                  -> source.url = url
 localFolder(path)               -> source.path = path
 localZip(path)                  -> source.path = path
 releaseLatest()                 -> source.release = "latest"
 release("v1.2.3")               -> source.release = "v1.2.3"
-asset("A.zip")                  -> source.asset = "A.zip"
 spoonZipPattern("Spoons/{name}.spoon.zip")
-                                  -> source.spoonZipPattern = "Spoons/{name}.spoon.zip"
+                                  -> source.pattern_spoonZipPattern = "Spoons/{name}.spoon.zip"
 spoonFolderPattern("Source/{name}.spoon")
-                                  -> source.spoonFolderPattern = "Source/{name}.spoon"
-withName("BetterName")          -> explicit target name on the definition, not the source
+                                  -> source.pattern_spoonFolderPattern = "Source/{name}.spoon"
+spoon("A")                      -> spoon.selection_spoon = "A"
+folder("Source/A.spoon")        -> spoon.selection_folder = "Source/A.spoon"
+asset("A.zip")                  -> spoon.selection_asset = "A.zip"
+withName("BetterName")          -> spoon.target_name = "BetterName"
 ```
 
-The source should answer "where does the code come from?" The installed Spoon name answers "what should this become locally?" and should stay on the definition or target layer.
+The source answers "where does the code come from?" The spoon section answers "which Spoon should be selected and what should it become locally?"
 
 ### Resolved Definition
 
@@ -62,12 +66,14 @@ Example:
 
 ```lua
 {
-    name = "Emojis",
     source = {
         type = "github",
         repository = "Hammerspoon/Spoons",
-        branch = "master",
-        folder = "Source/Emojis.spoon",
+        revision_branch = "master",
+        pattern_spoonFolderPattern = "Source/{name}.spoon",
+    },
+    spoon = {
+        selection_spoon = "Emojis",
     },
     resolved = {
         sourceType = "github-folder",
@@ -78,7 +84,7 @@ Example:
 }
 ```
 
-Resolution is where defaults are applied. For example, GitHub may default to `main` when neither `source.branch` nor `source.ref` is set. That default does not need to be written back into the user definition.
+Resolution is where defaults are applied. For example, GitHub may default to `main` when neither `source.revision_branch` nor `source.revision_ref` is set. That default does not need to be written back into the user definition.
 
 ### Command
 
@@ -104,9 +110,103 @@ Example:
 
 The installer should execute commands, not interpret builder history directly.
 
-## Origin
+## Exclusive Groups
 
-`source.origin` should be used when a definition step resolves a more abstract source into a concrete source.
+Some builder methods are mutually exclusive. Instead of storing a private `_builder.used` table, the real definition fields carry the group.
+
+The flat key format is:
+
+```text
+<group>_<method>
+```
+
+Examples:
+
+```lua
+source = {
+    revision_branch = "master",
+    pattern_spoonZipPattern = "Spoons/{name}.spoon.zip",
+}
+
+spoon = {
+    selection_spoon = "Emojis",
+    target_name = "MyEmojis",
+}
+```
+
+The groups are:
+
+```text
+source.revision_*  = one of revision_branch, revision_ref
+source.pattern_*   = one of pattern_spoonZipPattern, pattern_spoonFolderPattern
+spoon.selection_*  = one of selection_spoon, selection_folder, selection_asset
+spoon.target_*     = one of target_name
+```
+
+The builder can validate these groups with one generic helper.
+
+```lua
+local function findFlatGroupValue(container, group)
+    local prefix = group .. "_"
+
+    for key, value in pairs(container or {}) do
+        if type(key) == "string" and key:sub(1, #prefix) == prefix then
+            return key:sub(#prefix + 1), value, key
+        end
+    end
+
+    return nil, nil, nil
+end
+
+local function requireUnsetFlat(container, group, method, value)
+    local existingMethod, existingValue = findFlatGroupValue(container, group)
+
+    if existingMethod then
+        error(string.format(
+            "%s already set; cannot call %s.",
+            Util.createLabel(existingMethod, existingValue),
+            Util.createLabel(method, value)
+        ), 3)
+    end
+end
+```
+
+Then setting a branch is just:
+
+```lua
+requireUnsetFlat(source, "revision", "branch", branchName)
+source.revision_branch = branchName
+```
+
+If `source.revision_branch = "master"` already exists and the user calls `.ref("v1.2.3")`, the error can be:
+
+```text
+branch('master') already set; cannot call ref('v1.2.3').
+```
+
+## Endpoints
+
+Endpoint methods select the concrete Spoon from the source. They write to the `spoon` section and finalize source selection.
+
+Endpoint methods:
+
+```text
+spoon(name)
+folder(path)
+asset(name)
+```
+
+After an endpoint, source-changing methods should fail. Allowed follow-up methods are target/use/install behavior and actions:
+
+```text
+withName(...)
+use(...)
+onLocalChanges(...)
+add()
+install()
+update()
+toConfig()
+```
 
 Example:
 
@@ -117,61 +217,53 @@ SpoonManager.from.github("Hammerspoon/Spoons")
     .spoon("Emojis")
 ```
 
-Declarative source before resolution:
+Definition:
 
 ```lua
 {
-    type = "github",
-    repository = "Hammerspoon/Spoons",
-    branch = "master",
-    spoonFolderPattern = "Source/{name}.spoon",
-}
-```
-
-Concrete source after resolving the pattern:
-
-```lua
-{
-    type = "github-folder",
-    folder = "Source/Emojis.spoon",
-    origin = {
+    source = {
         type = "github",
         repository = "Hammerspoon/Spoons",
-        branch = "master",
-        spoonFolderPattern = "Source/{name}.spoon",
+        revision_branch = "master",
+        pattern_spoonFolderPattern = "Source/{name}.spoon",
+    },
+    spoon = {
+        selection_spoon = "Emojis",
     },
 }
 ```
 
-The rule:
+Resolved command:
 
-```text
-origin = the source before the last resolving step
-source = the concrete source after the last resolving step
+```lua
+{
+    action = "install",
+    from = {
+        type = "github-folder",
+        archiveUrl = "https://github.com/Hammerspoon/Spoons/archive/master.zip",
+        folder = "Source/Emojis.spoon",
+    },
+    to = {
+        type = "spoon",
+        name = "Emojis",
+    },
+}
 ```
 
-This makes it possible to display both:
+No `origin` is needed in the definition because the original definition is never overwritten.
 
-```text
-Defined as:
-github("Hammerspoon/Spoons").branch("master").spoonFolderPattern("Source/{name}.spoon").spoon("Emojis")
+## Folder Values
 
-Resolved as:
-github("Hammerspoon/Spoons").branch("master").folder("Source/Emojis.spoon")
-```
-
-## Folder Fields
-
-`.folder(value)` should always set `source.folder = value`.
+`.folder(value)` should always set `spoon.selection_folder = value`.
 
 This avoids ambiguous meanings for `source.path`.
 
 Recommended meaning:
 
 ```text
-source.path   = local file or local base folder
-source.folder = selected folder inside the source
-source.url    = remote ZIP URL
+source.path             = local file or local base folder
+source.url              = remote ZIP URL
+spoon.selection_folder  = selected folder inside the source
 ```
 
 Examples:
@@ -182,10 +274,14 @@ SpoonManager.from.github("muescha/SpoonRepo")
 ```
 
 ```lua
-source = {
-    type = "github",
-    repository = "muescha/SpoonRepo",
-    folder = "Source/MySpoon.spoon",
+{
+    source = {
+        type = "github",
+        repository = "muescha/SpoonRepo",
+    },
+    spoon = {
+        selection_folder = "Source/MySpoon.spoon",
+    },
 }
 ```
 
@@ -195,12 +291,16 @@ SpoonManager.from.localFolder("~/Projects/SpoonRepo")
 ```
 
 ```lua
-source = {
-    type = "local-folder",
-    path = "/Users/example/Projects/SpoonRepo",
-    folder = "Source/MySpoon.spoon",
+{
+    source = {
+        type = "local-folder",
+        path = "/Users/example/Projects/SpoonRepo",
+    },
+    spoon = {
+        selection_folder = "Source/MySpoon.spoon",
+    },
 }
 ```
 
-The resolved command can join local `path` and `folder` when needed.
+The resolved command can join local `source.path` and `spoon.selection_folder` when needed.
 

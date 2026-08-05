@@ -36,8 +36,8 @@ Example, ZIP pattern:
   "source": {
     "type": "github",
     "repository": "Hammerspoon/Spoons",
-    "branch": "master",
-    "spoonZipPattern": "Spoons/{name}.spoon.zip"
+    "revision_branch": "master",
+    "pattern_spoonZipPattern": "Spoons/{name}.spoon.zip"
   },
   "spoons": [
     {
@@ -69,8 +69,8 @@ Example, folder pattern:
   "source": {
     "type": "github",
     "repository": "muescha/SpoonRepo",
-    "branch": "main",
-    "spoonFolderPattern": "Source/{name}.spoon"
+    "revision_branch": "main",
+    "pattern_spoonFolderPattern": "Source/{name}.spoon"
   },
   "spoons": [
     {
@@ -104,6 +104,8 @@ Merge rule:
 final source = manifest.source + spoon.source
 ```
 
+The `name` field in a Spoon entry is shorthand for the default Spoon selection. It maps to `spoon.selection_spoon` unless the entry provides a more specific `spoon.selection_*` value.
+
 Example:
 
 ```json
@@ -112,8 +114,8 @@ Example:
   "source": {
     "type": "github",
     "repository": "muescha/SpoonRepo",
-    "branch": "main",
-    "spoonFolderPattern": "Source/{name}.spoon"
+    "revision_branch": "main",
+    "pattern_spoonFolderPattern": "Source/{name}.spoon"
   },
   "spoons": [
     {
@@ -123,16 +125,18 @@ Example:
     {
       "name": "DeepFolder",
       "description": "Uses a custom folder",
-      "source": {
-        "folder": "experimental/deepfolder"
+      "spoon": {
+        "selection_folder": "experimental/deepfolder"
       }
     },
     {
       "name": "ReleaseOnly",
       "description": "Uses a latest release asset",
       "source": {
-        "release": "latest",
-        "asset": "ReleaseOnly.zip"
+        "release": "latest"
+      },
+      "spoon": {
+        "selection_asset": "ReleaseOnly.zip"
       }
     }
   ]
@@ -161,8 +165,10 @@ Provider-based sources are preferred:
   "source": {
     "type": "github",
     "repository": "owner/repo",
-    "branch": "main",
-    "folder": "Source/Foo.spoon"
+    "revision_branch": "main"
+  },
+  "spoon": {
+    "selection_folder": "Source/Foo.spoon"
   }
 }
 ```
@@ -177,8 +183,8 @@ GitHub Enterprise example:
     "type": "github",
     "baseUrl": "https://github.company.com",
     "repository": "team/spoons",
-    "branch": "main",
-    "spoonFolderPattern": "Source/{name}.spoon"
+    "revision_branch": "main",
+    "pattern_spoonFolderPattern": "Source/{name}.spoon"
   }
 }
 ```
@@ -191,8 +197,8 @@ GitLab example:
     "type": "gitlab",
     "baseUrl": "https://gitlab.company.com",
     "repository": "team/spoons",
-    "branch": "main",
-    "spoonFolderPattern": "Source/{name}.spoon"
+    "revision_branch": "main",
+    "pattern_spoonFolderPattern": "Source/{name}.spoon"
   }
 }
 ```
@@ -205,8 +211,8 @@ Forgejo or Codeberg example:
     "type": "forgejo",
     "baseUrl": "https://codeberg.org",
     "repository": "user/spoons",
-    "branch": "main",
-    "spoonFolderPattern": "Source/{name}.spoon"
+    "revision_branch": "main",
+    "pattern_spoonFolderPattern": "Source/{name}.spoon"
   }
 }
 ```
@@ -260,7 +266,7 @@ An external manifest can describe a repository that does not provide one itself:
   "source": {
     "type": "github",
     "repository": "legacy/UsefulSpoon.spoon",
-    "branch": "main"
+    "revision_branch": "main"
   },
   "spoons": [
     {
