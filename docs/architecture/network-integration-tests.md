@@ -80,7 +80,7 @@ With the example template, installed Spoons land below:
 `timestamp` is generated once per runner invocation in a path-friendly UTC form:
 
 ```text
-YYYY-MM-DD-HH-MM-SS-000
+YYYY-MM-DD-HH-MM-SS
 ```
 
 This keeps tests that install the same Spoon name from overwriting each other and
