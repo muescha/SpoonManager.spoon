@@ -53,7 +53,7 @@ spoonFolderPattern("Source/{name}.spoon")
 spoon("A")                      -> spoon.selection_spoon = "A"
 folder("Source/A.spoon")        -> spoon.selection_folder = "Source/A.spoon"
 asset("A.zip")                  -> spoon.selection_asset = "A.zip"
-withName("BetterName")          -> spoon.target_name = "BetterName"
+withName("BetterName")          -> spoon.target_withName = "BetterName"
 ```
 
 The source answers "where does the code come from?" The spoon section answers "which Spoon should be selected and what should it become locally?"
@@ -130,7 +130,7 @@ source = {
 
 spoon = {
     selection_spoon = "Emojis",
-    target_name = "MyEmojis",
+    target_withName = "MyEmojis",
 }
 ```
 
@@ -140,10 +140,10 @@ The groups are:
 source.revision_*  = one of revision_branch, revision_ref
 source.pattern_*   = one of pattern_spoonZipPattern, pattern_spoonFolderPattern
 spoon.selection_*  = one of selection_spoon, selection_folder, selection_asset
-spoon.target_*     = one of target_name
+spoon.target_*     = one of target_withName
 ```
 
-The builder can validate these groups with one generic helper.
+The builder can validate and set these groups with one generic helper.
 
 ```lua
 local function findFlatGroupValue(container, group)
@@ -158,7 +158,7 @@ local function findFlatGroupValue(container, group)
     return nil, nil, nil
 end
 
-local function requireUnsetFlat(container, group, method, value)
+local function setExclusive(container, group, method, value)
     local existingMethod, existingValue = findFlatGroupValue(container, group)
 
     if existingMethod then
@@ -168,20 +168,55 @@ local function requireUnsetFlat(container, group, method, value)
             Util.createLabel(method, value)
         ), 3)
     end
+
+    container[group .. "_" .. method] = value
 end
 ```
 
 Then setting a branch is just:
 
 ```lua
-requireUnsetFlat(source, "revision", "branch", branchName)
-source.revision_branch = branchName
+setExclusive(source, "revision", "branch", branchName)
 ```
 
 If `source.revision_branch = "master"` already exists and the user calls `.ref("v1.2.3")`, the error can be:
 
 ```text
 branch('master') already set; cannot call ref('v1.2.3').
+```
+
+Source-changing methods also need to fail after the Spoon selection has been finalized. This can be handled with a source-specific wrapper.
+
+```lua
+local function setSourceExclusive(definition, group, method, value)
+    local selectedMethod, selectedValue =
+        findFlatGroupValue(definition.spoon, "selection")
+
+    if selectedMethod then
+        error(string.format(
+            "%s already selected; cannot call %s. Start from the base definition instead.",
+            Util.createLabel(selectedMethod, selectedValue),
+            Util.createLabel(method, value)
+        ), 3)
+    end
+
+    definition.source = definition.source or {}
+    setExclusive(definition.source, group, method, value)
+end
+```
+
+Source methods use `setSourceExclusive`:
+
+```lua
+setSourceExclusive(definition, "revision", "branch", branchName)
+setSourceExclusive(definition, "pattern", "spoonFolderPattern", pattern)
+```
+
+Endpoint and target methods use `setExclusive` directly:
+
+```lua
+setExclusive(definition.spoon, "selection", "folder", folderPath)
+setExclusive(definition.spoon, "target", "withName", spoonName)
 ```
 
 ## Endpoints
@@ -303,4 +338,3 @@ SpoonManager.from.localFolder("~/Projects/SpoonRepo")
 ```
 
 The resolved command can join local `source.path` and `spoon.selection_folder` when needed.
-
