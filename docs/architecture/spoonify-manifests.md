@@ -96,15 +96,15 @@ SpoonManager.from.github("muescha/SpoonRepo")
 
 ## Per-Spoon Overrides
 
-Each Spoon entry may override or extend the repository-level source.
+Each manifest entry may override or extend the repository-level source.
 
 Merge rule:
 
 ```text
-final source = manifest.source + spoon.source
+final source = manifest.source + entry.source
 ```
 
-The `name` field in a Spoon entry is shorthand for the default Spoon selection. It maps to `spoon.selection_spoon` unless the entry provides a more specific `spoon.selection_*` value.
+The `name` field in a manifest entry is a human-friendly shorthand for the default Spoon selection. When the manifest is normalized, it maps to `target.selection_spoon` unless the entry provides a more specific `target.selection_*` value. It should not become a separate top-level `definition.name`.
 
 Example:
 
@@ -125,7 +125,7 @@ Example:
     {
       "name": "DeepFolder",
       "description": "Uses a custom folder",
-      "spoon": {
+      "target": {
         "selection_folder": "experimental/deepfolder"
       }
     },
@@ -135,7 +135,7 @@ Example:
       "source": {
         "release": "latest"
       },
-      "spoon": {
+      "target": {
         "selection_asset": "ReleaseOnly.zip"
       }
     }
@@ -167,7 +167,7 @@ Provider-based sources are preferred:
     "repository": "owner/repo",
     "revision_branch": "main"
   },
-  "spoon": {
+  "target": {
     "selection_folder": "Source/Foo.spoon"
   }
 }

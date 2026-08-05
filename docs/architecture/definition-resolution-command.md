@@ -29,7 +29,7 @@ Example:
         revision_branch = "master",
         pattern_spoonFolderPattern = "Source/{name}.spoon",
     },
-    spoon = {
+    target = {
         selection_spoon = "Emojis",
     },
 }
@@ -50,13 +50,13 @@ spoonZipPattern("Spoons/{name}.spoon.zip")
                                   -> source.pattern_spoonZipPattern = "Spoons/{name}.spoon.zip"
 spoonFolderPattern("Source/{name}.spoon")
                                   -> source.pattern_spoonFolderPattern = "Source/{name}.spoon"
-spoon("A")                      -> spoon.selection_spoon = "A"
-folder("Source/A.spoon")        -> spoon.selection_folder = "Source/A.spoon"
-asset("A.zip")                  -> spoon.selection_asset = "A.zip"
-withName("BetterName")          -> spoon.target_withName = "BetterName"
+spoon("A")                      -> target.selection_spoon = "A"
+folder("Source/A.spoon")        -> target.selection_folder = "Source/A.spoon"
+asset("A.zip")                  -> target.selection_asset = "A.zip"
+withName("BetterName")          -> target.name_withName = "BetterName"
 ```
 
-The source answers "where does the code come from?" The spoon section answers "which Spoon should be selected and what should it become locally?"
+The source answers "where does the code come from?" The target section answers "which Spoon should be selected and what should it become locally?"
 
 ### Resolved Definition
 
@@ -72,7 +72,7 @@ Example:
         revision_branch = "master",
         pattern_spoonFolderPattern = "Source/{name}.spoon",
     },
-    spoon = {
+    target = {
         selection_spoon = "Emojis",
     },
     resolved = {
@@ -128,9 +128,9 @@ source = {
     pattern_spoonZipPattern = "Spoons/{name}.spoon.zip",
 }
 
-spoon = {
+target = {
     selection_spoon = "Emojis",
-    target_withName = "MyEmojis",
+    name_withName = "MyEmojis",
 }
 ```
 
@@ -139,8 +139,8 @@ The groups are:
 ```text
 source.revision_*  = one of revision_branch, revision_ref
 source.pattern_*   = one of pattern_spoonZipPattern, pattern_spoonFolderPattern
-spoon.selection_*  = one of selection_spoon, selection_folder, selection_asset
-spoon.target_*     = one of target_withName
+target.selection_* = one of selection_spoon, selection_folder, selection_asset
+target.name_*      = one of name_withName
 ```
 
 The builder can validate and set these groups with one generic helper.
@@ -185,12 +185,12 @@ If `source.revision_branch = "master"` already exists and the user calls `.ref("
 branch('master') already set; cannot call ref('v1.2.3').
 ```
 
-Source-changing methods also need to fail after the Spoon selection has been finalized. A definition is finalized once any `spoon.selection_*` endpoint exists. Keep this check explicit instead of hiding it in an overly generic setter.
+Source-changing methods also need to fail after the Spoon selection has been finalized. A definition is finalized once any `target.selection_*` endpoint exists. Keep this check explicit instead of hiding it in an overly generic setter.
 
 ```lua
 local function ensureNotFinalized(definition, method, value)
     local selectedMethod, selectedValue =
-        findFlatGroupValue(definition.spoon, "selection")
+        findFlatGroupValue(definition.target, "selection")
 
     if selectedMethod then
         error(string.format(
@@ -215,13 +215,13 @@ setExclusive(definition.source, "pattern", "spoonFolderPattern", pattern)
 Endpoint and target methods use `setExclusive` directly:
 
 ```lua
-setExclusive(definition.spoon, "selection", "folder", folderPath)
-setExclusive(definition.spoon, "target", "withName", spoonName)
+setExclusive(definition.target, "selection", "folder", folderPath)
+setExclusive(definition.target, "name", "withName", spoonName)
 ```
 
 ## Endpoints
 
-Endpoint methods select the concrete Spoon from the source. They write to the `spoon` section and finalize source selection.
+Endpoint methods select the concrete Spoon from the source. They write to the `target` section and finalize source selection.
 
 Endpoint methods:
 
@@ -262,7 +262,7 @@ Definition:
         revision_branch = "master",
         pattern_spoonFolderPattern = "Source/{name}.spoon",
     },
-    spoon = {
+    target = {
         selection_spoon = "Emojis",
     },
 }
@@ -289,7 +289,7 @@ No `origin` is needed in the definition because the original definition is never
 
 ## Folder Values
 
-`.folder(value)` should always set `spoon.selection_folder = value`.
+`.folder(value)` should always set `target.selection_folder = value`.
 
 This avoids ambiguous meanings for `source.path`.
 
@@ -298,7 +298,7 @@ Recommended meaning:
 ```text
 source.path             = local file or local base folder
 source.url              = remote ZIP URL
-spoon.selection_folder  = selected folder inside the source
+target.selection_folder  = selected folder inside the source
 ```
 
 Examples:
@@ -314,7 +314,7 @@ SpoonManager.from.github("muescha/SpoonRepo")
         type = "github",
         repository = "muescha/SpoonRepo",
     },
-    spoon = {
+    target = {
         selection_folder = "Source/MySpoon.spoon",
     },
 }
@@ -331,10 +331,42 @@ SpoonManager.from.localFolder("~/Projects/SpoonRepo")
         type = "local-folder",
         path = "/Users/example/Projects/SpoonRepo",
     },
-    spoon = {
+    target = {
         selection_folder = "Source/MySpoon.spoon",
     },
 }
 ```
 
-The resolved command can join local `source.path` and `spoon.selection_folder` when needed.
+The resolved command can join local `source.path` and `target.selection_folder` when needed.
+
+## Name Resolution
+
+The target section contains the selected input and optional user rename. It should not duplicate derived names.
+
+Selection methods provide the default install name:
+
+```text
+target.selection_spoon      -> infer from the selected Spoon name
+target.selection_folder     -> infer from the folder basename
+target.selection_asset      -> infer from the ZIP asset name
+source                      -> infer from the source only if no target selection exists
+```
+
+`.withName(value)` stores an explicit override:
+
+```lua
+target = {
+    selection_folder = "Source/deepfolder",
+    name_withName = "DeepFolder",
+}
+```
+
+The final install name is resolved as:
+
+```lua
+target.name_withName
+    or inferNameFromSelection(target)
+    or inferNameFromSource(source)
+```
+
+The resolved name belongs in `resolved.installName` or the final command, not as a duplicated top-level `definition.name`.
