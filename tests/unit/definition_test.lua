@@ -23,6 +23,58 @@ return function(T)
         end, "%.folder%('Source/A%.spoon'%) already set; cannot call %.asset%('A%.zip'%)")
     end)
 
+    T.test("definition rejects duplicate spoon pattern group", function()
+        T.assertError(function()
+            T.SpoonManager.from.github("owner/repo")
+                .spoonZipPattern("dist/{name}.zip")
+                .spoonFolderPattern("Source/{name}.spoon")
+        end, "%.spoonZipPattern%('dist/{name}%.zip'%) already set; cannot call %.spoonFolderPattern%('Source/{name}%.spoon'%)")
+    end)
+
+    T.test("definition rejects duplicate release group", function()
+        T.assertError(function()
+            T.SpoonManager.from.github("owner/repo")
+                .releaseLatest()
+                .release("v1.2.3")
+        end, "%.releaseLatest%('latest'%) already set; cannot call %.release%('v1%.2%.3'%)")
+    end)
+
+    T.test("definition rejects spoon then folder selection", function()
+        T.assertError(function()
+            T.SpoonManager.from.github("owner/repo")
+                .spoon("A")
+                .folder("Source/A.spoon")
+        end, "%.spoon%('A'%) already set; cannot call %.folder%('Source/A%.spoon'%)")
+    end)
+
+    T.test("definition rejects duplicate explicit name", function()
+        T.assertError(function()
+            T.SpoonManager.from.github("owner/repo")
+                .withName("A")
+                .withName("B")
+        end, "%.withName%('A'%) already set; cannot call %.withName%('B'%)")
+    end)
+
+    T.test("definition rejects non string arguments", function()
+        T.assertError(function()
+            T.SpoonManager.from.github({
+                "owner/repo",
+            })
+        end, "GitHub repository must be a string")
+
+        T.assertError(function()
+            T.SpoonManager.from.github("owner/repo")
+                .folder({
+                    "Source/A.spoon",
+                })
+        end, "Folder path must be a string")
+
+        T.assertError(function()
+            T.SpoonManager.from.github("owner/repo")
+                .withName(123)
+        end, "Spoon name must be a string")
+    end)
+
     T.test("definition rejects non zip release asset", function()
         T.assertError(function()
             T.SpoonManager.from.github("owner/repo")

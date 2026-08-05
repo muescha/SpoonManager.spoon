@@ -39,4 +39,19 @@ return function(T)
         T.assertEqual(explanation.command.from.url, "https://github.com/muescha/DeepFolder.spoon/releases/download/v1.2.3/DeepFolder.zip")
         T.assertMatchesJson("examples/github_release.lua.tag.explain.json", explanation)
     end)
+
+    T.test("example: github tagged release with explicit name", function()
+        local explanation =
+            T.SpoonManager.from.github("muescha/DeepFolder.spoon")
+                .release("v1.2.3")
+                .asset("latest.zip")
+                .withName("DeepFolder")
+                .explain("install")
+
+        T.assertEqual(explanation.definition.source.release, "v1.2.3")
+        T.assertEqual(explanation.definition.target.name_withName, "DeepFolder")
+        T.assertEqual(explanation.command.from.url, "https://github.com/muescha/DeepFolder.spoon/releases/download/v1.2.3/latest.zip")
+        T.assertEqual(explanation.command.to.name, "DeepFolder")
+        T.assertMatchesJson("examples/github_release.lua.tag-with-name.explain.json", explanation)
+    end)
 end
