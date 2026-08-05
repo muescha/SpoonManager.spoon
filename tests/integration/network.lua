@@ -180,12 +180,14 @@ local function cleanInstallPathAfterTest(test, installPath)
     end
 end
 
-local function artifactPathFor(test, installRoot, installPath, templateKey, defaultTemplate)
-    local template = test[templateKey]
-        or config[templateKey]
+local function artifactPathFor(test, installRoot, installPath, templateName, defaultTemplate)
+    local testPathTemplates = test.pathTemplates or {}
+    local configPathTemplates = config.pathTemplates or {}
+    local template = testPathTemplates[templateName]
+        or configPathTemplates[templateName]
         or defaultTemplate
 
-    assertString(template, templateKey)
+    assertString(template, "pathTemplates." .. templateName)
 
     local artifactPath = renderTemplate(template, {
         installRoot = installRoot,
@@ -374,7 +376,7 @@ local function explainPathFor(test, installRoot, installPath)
         test,
         installRoot,
         installPath,
-        "explainPathTemplate",
+        "explain",
         "tests/integration/network.test.{timestamp}.{id}.explain.json"
     )
 end
@@ -384,7 +386,7 @@ local function runnerPathFor(test, installRoot, installPath)
         test,
         installRoot,
         installPath,
-        "runnerPathTemplate",
+        "result",
         "tests/integration/network.test.{timestamp}.{id}.result.json"
     )
 end
@@ -394,7 +396,7 @@ local function logPathFor(test, installRoot, installPath)
         test,
         installRoot,
         installPath,
-        "logPathTemplate",
+        "log",
         "tests/integration/network.test.{timestamp}.{id}.log.json"
     )
 end

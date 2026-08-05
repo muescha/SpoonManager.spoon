@@ -12,9 +12,11 @@
       "installPathAfterTest": false
     }
   },
-  "explainPathTemplate": "tests/integration/network.test.{timestamp}.{id}.explain.json",
-  "runnerPathTemplate": "tests/integration/network.test.{timestamp}.{id}.result.json",
-  "logPathTemplate": "tests/integration/network.test.{timestamp}.{id}.log.json",
+  "pathTemplates": {
+    "explain": "tests/integration/network.test.{timestamp}.{id}.explain.json",
+    "result": "tests/integration/network.test.{timestamp}.{id}.result.json",
+    "log": "tests/integration/network.test.{timestamp}.{id}.log.json"
+  },
   "tests": [
     {
       "id": "github-folder",

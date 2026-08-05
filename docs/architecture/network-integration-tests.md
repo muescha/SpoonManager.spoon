@@ -42,9 +42,11 @@ release assets, and remote ZIP URLs that are stable enough for end-to-end testin
       "installPathAfterTest": false
     }
   },
-  "explainPathTemplate": "tests/integration/network.test.{timestamp}.{id}.explain.json",
-  "runnerPathTemplate": "tests/integration/network.test.{timestamp}.{id}.result.json",
-  "logPathTemplate": "tests/integration/network.test.{timestamp}.{id}.log.json",
+  "pathTemplates": {
+    "explain": "tests/integration/network.test.{timestamp}.{id}.explain.json",
+    "result": "tests/integration/network.test.{timestamp}.{id}.result.json",
+    "log": "tests/integration/network.test.{timestamp}.{id}.log.json"
+  },
   "tests": []
 }
 ```
@@ -59,14 +61,15 @@ release assets, and remote ZIP URLs that are stable enough for end-to-end testin
 each network test. The runner expands placeholders before each test and loads
 SpoonManager with that test-specific `hs.configdir`.
 
-`explainPathTemplate` controls the exact JSON snapshot path written for each
-network test. Relative paths are resolved from the repository root.
+`pathTemplates.explain` controls the exact JSON snapshot path written for each
+network test. It describes the planned SpoonManager command. Relative paths are
+resolved from the repository root.
 
-`runnerPathTemplate` controls the exact JSON path for the test-run result. It
+`pathTemplates.result` controls the exact JSON path for the test-run result. It
 records whether the test passed, which source and target were used, where the
 test installed files, and any error if the run failed.
 
-`logPathTemplate` controls the exact JSON path for structured log output captured
+`pathTemplates.log` controls the exact JSON path for structured log output captured
 from the Hammerspoon logger stub. This includes debug messages emitted through
 `logger.df(...)`.
 
@@ -116,9 +119,9 @@ fresh fake Hammerspoon config directory.
 after that test finishes. It defaults to false so the installed files remain
 available for inspection.
 
-Each test may override `installPathTemplate`, `explainPathTemplate`,
-`runnerPathTemplate`, `logPathTemplate`, and `cleanup.test.*` if a specific case
-should use a different location or cleanup behavior.
+Each test may override `installPathTemplate`, `pathTemplates.*`, and
+`cleanup.test.*` if a specific case should use a different location or cleanup
+behavior.
 
 For safety, the runner only accepts install roots below `/tmp/` whose path contains
 `spoonmanager`.
@@ -492,12 +495,12 @@ The runner:
 5. Optionally clean the test-specific install path before the test.
 6. For each `enabled` test, build the corresponding SpoonManager definition.
 7. Point the Hammerspoon stub at the test-specific install path.
-8. Write the path resolved from `explainPathTemplate`.
+8. Write the path resolved from `pathTemplates.explain`.
 9. Run `definition.install()` synchronously.
 10. Verify expected files below the temporary install path.
 11. Run the same install again and assert `result.skipped == true`.
-12. Write the path resolved from `runnerPathTemplate`.
-13. Write the path resolved from `logPathTemplate`.
+12. Write the path resolved from `pathTemplates.result`.
+13. Write the path resolved from `pathTemplates.log`.
 14. Print the resolved install path.
 15. Optionally clean the test-specific install path after the test.
 16. Optionally clean `installRoot` after all tests.
