@@ -69,7 +69,7 @@ test("default spoon zip config snapshot", function()
             .spoon("Emojis")
             .toConfig()
 
-    assertMatchesJson("examples/default_spoon.config.json", definition)
+    assertMatchesJson("examples/default_spoon.lua.config.json", definition)
 end)
 ```
 
@@ -433,15 +433,15 @@ tests/
 │   ├── assertions.lua
 │   └── fixtures.lua
 ├── examples/
-│   ├── default_spoon.config.json
-│   ├── default_spoon.command.json
 │   ├── default_spoon.lua
-│   ├── github_folder.config.json
-│   ├── github_folder.command.json
+│   ├── default_spoon.lua.config.json
+│   ├── default_spoon.lua.command.json
 │   ├── github_folder.lua
-│   ├── github_release_latest.command.json
-│   ├── github_release_tag.command.json
+│   ├── github_folder.lua.config.json
+│   ├── github_folder.lua.command.json
 │   ├── github_release.lua
+│   ├── github_release.lua.latest.command.json
+│   ├── github_release.lua.tag.command.json
 │   ├── local_folder.lua
 │   └── local_zip.lua
 ├── unit/

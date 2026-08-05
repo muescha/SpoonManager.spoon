@@ -13,7 +13,7 @@ return function(T)
         T.assertEqual(command.from.type, "github-release")
         T.assertEqual(command.from.url, "https://github.com/muescha/DeepFolder.spoon/releases/latest/download/DeepFolder.zip")
         T.assertEqual(command.to.name, "DeepFolder")
-        T.assertMatchesJson("examples/github_release_latest.command.json", command)
+        T.assertMatchesJson("examples/github_release.lua.latest.command.json", command)
     end)
 
     T.test("example: github tagged release command", function()
@@ -27,6 +27,6 @@ return function(T)
 
         T.assertEqual(definition.source.release, "v1.2.3")
         T.assertEqual(command.from.url, "https://github.com/muescha/DeepFolder.spoon/releases/download/v1.2.3/DeepFolder.zip")
-        T.assertMatchesJson("examples/github_release_tag.command.json", command)
+        T.assertMatchesJson("examples/github_release.lua.tag.command.json", command)
     end)
 end
