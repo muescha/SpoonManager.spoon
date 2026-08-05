@@ -65,6 +65,16 @@ return function(context)
         end
     end
 
+    local function requireSpoonPattern(definition)
+        local source = definition.source or {}
+
+        if source.pattern_spoonZipPattern or source.pattern_spoonFolderPattern then
+            return
+        end
+
+        error(".spoon() requires .spoonZipPattern(...) or .spoonFolderPattern(...) on this source.", 3)
+    end
+
     local function fromState(state)
         local def = util.copyTable(state)
 
@@ -116,6 +126,7 @@ return function(context)
 
         api.spoon = function(value)
             util.requireString(value, "Spoon name")
+            requireSpoonPattern(def)
 
             local spoonName = nameResolver.infer(value, "Spoon name")
             assert(spoonName, "Invalid Spoon name")

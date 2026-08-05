@@ -660,7 +660,7 @@ repo.spoon("MySpoon")
 
 ### `definition.spoon(name)`
 
-Creates a Spoon definition from a known Spoon name.
+Creates a Spoon definition from a known Spoon name using a configured Spoon pattern.
 
 In exported configs, this stores the selected Spoon in `target.selection_spoon`.
 
@@ -684,6 +684,21 @@ With a custom ZIP pattern:
 spoon.SpoonManager.from.github("muescha/SpoonRepo")
     .spoonZipPattern("build/{name}.zip")
     .spoon("MySpoon")
+    .install()
+```
+
+Without `spoonZipPattern(...)` or `spoonFolderPattern(...)`, `.spoon(name)` is rejected:
+
+```lua
+spoon.SpoonManager.from.github("muescha/SpoonRepo")
+    .spoon("MySpoon") -- error
+```
+
+Use `.folder(...)` for an explicit repository folder, or call `.install()` directly
+when the repository root itself is the Spoon:
+
+```lua
+spoon.SpoonManager.from.github("muescha/MySpoon.spoon")
     .install()
 ```
 
