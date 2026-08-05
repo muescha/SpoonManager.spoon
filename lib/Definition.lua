@@ -168,10 +168,11 @@ return function(context)
             end
 
             if source.spoonFolderPattern then
-                local nextSource = util.mergeTables(source, {
+                local nextSource = {
                     type = source.provider == "github" and "github-folder" or "folder",
                     path = substitutePattern(source.spoonFolderPattern, spoonName),
-                })
+                    origin = source,
+                }
 
                 return fromState(util.mergeTables(nextDef, {
                     source = nextSource,
