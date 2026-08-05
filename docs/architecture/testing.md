@@ -40,7 +40,7 @@ Use two complementary assertion styles:
 - focused field assertions for precise failures
 - golden JSON snapshots for complete, readable examples
 
-Focused assertions make it obvious which behavior broke. Golden JSON makes the whole generated definition, resolved view, or command visible at once.
+Focused assertions make it obvious which behavior broke. Golden JSON makes the whole generated explanation visible at once.
 
 Example shape:
 
@@ -60,16 +60,16 @@ end)
 
 This reads almost like documentation, but still fails when the API changes unexpectedly.
 
-The same test can also compare the complete public config against a golden JSON file:
+The same test can also compare the complete explanation against a golden JSON file:
 
 ```lua
-test("default spoon zip config snapshot", function()
-    local definition =
+test("default spoon zip explanation snapshot", function()
+    local explanation =
         SpoonManager.from.default
             .spoon("Emojis")
-            .toConfig()
+            .explain("install")
 
-    assertMatchesJson("examples/default_spoon.lua.config.json", definition)
+    assertMatchesJson("examples/default_spoon.lua.explain.json", explanation)
 end)
 ```
 
@@ -87,6 +87,23 @@ The golden file is readable by itself:
   },
   "target": {
     "selection_spoon": "Emojis"
+  },
+  "resolved": {
+    "installName": "Emojis",
+    "sourceType": "remote-zip",
+    "url": "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/Emojis.spoon.zip"
+  },
+  "command": {
+    "action": "install",
+    "from": {
+      "type": "remote-zip",
+      "url": "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/Emojis.spoon.zip"
+    },
+    "to": {
+      "type": "spoon",
+      "name": "Emojis",
+      "path": "<spoons>/Emojis.spoon"
+    }
   }
 }
 ```
@@ -198,10 +215,10 @@ The rule of thumb:
 
 ```text
 assert fields for behavior
-snapshot JSON for shape and examples
+snapshot explain JSON for complete examples
 ```
 
-Do not replace all field assertions with snapshots. A failed snapshot is great for visual review, but a focused assertion usually gives the better failure message.
+Do not replace all field assertions with snapshots. A failed snapshot is great for visual review, but a focused assertion usually gives the better failure message. For user-facing example tests, prefer one `explain()` snapshot per example. Unit tests can still assert `toConfig()`, `resolveDefinition()`, and `toCommand()` directly.
 
 ## Hammerspoon Stub
 
@@ -435,14 +452,12 @@ tests/
 │   └── fixtures.lua
 ├── examples/
 │   ├── default_spoon.lua
-│   ├── default_spoon.lua.config.json
-│   ├── default_spoon.lua.command.json
+│   ├── default_spoon.lua.explain.json
 │   ├── github_folder.lua
-│   ├── github_folder.lua.config.json
-│   ├── github_folder.lua.command.json
+│   ├── github_folder.lua.explain.json
 │   ├── github_release.lua
-│   ├── github_release.lua.latest.command.json
-│   ├── github_release.lua.tag.command.json
+│   ├── github_release.lua.latest.explain.json
+│   ├── github_release.lua.tag.explain.json
 │   ├── local_folder.lua
 │   └── local_zip.lua
 ├── unit/
