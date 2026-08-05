@@ -105,7 +105,7 @@ end
 --- Function
 --- Create a Spoon definition from a plain Lua table.
 function obj.from.config(config)
-    return context.definition.fromState(config, true)
+    return context.definition.fromState(config)
 end
 
 --- SpoonManager.from.remoteZip(url) -> definition
@@ -115,15 +115,9 @@ function obj.from.remoteZip(url)
     Util.requireZipPath(url, "Remote ZIP URL")
 
     return context.definition.fromState({
-        name = context.nameResolver.infer(url, "URL"),
         source = {
             type = "remote-zip",
             url = url,
-        },
-        _builder = {
-            used = {
-                selection = Util.createLabel("remoteZip", url),
-            },
         },
     })
 end
@@ -136,15 +130,9 @@ function obj.from.localZip(path)
     Util.requireZipPath(path, "Local ZIP path")
 
     return context.definition.fromState({
-        name = context.nameResolver.infer(path, "local zip path"),
         source = {
             type = "local-zip",
             path = path,
-        },
-        _builder = {
-            used = {
-                selection = Util.createLabel("localZip", path),
-            },
         },
     })
 end
@@ -156,7 +144,6 @@ function obj.from.localFolder(path)
     path = Util.localPath(path)
 
     return context.definition.fromState({
-        name = context.nameResolver.infer(path, "local folder path"),
         source = {
             type = "local-folder",
             path = path,
@@ -181,26 +168,21 @@ function obj.from.github(repository, options)
         Util.requireString(options.baseUrl, "GitHub base URL")
     end
 
-    local used = {}
+    local source = {
+        type = "github",
+        provider = "github",
+        repository = repository,
+        baseUrl = options.baseUrl or "https://github.com",
+    }
+
     if options.ref then
-        used.revision = Util.createLabel("ref", options.ref)
+        source.revision_ref = options.ref
     elseif options.branch then
-        used.revision = Util.createLabel("branch", options.branch)
+        source.revision_branch = options.branch
     end
 
     return context.definition.fromState({
-        name = context.nameResolver.infer(repository, "repository"),
-        source = {
-            type = "github-repository",
-            provider = "github",
-            repository = repository,
-            branch = options.branch,
-            ref = options.ref,
-            baseUrl = options.baseUrl or "https://github.com",
-        },
-        _builder = {
-            used = used,
-        },
+        source = source,
     })
 end
 

@@ -52,9 +52,18 @@ return function(context)
 
         return NameResolver.infer(source.name, "source name")
             or NameResolver.infer(source.path, "source path")
-            or NameResolver.infer(source.asset, "asset name")
             or NameResolver.infer(source.url, "URL")
             or NameResolver.infer(source.repository, "repository")
+    end
+
+    function NameResolver.inferFromTarget(target)
+        if not target then
+            return nil
+        end
+
+        return NameResolver.infer(target.selection_spoon, "selected Spoon name")
+            or NameResolver.infer(target.selection_folder, "selected folder")
+            or NameResolver.infer(target.selection_asset, "selected asset")
     end
 
     return NameResolver
