@@ -106,11 +106,7 @@ end
 
 local function installPathFor(test, installRoot)
     local template = test.installPathTemplate
-        or test.templateInstallPath
         or config.installPathTemplate
-        or config.templateInstallPath
-        or test.installRootTemplate
-        or config.installRootTemplate
         or "{installRoot}/testinstalls/{timestamp}/{id}"
 
     assertString(template, "installPathTemplate")
@@ -128,7 +124,7 @@ local function installPathFor(test, installRoot)
     return installPath
 end
 
-local function cleanupValue(test, section, key, legacyKeys, default)
+local function cleanupValue(test, section, key, default)
     local testCleanup = test and test.cleanup
     if type(testCleanup) == "table" then
         if type(testCleanup[section]) == "table" and testCleanup[section][key] ~= nil then
@@ -149,15 +145,6 @@ local function cleanupValue(test, section, key, legacyKeys, default)
         end
     end
 
-    for _, legacyKey in ipairs(legacyKeys or {}) do
-        if test and test[legacyKey] ~= nil then
-            return test[legacyKey]
-        end
-        if config[legacyKey] ~= nil then
-            return config[legacyKey]
-        end
-    end
-
     return default
 end
 
@@ -166,34 +153,25 @@ local function cleanPath(path)
 end
 
 local function cleanInstallRootBeforeRun(installRoot)
-    if cleanupValue(nil, "allTests", "installRootBeforeAllTests", {
-        "cleanInstallRootBeforeAllTests",
-    }, false) then
+    if cleanupValue(nil, "allTests", "installRootBeforeAllTests", false) then
         cleanPath(installRoot)
     end
 end
 
 local function cleanInstallRootAfterRun(installRoot)
-    if cleanupValue(nil, "allTests", "installRootAfterAllTests", {
-        "cleanInstallRootAfterAllTests",
-    }, false) then
+    if cleanupValue(nil, "allTests", "installRootAfterAllTests", false) then
         cleanPath(installRoot)
     end
 end
 
 local function cleanInstallPathBeforeTest(test, installPath)
-    if cleanupValue(test, "test", "installPathBeforeTest", {
-        "cleanInstallPathBeforeTest",
-        "cleanInstallRoot",
-    }, true) then
+    if cleanupValue(test, "test", "installPathBeforeTest", true) then
         cleanPath(installPath)
     end
 end
 
 local function cleanInstallPathAfterTest(test, installPath)
-    if cleanupValue(test, "test", "installPathAfterTest", {
-        "cleanInstallPathAfterTest",
-    }, false) then
+    if cleanupValue(test, "test", "installPathAfterTest", false) then
         cleanPath(installPath)
     end
 end

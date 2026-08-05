@@ -82,12 +82,6 @@ YYYYMMDDTHHMMSSZ
 This keeps tests that install the same Spoon name from overwriting each other and
 keeps separate network test runs available for inspection.
 
-`templateInstallPath` and `installRootTemplate` are still accepted as legacy
-aliases for `installPathTemplate`.
-
-`cleanInstallRoot` is still accepted as a legacy alias for
-`cleanup.test.installPathBeforeTest`.
-
 ## Cleanup
 
 Cleanup is split by scope.
