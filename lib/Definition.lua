@@ -55,7 +55,9 @@ return function(context)
         local builder = ensureBuilder(definition)
         local used = builder.used
 
-        if source.ref and not used.revision then
+        if source.branch and not used.revision then
+            used.revision = util.createLabel("branch", source.branch)
+        elseif source.ref and not used.revision then
             used.revision = util.createLabel("ref", source.ref)
         end
 
@@ -106,7 +108,8 @@ return function(context)
             local nextDef = util.copyTable(def)
             nextDef.source = util.copyTable(nextDef.source or {})
             markUsed(nextDef, "revision", "branch", branchName)
-            nextDef.source.ref = branchName
+            nextDef.source.branch = branchName
+            nextDef.source.ref = nil
             return fromState(nextDef)
         end
 
@@ -117,6 +120,7 @@ return function(context)
             nextDef.source = util.copyTable(nextDef.source or {})
             markUsed(nextDef, "revision", "ref", refName)
             nextDef.source.ref = refName
+            nextDef.source.branch = nil
             return fromState(nextDef)
         end
 

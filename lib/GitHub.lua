@@ -1,7 +1,7 @@
 local GitHub = {}
 
 function GitHub.archiveUrl(source)
-    local ref = source.ref or "main"
+    local ref = source.ref or source.branch or "main"
     return string.format(
         "%s/%s/archive/%s.zip",
         source.baseUrl or "https://github.com",
@@ -11,7 +11,7 @@ function GitHub.archiveUrl(source)
 end
 
 function GitHub.rawUrl(source, path)
-    local ref = source.ref or "main"
+    local ref = source.ref or source.branch or "main"
     return string.format(
         "%s/%s/raw/%s/%s",
         source.baseUrl or "https://github.com",

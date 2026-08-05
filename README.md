@@ -397,6 +397,8 @@ Creates a GitHub repository definition.
 
 If neither `branch` nor `ref` is given, SpoonManager uses `main`.
 
+The default `main` is only applied when building GitHub URLs. It is not stored in exported configs unless you explicitly call `branch("main")` or pass `{ branch = "main" }`.
+
 The built-in `SpoonManager.from.default` source is the exception: it points to `Hammerspoon/Spoons` and explicitly uses `master`, because that repository still uses `master`.
 
 Example, repository root is the Spoon:
@@ -526,6 +528,8 @@ Returns a new definition using the given branch name.
 This is a readable shortcut for branch-based GitHub sources.
 
 If no branch is configured, GitHub sources use `main`.
+
+In exported configs, `branch(name)` uses `source.branch = name`. `ref(name)` uses `source.ref = name`.
 
 `SpoonManager.from.default` already has `master` configured, so you normally do not need to call `branch("master")` there.
 

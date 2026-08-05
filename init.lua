@@ -181,7 +181,6 @@ function obj.from.github(repository, options)
         Util.requireString(options.baseUrl, "GitHub base URL")
     end
 
-    local ref = options.ref or options.branch
     local used = {}
     if options.ref then
         used.revision = Util.createLabel("ref", options.ref)
@@ -195,7 +194,8 @@ function obj.from.github(repository, options)
             type = "github-repository",
             provider = "github",
             repository = repository,
-            ref = ref,
+            branch = options.branch,
+            ref = options.ref,
             baseUrl = options.baseUrl or "https://github.com",
         },
         _builder = {
