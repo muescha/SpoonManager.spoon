@@ -185,10 +185,10 @@ If `source.revision_branch = "master"` already exists and the user calls `.ref("
 branch('master') already set; cannot call ref('v1.2.3').
 ```
 
-Source-changing methods also need to fail after the Spoon selection has been finalized. Keep this check explicit instead of hiding it in an overly generic setter.
+Source-changing methods also need to fail after the Spoon selection has been finalized. A definition is finalized once any `spoon.selection_*` endpoint exists. Keep this check explicit instead of hiding it in an overly generic setter.
 
 ```lua
-local function ensureNoSelection(definition, method, value)
+local function ensureNotFinalized(definition, method, value)
     local selectedMethod, selectedValue =
         findFlatGroupValue(definition.spoon, "selection")
 
@@ -205,10 +205,10 @@ end
 Source methods use two direct steps:
 
 ```lua
-ensureNoSelection(definition, "branch", branchName)
+ensureNotFinalized(definition, "branch", branchName)
 setExclusive(definition.source, "revision", "branch", branchName)
 
-ensureNoSelection(definition, "spoonFolderPattern", pattern)
+ensureNotFinalized(definition, "spoonFolderPattern", pattern)
 setExclusive(definition.source, "pattern", "spoonFolderPattern", pattern)
 ```
 
