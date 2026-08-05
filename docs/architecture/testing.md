@@ -22,6 +22,13 @@ lua tests/run.lua
 
 A larger Lua test framework can come later if the project outgrows the simple runner. For now, the most valuable tests are examples with assertions.
 
+Use two complementary assertion styles:
+
+- focused field assertions for precise failures
+- golden JSON snapshots for complete, readable examples
+
+Focused assertions make it obvious which behavior broke. Golden JSON makes the whole generated definition, resolved view, or command visible at once.
+
 Example shape:
 
 ```lua
@@ -39,6 +46,110 @@ end)
 ```
 
 This reads almost like documentation, but still fails when the API changes unexpectedly.
+
+The same test can also compare the complete public config against a golden JSON file:
+
+```lua
+test("default spoon zip config snapshot", function()
+    local definition =
+        SpoonManager.from.default
+            .spoon("Emojis")
+            .toConfig()
+
+    assertMatchesJson("examples/default_spoon.config.json", definition)
+end)
+```
+
+The golden file is readable by itself:
+
+```json
+{
+  "source": {
+    "type": "github",
+    "provider": "github",
+    "repository": "Hammerspoon/Spoons",
+    "baseUrl": "https://github.com",
+    "revision_branch": "master",
+    "pattern_spoonZipPattern": "Spoons/{name}.spoon.zip"
+  },
+  "target": {
+    "selection_spoon": "Emojis"
+  }
+}
+```
+
+This is useful because a reviewer can see the complete API contract without mentally reconstructing it from many single-field assertions.
+
+## Golden JSON Snapshots
+
+Golden JSON snapshots make sense for stable public or semi-public structures:
+
+- `definition.toConfig()`
+- resolver `resolved` output
+- resolver `command` output
+- selected `installed.json` records after normalizing dynamic values
+
+They are less useful for unstable runtime data unless the test normalizes dynamic fields first.
+
+Examples of fields to normalize before snapshot comparison:
+
+```text
+installedAt
+updatedAt
+path
+fingerprints.localHash
+temporary directories
+```
+
+Snapshot tests should use canonical JSON:
+
+- sorted object keys
+- consistent indentation
+- no platform-specific temporary paths
+- no timestamps unless replaced with placeholders
+
+Example normalized installed snapshot:
+
+```json
+{
+  "Emojis": {
+    "name": "Emojis",
+    "installedAt": "<timestamp>",
+    "updatedAt": "<timestamp>",
+    "path": "<spoons>/Emojis.spoon",
+    "definition": {
+      "source": {
+        "type": "github",
+        "provider": "github",
+        "repository": "Hammerspoon/Spoons",
+        "baseUrl": "https://github.com",
+        "revision_branch": "master",
+        "pattern_spoonZipPattern": "Spoons/{name}.spoon.zip"
+      },
+      "target": {
+        "selection_spoon": "Emojis"
+      }
+    },
+    "resolved": {
+      "installName": "Emojis",
+      "sourceType": "remote-zip",
+      "url": "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/Emojis.spoon.zip"
+    },
+    "fingerprints": {
+      "localHash": "<sha256>"
+    }
+  }
+}
+```
+
+The rule of thumb:
+
+```text
+assert fields for behavior
+snapshot JSON for shape and examples
+```
+
+Do not replace all field assertions with snapshots. A failed snapshot is great for visual review, but a focused assertion usually gives the better failure message.
 
 ## Hammerspoon Stub
 
@@ -276,6 +387,12 @@ tests/
 │   ├── github_release.lua
 │   ├── local_folder.lua
 │   └── local_zip.lua
+├── snapshots/
+│   └── examples/
+│       ├── default_spoon.config.json
+│       ├── default_spoon.command.json
+│       ├── github_folder.config.json
+│       └── github_folder.command.json
 ├── unit/
 │   ├── name_resolver_test.lua
 │   ├── definition_test.lua
