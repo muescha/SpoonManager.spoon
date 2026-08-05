@@ -11,8 +11,89 @@ return function(context)
         return (pattern:gsub("{name}", spoonName))
     end
 
-    local function fromState(state)
+    local function ensureBuilder(definition)
+        definition._builder = util.mergeTables({
+            used = {},
+        }, definition._builder or {})
+
+        definition._builder.used = definition._builder.used or {}
+        return definition._builder
+    end
+
+    local function markUsed(definition, group, method, value)
+        local builder = ensureBuilder(definition)
+        local nextLabel = util.createLabel(method, value)
+        local previousLabel = builder.used[group]
+
+        if previousLabel then
+            error(string.format(
+                "Cannot call %s; %s was already set by %s. Start from the base definition instead.",
+                nextLabel,
+                group,
+                previousLabel
+            ), 3)
+        end
+
+        builder.used[group] = nextLabel
+    end
+
+    local function setInferredName(definition, inferredName)
+        definition.inferredName = inferredName
+
+        if not definition.explicitName then
+            definition.name = inferredName
+        end
+    end
+
+    local function setExplicitName(definition, explicitName)
+        definition.explicitName = explicitName
+        definition.name = explicitName
+    end
+
+    local function inferUsedFromConfig(definition)
+        local source = definition.source or {}
+        local builder = ensureBuilder(definition)
+        local used = builder.used
+
+        if source.ref and not used.revision then
+            used.revision = util.createLabel("ref", source.ref)
+        end
+
+        if source.spoonZipPattern and not used.spoonPattern then
+            used.spoonPattern = util.createLabel("spoonZipPattern", source.spoonZipPattern)
+        elseif source.spoonFolderPattern and not used.spoonPattern then
+            used.spoonPattern = util.createLabel("spoonFolderPattern", source.spoonFolderPattern)
+        end
+
+        if source.release and not used.release then
+            if source.release == "latest" then
+                used.release = util.createLabel("releaseLatest")
+            else
+                used.release = util.createLabel("release", source.release)
+            end
+        end
+
+        if source.asset and not used.selection then
+            used.selection = util.createLabel("asset", source.asset)
+        elseif source.path and not used.selection then
+            used.selection = util.createLabel("folder", source.path)
+        elseif source.url and not used.selection then
+            used.selection = util.createLabel("remoteZip", source.url)
+        end
+
+        if definition.explicitName and not used.targetName then
+            used.targetName = util.createLabel("asSpoon", definition.explicitName)
+        end
+    end
+
+    local function fromState(state, inferMissingBuilder)
         local def = util.copyTable(state)
+        if inferMissingBuilder and not def._builder then
+            inferUsedFromConfig(def)
+        else
+            ensureBuilder(def)
+        end
+
         local api = {}
 
         api.toConfig = function()
@@ -24,6 +105,7 @@ return function(context)
 
             local nextDef = util.copyTable(def)
             nextDef.source = util.copyTable(nextDef.source or {})
+            markUsed(nextDef, "revision", "branch", branchName)
             nextDef.source.ref = branchName
             return fromState(nextDef)
         end
@@ -33,6 +115,7 @@ return function(context)
 
             local nextDef = util.copyTable(def)
             nextDef.source = util.copyTable(nextDef.source or {})
+            markUsed(nextDef, "revision", "ref", refName)
             nextDef.source.ref = refName
             return fromState(nextDef)
         end
@@ -42,6 +125,7 @@ return function(context)
 
             local nextDef = util.copyTable(def)
             nextDef.source = util.copyTable(nextDef.source or {})
+            markUsed(nextDef, "spoonPattern", "spoonZipPattern", pattern)
             nextDef.source.spoonZipPattern = pattern
             return fromState(nextDef)
         end
@@ -51,6 +135,7 @@ return function(context)
 
             local nextDef = util.copyTable(def)
             nextDef.source = util.copyTable(nextDef.source or {})
+            markUsed(nextDef, "spoonPattern", "spoonFolderPattern", pattern)
             nextDef.source.spoonFolderPattern = pattern
             return fromState(nextDef)
         end
@@ -62,6 +147,9 @@ return function(context)
             assert(spoonName, "Invalid Spoon name")
 
             local source = def.source or {}
+            local nextDef = util.copyTable(def)
+            markUsed(nextDef, "selection", "spoon", value)
+            setInferredName(nextDef, spoonName)
 
             if source.spoonZipPattern then
                 local nextSource = {
@@ -70,19 +158,23 @@ return function(context)
                     origin = source,
                 }
 
-                return fromState(util.mergeTables(def, {
-                    name = spoonName,
+                return fromState(util.mergeTables(nextDef, {
                     source = nextSource,
                 }))
             end
 
             if source.spoonFolderPattern then
-                return api.folder(substitutePattern(source.spoonFolderPattern, spoonName)).asSpoon(spoonName)
+                local nextSource = util.mergeTables(source, {
+                    type = source.provider == "github" and "github-folder" or "folder",
+                    path = substitutePattern(source.spoonFolderPattern, spoonName),
+                })
+
+                return fromState(util.mergeTables(nextDef, {
+                    source = nextSource,
+                }))
             end
 
-            return fromState(util.mergeTables(def, {
-                name = spoonName,
-            }))
+            return fromState(nextDef)
         end
 
         api.folder = function(path)
@@ -107,14 +199,18 @@ return function(context)
                 inferredFrom = "folder path"
             end
 
-            return fromState(util.mergeTables(def, {
-                name = nameResolver.infer(path, inferredFrom),
+            local nextDef = util.copyTable(def)
+            markUsed(nextDef, "selection", "folder", path)
+            setInferredName(nextDef, nameResolver.infer(path, inferredFrom))
+
+            return fromState(util.mergeTables(nextDef, {
                 source = nextSource,
             }))
         end
 
         api.releaseLatest = function()
             local nextDef = util.copyTable(def)
+            markUsed(nextDef, "release", "releaseLatest")
             nextDef.source = util.mergeTables(nextDef.source or {}, {
                 type = "github-release",
                 release = "latest",
@@ -126,6 +222,7 @@ return function(context)
             util.requireString(releaseName, "Release name")
 
             local nextDef = util.copyTable(def)
+            markUsed(nextDef, "release", "release", releaseName)
             nextDef.source = util.mergeTables(nextDef.source or {}, {
                 type = "github-release",
                 release = releaseName,
@@ -137,7 +234,8 @@ return function(context)
             util.requireZipPath(assetName, "Release asset")
 
             local nextDef = util.copyTable(def)
-            nextDef.name = nameResolver.infer(assetName, "asset name")
+            markUsed(nextDef, "selection", "asset", assetName)
+            setInferredName(nextDef, nameResolver.infer(assetName, "asset name"))
             nextDef.source = util.mergeTables(nextDef.source or {}, {
                 asset = assetName,
             })
@@ -148,7 +246,8 @@ return function(context)
             util.requireString(value, "Spoon name")
 
             local nextDef = util.copyTable(def)
-            nextDef.name = nameResolver.infer(value, "explicit Spoon name")
+            markUsed(nextDef, "targetName", "asSpoon", value)
+            setExplicitName(nextDef, nameResolver.infer(value, "explicit Spoon name"))
             nameResolver.logExplicit(nextDef.name, value)
             return fromState(nextDef)
         end
@@ -163,6 +262,7 @@ return function(context)
             assert(manager._isLocalChangesBehavior(behavior), "Invalid local changes behavior: " .. tostring(behavior))
 
             local nextDef = util.copyTable(def)
+            markUsed(nextDef, "localChanges", "onLocalChanges", behavior)
             nextDef.options = util.mergeTables(nextDef.options or {}, { onLocalChanges = behavior })
             return fromState(nextDef)
         end

@@ -356,6 +356,8 @@ A definition contains the Spoon name, source information, use options, and insta
 
 Builder arguments that describe names, paths, refs, URLs, patterns, releases, or assets must be strings. Passing a table, number, or another builder object raises an error instead of being converted with `tostring()`.
 
+Builder methods do not silently overwrite each other. Each group can be set once per definition: revision (`branch`/`ref`), Spoon pattern, selection (`spoon`/`folder`/`asset`), release, target name (`asSpoon`), and local-change behavior. If you need another Spoon from the same repository, keep the base definition and call the method there again.
+
 ### `SpoonManager.from.config(config)`
 
 Creates a definition builder from a plain Lua table.
@@ -962,6 +964,8 @@ spoon.SpoonManager.from.default
 Returns the plain Lua table behind a definition builder.
 
 This is useful for debugging, storing definitions, or generating a future `spoonify.json`.
+
+The returned table includes `_builder.used` metadata. SpoonManager uses it to keep the same "do not overwrite builder choices" checks when a config is loaded again with `SpoonManager.from.config(config)`.
 
 Example:
 

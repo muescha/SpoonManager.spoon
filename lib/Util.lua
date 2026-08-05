@@ -113,6 +113,15 @@ function Util.requireString(value, label)
     return value
 end
 
+function Util.createLabel(method, value)
+    if value == nil then
+        return "." .. method .. "()"
+    end
+
+    local escaped = tostring(value):gsub("'", "\\'")
+    return "." .. method .. "('" .. escaped .. "')"
+end
+
 function Util.isZipPath(value)
     if type(value) ~= "string" then
         return false

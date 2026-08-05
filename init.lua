@@ -105,7 +105,7 @@ end
 --- Function
 --- Create a Spoon definition from a plain Lua table.
 function obj.from.config(config)
-    return context.definition.fromState(config)
+    return context.definition.fromState(config, true)
 end
 
 --- SpoonManager.from.remoteZip(url) -> definition
@@ -119,6 +119,11 @@ function obj.from.remoteZip(url)
         source = {
             type = "remote-zip",
             url = url,
+        },
+        _builder = {
+            used = {
+                selection = Util.createLabel("remoteZip", url),
+            },
         },
     })
 end
@@ -135,6 +140,11 @@ function obj.from.localZip(path)
         source = {
             type = "local-zip",
             path = path,
+        },
+        _builder = {
+            used = {
+                selection = Util.createLabel("localZip", path),
+            },
         },
     })
 end
@@ -171,14 +181,25 @@ function obj.from.github(repository, options)
         Util.requireString(options.baseUrl, "GitHub base URL")
     end
 
+    local ref = options.ref or options.branch
+    local used = {}
+    if options.ref then
+        used.revision = Util.createLabel("ref", options.ref)
+    elseif options.branch then
+        used.revision = Util.createLabel("branch", options.branch)
+    end
+
     return context.definition.fromState({
         name = context.nameResolver.infer(repository, "repository"),
         source = {
             type = "github-repository",
             provider = "github",
             repository = repository,
-            ref = options.ref or options.branch or "main",
+            ref = ref,
             baseUrl = options.baseUrl or "https://github.com",
+        },
+        _builder = {
+            used = used,
         },
     })
 end
