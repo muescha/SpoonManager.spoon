@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "templateInstallPath": "/tmp/spoonmanager-network-test/testinstalls/{id}",
-  "cleanInstallRoot": false,
+  "templateInstallPath": "/tmp/spoonmanager-network-test/testinstalls/{timestamp}/{id}",
+  "cleanInstallRoot": true,
   "explainDir": "tests/integration",
   "tests": [
     {

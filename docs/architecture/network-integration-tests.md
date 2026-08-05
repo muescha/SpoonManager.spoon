@@ -30,8 +30,8 @@ release assets, and remote ZIP URLs that are stable enough for end-to-end testin
 ```json
 {
   "version": 1,
-  "templateInstallPath": "/tmp/spoonmanager-network-test/testinstalls/{id}",
-  "cleanInstallRoot": false,
+  "templateInstallPath": "/tmp/spoonmanager-network-test/testinstalls/{timestamp}/{id}",
+  "cleanInstallRoot": true,
   "explainDir": "tests/integration",
   "tests": []
 }
@@ -47,22 +47,32 @@ Supported placeholders:
 {id}
 {sourceType}
 {name}
+{timestamp}
 ```
 
 With the example template, installed Spoons land below:
 
 ```text
-/tmp/spoonmanager-network-test/testinstalls/{id}/Spoons/{name}.spoon
+/tmp/spoonmanager-network-test/testinstalls/{timestamp}/{id}/Spoons/{name}.spoon
 ```
 
-This keeps tests that install the same Spoon name from overwriting each other.
+`timestamp` is generated once per runner invocation in compact UTC ISO form:
+
+```text
+YYYYMMDDTHHMMSSZ
+```
+
+This keeps tests that install the same Spoon name from overwriting each other and
+keeps separate network test runs available for inspection.
 
 `installRoot` is still accepted for a single shared root, but `templateInstallPath`
 is preferred for network tests.
 
 When `cleanInstallRoot` is true, the runner removes each resolved install root
-before running that test. The default should usually stay false so the installed
-files remain available for inspection after the run.
+before running that test. The default is true. The runner does not remove the
+install root after the test, so files remain available for inspection. Use a
+`{timestamp}` segment in `templateInstallPath` when you want each run to keep its
+own result folder.
 
 Each test may override `templateInstallPath` and `cleanInstallRoot` if a specific
 case should use a different location or force a fresh install.

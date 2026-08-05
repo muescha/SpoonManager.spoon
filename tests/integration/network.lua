@@ -1,5 +1,6 @@
 local repoRoot = os.getenv("PWD")
 local configPath = arg and arg[1]
+local runTimestamp = os.date("!%Y%m%dT%H%M%SZ")
 
 if not configPath or configPath == "" then
     io.stderr:write("usage: lua tests/integration/network.lua tests/integration/network.local.json\n")
@@ -93,7 +94,7 @@ local function installRootFor(test)
         or config.templateInstallPath
         or config.installRootTemplate
         or config.installRoot
-        or "/tmp/spoonmanager-network-test/testinstalls/{id}"
+        or "/tmp/spoonmanager-network-test/testinstalls/{timestamp}/{id}"
 
     assertString(template, "templateInstallPath")
 
@@ -101,6 +102,7 @@ local function installRootFor(test)
         id = test.id,
         sourceType = sourceLabel(test),
         name = targetLabel(test),
+        timestamp = runTimestamp,
     })
 
     if installRoot:sub(1, 5) ~= "/tmp/" or not installRoot:match("spoonmanager") then
@@ -114,6 +116,9 @@ local function cleanInstallRootFor(test, installRoot)
     local clean = test.cleanInstallRoot
     if clean == nil then
         clean = config.cleanInstallRoot
+    end
+    if clean == nil then
+        clean = true
     end
 
     if clean then
