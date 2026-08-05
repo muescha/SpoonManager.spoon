@@ -30,20 +30,37 @@ release assets, and remote ZIP URLs that are stable enough for end-to-end testin
 ```json
 {
   "version": 1,
-  "templateInstallPath": "/tmp/spoonmanager-network-test/testinstalls/{timestamp}/{id}",
-  "cleanInstallRoot": true,
+  "installRoot": "/tmp/spoonmanager-network-test",
+  "installPathTemplate": "{installRoot}/testinstalls/{timestamp}/{id}",
+  "cleanup": {
+    "allTests": {
+      "installRootBeforeAllTests": false,
+      "installRootAfterAllTests": false
+    },
+    "test": {
+      "installPathBeforeTest": true,
+      "installPathAfterTest": false
+    }
+  },
   "explainDir": "tests/integration",
   "tests": []
 }
 ```
 
-`templateInstallPath` becomes the fake Hammerspoon config directory template for
+`installRoot` is the container for all network test artifacts. It defaults to:
+
+```text
+/tmp/spoonmanager-network-test
+```
+
+`installPathTemplate` becomes the fake Hammerspoon config directory template for
 each network test. The runner expands placeholders before each test and loads
 SpoonManager with that test-specific `hs.configdir`.
 
 Supported placeholders:
 
 ```text
+{installRoot}
 {id}
 {sourceType}
 {name}
@@ -65,17 +82,34 @@ YYYYMMDDTHHMMSSZ
 This keeps tests that install the same Spoon name from overwriting each other and
 keeps separate network test runs available for inspection.
 
-`installRoot` is still accepted for a single shared root, but `templateInstallPath`
-is preferred for network tests.
+`templateInstallPath` and `installRootTemplate` are still accepted as legacy
+aliases for `installPathTemplate`.
 
-When `cleanInstallRoot` is true, the runner removes each resolved install root
-before running that test. The default is true. The runner does not remove the
-install root after the test, so files remain available for inspection. Use a
-`{timestamp}` segment in `templateInstallPath` when you want each run to keep its
-own result folder.
+`cleanInstallRoot` is still accepted as a legacy alias for
+`cleanup.test.installPathBeforeTest`.
 
-Each test may override `templateInstallPath` and `cleanInstallRoot` if a specific
-case should use a different location or force a fresh install.
+## Cleanup
+
+Cleanup is split by scope.
+
+`cleanup.allTests.installRootBeforeAllTests` removes the whole `installRoot`
+before the first enabled test starts. It defaults to false so older timestamped
+runs remain available for inspection.
+
+`cleanup.allTests.installRootAfterAllTests` removes the whole `installRoot` after
+the runner finishes. It defaults to false. Enable it for CI-style runs where no
+artifacts should remain.
+
+`cleanup.test.installPathBeforeTest` removes the resolved per-test install path
+before that test starts. It defaults to true so every enabled test starts from a
+fresh fake Hammerspoon config directory.
+
+`cleanup.test.installPathAfterTest` removes the resolved per-test install path
+after that test finishes. It defaults to false so the installed files remain
+available for inspection.
+
+Each test may override `installPathTemplate` and `cleanup.test.*` if a specific
+case should use a different location or cleanup behavior.
 
 For safety, the runner only accepts install roots below `/tmp/` whose path contains
 `spoonmanager`.
@@ -408,14 +442,18 @@ The runner:
 
 1. Refuse to run unless a local config path is explicitly passed.
 2. Load the JSON config.
-3. Resolve the test install root from `templateInstallPath`.
-4. For each `enabled` test, build the corresponding SpoonManager definition.
-5. Point the Hammerspoon stub at the test-specific install root.
-6. Write `network.test.{test-id}.explain.json`.
-7. Run `definition.install()` synchronously.
-8. Verify expected files below the temporary install root.
-9. Run the same install again and assert `result.skipped == true`.
-10. Print the resolved install root so the files can be inspected after the run.
+3. Optionally clean `installRoot` before all tests.
+4. Resolve the test install path from `installPathTemplate`.
+5. Optionally clean the test-specific install path before the test.
+6. For each `enabled` test, build the corresponding SpoonManager definition.
+7. Point the Hammerspoon stub at the test-specific install path.
+8. Write `network.test.{test-id}.explain.json`.
+9. Run `definition.install()` synchronously.
+10. Verify expected files below the temporary install path.
+11. Run the same install again and assert `result.skipped == true`.
+12. Print the resolved install path.
+13. Optionally clean the test-specific install path after the test.
+14. Optionally clean `installRoot` after all tests.
 
 The first implementation intentionally does not run update/local-change checks yet.
 Those can be added once the happy-path network installs are stable.

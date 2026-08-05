@@ -74,6 +74,9 @@ end
 
 local function renderTemplate(template, values)
     return (template:gsub("{([%w_]+)}", function(key)
+        if key == "installRoot" then
+            return tostring(values[key] or "")
+        end
         return safeId(values[key] or "")
     end))
 end
@@ -88,41 +91,110 @@ local function targetLabel(test)
     return target.name or target.spoon or test.id
 end
 
-local function installRootFor(test)
-    local template = test.templateInstallPath
-        or test.installRootTemplate
+local function assertSafeTestPath(path, label)
+    if path:sub(1, 5) ~= "/tmp/" or not path:match("spoonmanager") then
+        error(label .. " must be a /tmp path containing 'spoonmanager': " .. path)
+    end
+end
+
+local function installRootForRun()
+    local installRoot = config.installRoot or "/tmp/spoonmanager-network-test"
+    assertString(installRoot, "installRoot")
+    assertSafeTestPath(installRoot, "installRoot")
+    return installRoot
+end
+
+local function installPathFor(test, installRoot)
+    local template = test.installPathTemplate
+        or test.templateInstallPath
+        or config.installPathTemplate
         or config.templateInstallPath
+        or test.installRootTemplate
         or config.installRootTemplate
-        or config.installRoot
-        or "/tmp/spoonmanager-network-test/testinstalls/{timestamp}/{id}"
+        or "{installRoot}/testinstalls/{timestamp}/{id}"
 
-    assertString(template, "templateInstallPath")
+    assertString(template, "installPathTemplate")
 
-    local installRoot = renderTemplate(template, {
+    local installPath = renderTemplate(template, {
+        installRoot = installRoot,
         id = test.id,
         sourceType = sourceLabel(test),
         name = targetLabel(test),
         timestamp = runTimestamp,
     })
 
-    if installRoot:sub(1, 5) ~= "/tmp/" or not installRoot:match("spoonmanager") then
-        error("install root must be a /tmp path containing 'spoonmanager': " .. installRoot)
-    end
+    assertSafeTestPath(installPath, "installPath")
 
-    return installRoot
+    return installPath
 end
 
-local function cleanInstallRootFor(test, installRoot)
-    local clean = test.cleanInstallRoot
-    if clean == nil then
-        clean = config.cleanInstallRoot
-    end
-    if clean == nil then
-        clean = true
+local function cleanupValue(test, section, key, legacyKeys, default)
+    local testCleanup = test and test.cleanup
+    if type(testCleanup) == "table" then
+        if type(testCleanup[section]) == "table" and testCleanup[section][key] ~= nil then
+            return testCleanup[section][key]
+        end
+        if testCleanup[key] ~= nil then
+            return testCleanup[key]
+        end
     end
 
-    if clean then
-        os.execute("/bin/rm -rf " .. shellQuote(installRoot))
+    local globalCleanup = config.cleanup
+    if type(globalCleanup) == "table" then
+        if type(globalCleanup[section]) == "table" and globalCleanup[section][key] ~= nil then
+            return globalCleanup[section][key]
+        end
+        if globalCleanup[key] ~= nil then
+            return globalCleanup[key]
+        end
+    end
+
+    for _, legacyKey in ipairs(legacyKeys or {}) do
+        if test and test[legacyKey] ~= nil then
+            return test[legacyKey]
+        end
+        if config[legacyKey] ~= nil then
+            return config[legacyKey]
+        end
+    end
+
+    return default
+end
+
+local function cleanPath(path)
+    os.execute("/bin/rm -rf " .. shellQuote(path))
+end
+
+local function cleanInstallRootBeforeRun(installRoot)
+    if cleanupValue(nil, "allTests", "installRootBeforeAllTests", {
+        "cleanInstallRootBeforeAllTests",
+    }, false) then
+        cleanPath(installRoot)
+    end
+end
+
+local function cleanInstallRootAfterRun(installRoot)
+    if cleanupValue(nil, "allTests", "installRootAfterAllTests", {
+        "cleanInstallRootAfterAllTests",
+    }, false) then
+        cleanPath(installRoot)
+    end
+end
+
+local function cleanInstallPathBeforeTest(test, installPath)
+    if cleanupValue(test, "test", "installPathBeforeTest", {
+        "cleanInstallPathBeforeTest",
+        "cleanInstallRoot",
+    }, true) then
+        cleanPath(installPath)
+    end
+end
+
+local function cleanInstallPathAfterTest(test, installPath)
+    if cleanupValue(test, "test", "installPathAfterTest", {
+        "cleanInstallPathAfterTest",
+    }, false) then
+        cleanPath(installPath)
     end
 end
 
@@ -290,6 +362,9 @@ end
 
 local enabled = 0
 local passed = 0
+local installRoot = installRootForRun()
+
+cleanInstallRootBeforeRun(installRoot)
 
 for _, test in ipairs(config.tests or {}) do
     if test.enabled then
@@ -297,14 +372,14 @@ for _, test in ipairs(config.tests or {}) do
         assertString(test.id, "test.id")
 
         io.write("network test: " .. test.id .. " ... ")
-        local installRoot
+        local installPath
 
         local ok, err = xpcall(function()
-            installRoot = installRootFor(test)
-            cleanInstallRootFor(test, installRoot)
-            ensureDir(installRoot)
+            installPath = installPathFor(test, installRoot)
+            cleanInstallPathBeforeTest(test, installPath)
+            ensureDir(installPath)
 
-            stubHammerspoon(installRoot)
+            stubHammerspoon(installPath)
             local SpoonManager = dofile(repoRoot .. "/init.lua")
             local definition = buildDefinition(SpoonManager, test)
             json.write(explainPathFor(test), definition.explain("install"))
@@ -326,14 +401,21 @@ for _, test in ipairs(config.tests or {}) do
 
         if ok then
             passed = passed + 1
-            print("ok (" .. installRoot .. ")")
+            print("ok (" .. installPath .. ")")
+            cleanInstallPathAfterTest(test, installPath)
         else
             print("failed")
             print(err)
+            if installPath then
+                cleanInstallPathAfterTest(test, installPath)
+            end
+            cleanInstallRootAfterRun(installRoot)
             os.exit(1)
         end
     end
 end
+
+cleanInstallRootAfterRun(installRoot)
 
 if enabled == 0 then
     print("0 network tests enabled")
