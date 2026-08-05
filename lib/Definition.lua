@@ -192,11 +192,11 @@ return function(context)
         end
 
         api.install = function()
-            return manager._installDefinition(def, "install")
+            return manager._installAndRememberDefinition(def, "install")
         end
 
         api.update = function()
-            return manager._installDefinition(def, "update")
+            return manager._installAndRememberDefinition(def, "update")
         end
 
         return setmetatable(api, Definition)

@@ -102,6 +102,51 @@ function obj._installDefinition(definition, action)
     return context.installer.installDefinition(definition, action)
 end
 
+local function definitionConfig(definition)
+    if definition.toConfig then
+        return definition.toConfig()
+    end
+
+    return Util.copyTable(definition)
+end
+
+local function definitionInstallName(definition)
+    local ok, resolved = pcall(context.resolver.resolveDefinition, definition)
+    if ok and resolved then
+        return resolved.installName
+    end
+
+    return nil
+end
+
+function obj._rememberDefinition(definition)
+    local config = definitionConfig(definition)
+    local installName = definitionInstallName(config)
+
+    if installName then
+        for index, existing in ipairs(obj.definitions) do
+            if definitionInstallName(existing) == installName then
+                obj.definitions[index] = config
+                return obj
+            end
+        end
+    end
+
+    table.insert(obj.definitions, config)
+    return obj
+end
+
+function obj._installAndRememberDefinition(definition, action)
+    local config = definitionConfig(definition)
+    local result, err = obj._installDefinition(config, action)
+
+    if result then
+        obj._rememberDefinition(config)
+    end
+
+    return result, err
+end
+
 --- SpoonManager.from.config(config) -> definition
 --- Function
 --- Create a Spoon definition from a plain Lua table.
@@ -194,11 +239,7 @@ function obj.add(...)
     local items = { ... }
 
     for _, definition in ipairs(items) do
-        if definition.toConfig then
-            table.insert(obj.definitions, definition.toConfig())
-        else
-            table.insert(obj.definitions, Util.copyTable(definition))
-        end
+        obj._rememberDefinition(definition)
     end
 
     return obj
@@ -227,7 +268,7 @@ local function runDefinitions(action, ...)
     }
 
     for _, definition in ipairs(definitions) do
-        local installed, err = obj._installDefinition(definition.toConfig and definition.toConfig() or definition, action)
+        local installed, err = obj._installAndRememberDefinition(definition, action)
         if installed then
             if installed.skipped then
                 table.insert(result.skipped, installed)

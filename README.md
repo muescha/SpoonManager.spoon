@@ -967,6 +967,9 @@ Installs this definition synchronously.
 
 If the Spoon is already installed, `install()` skips the download and only applies `use()` options.
 
+After a successful install, SpoonManager stores the definition in `SpoonManager.definitions`.
+That means a later `spoon.SpoonManager.update()` can update it without passing the definition again.
+
 Example:
 
 ```lua
@@ -978,6 +981,9 @@ local result, err =
 if not result then
     print(err)
 end
+
+-- Later in the same Hammerspoon session:
+spoon.SpoonManager.update()
 ```
 
 Example with use options:
@@ -996,6 +1002,8 @@ spoon.SpoonManager.from.default
 Updates this definition synchronously.
 
 Unlike `install()`, `update()` fetches the external source again. Before replacing an existing Spoon, it checks whether the local files still match the checksum stored from the last SpoonManager install or update.
+
+After a successful update, SpoonManager stores the definition as a managed definition.
 
 Example:
 
@@ -1137,9 +1145,11 @@ In this example, `install()` has nothing to do after `clear()`.
 
 Installs definitions synchronously.
 
-With arguments, it installs the passed definitions.
+With arguments, it installs the passed definitions and stores successful definitions in `SpoonManager.definitions`.
 
-Without arguments, it installs definitions previously added with `SpoonManager.add()` or `definition.add()`.
+Without arguments, it installs definitions currently stored in `SpoonManager.definitions`.
+
+Definitions are stored by inferred Spoon name. Installing another definition for the same Spoon name replaces the old managed definition instead of adding a duplicate.
 
 Example with arguments:
 
@@ -1149,6 +1159,9 @@ local emojis =
         .spoon("Emojis")
 
 spoon.SpoonManager.install(emojis)
+
+-- The explicit install above also makes Emojis managed:
+spoon.SpoonManager.update()
 ```
 
 Example with added definitions:
@@ -1169,9 +1182,9 @@ spoon.SpoonManager.install()
 
 Updates definitions synchronously.
 
-With arguments, it updates the passed definitions.
+With arguments, it updates the passed definitions and stores successful definitions in `SpoonManager.definitions`.
 
-Without arguments, it updates definitions previously added with `SpoonManager.add()` or `definition.add()`.
+Without arguments, it updates definitions currently stored in `SpoonManager.definitions`.
 
 Example:
 

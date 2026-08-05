@@ -88,7 +88,7 @@ return function(T)
         end)
     end)
 
-    T.test("manager install with explicit definitions does not store them", function()
+    T.test("manager install with explicit definitions stores them", function()
         withRecordedInstaller(function(manager, calls)
             local emojis = manager.from.default.spoon("Emojis")
             local timeMachine = manager.from.default.spoon("TimeMachineProgress")
@@ -96,24 +96,55 @@ return function(T)
             manager.install(emojis, timeMachine)
 
             T.assertEqual(#calls, 2)
-            T.assertEqual(#manager.definitions, 0)
+            T.assertEqual(#manager.definitions, 2)
+            T.assertEqual(manager.definitions[1].target.selection_spoon, "Emojis")
+            T.assertEqual(manager.definitions[2].target.selection_spoon, "TimeMachineProgress")
 
             manager.update()
-            T.assertEqual(#calls, 2)
+            T.assertEqual(#calls, 4)
+            T.assertEqual(calls[3].action, "update")
+            T.assertEqual(calls[4].definition.target.selection_spoon, "TimeMachineProgress")
         end)
     end)
 
-    T.test("definition install does not store itself in manager", function()
+    T.test("definition install stores itself in manager", function()
         withRecordedInstaller(function(manager, calls)
             manager.from.default
                 .spoon("Emojis")
                 .install()
 
             T.assertEqual(#calls, 1)
-            T.assertEqual(#manager.definitions, 0)
+            T.assertEqual(#manager.definitions, 1)
+            T.assertEqual(manager.definitions[1].target.selection_spoon, "Emojis")
 
             manager.update()
-            T.assertEqual(#calls, 1)
+            T.assertEqual(#calls, 2)
+            T.assertEqual(calls[2].action, "update")
+            T.assertEqual(calls[2].definition.target.selection_spoon, "Emojis")
+        end)
+    end)
+
+    T.test("manager stores one definition per spoon name", function()
+        withRecordedInstaller(function(manager)
+            manager.install(
+                manager.from.default
+                    .spoon("Emojis")
+                    .use({
+                        start = true,
+                    })
+            )
+
+            manager.install(
+                manager.from.default
+                    .spoon("Emojis")
+                    .use({
+                        start = false,
+                    })
+            )
+
+            T.assertEqual(#manager.definitions, 1)
+            T.assertEqual(manager.definitions[1].target.selection_spoon, "Emojis")
+            T.assertEqual(manager.definitions[1].use.start, false)
         end)
     end)
 
