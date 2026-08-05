@@ -1,0 +1,32 @@
+{
+  "command": {
+    "action": "install",
+    "from": {
+      "type": "remote-zip",
+      "url": "https://github.com/muescha/SpoonRepo/raw/main/Spoons/DeepFolder.spoon.zip"
+    },
+    "to": {
+      "name": "DeepFolder",
+      "path": "/tmp/hammerspoon-test/Spoons/DeepFolder.spoon",
+      "type": "spoon"
+    }
+  },
+  "definition": {
+    "source": {
+      "baseUrl": "https://github.com",
+      "pattern_spoonZipPattern": "Spoons/{name}.spoon.zip",
+      "provider": "github",
+      "repository": "muescha/SpoonRepo",
+      "revision_branch": "main",
+      "type": "github"
+    },
+    "target": {
+      "selection_spoon": "DeepFolder"
+    }
+  },
+  "resolved": {
+    "installName": "DeepFolder",
+    "sourceType": "remote-zip",
+    "url": "https://github.com/muescha/SpoonRepo/raw/main/Spoons/DeepFolder.spoon.zip"
+  }
+}

@@ -232,6 +232,26 @@ function obj.from.github(repository, options)
     })
 end
 
+--- SpoonManager.from.spoonRepo(repository[, options]) -> definition
+--- Function
+--- Create a GitHub Spoon source repository using Source/{name}.spoon.
+function obj.from.spoonRepo(repository, options)
+    return obj.from.github(repository, options)
+        .spoonFolderPattern("Source/{name}.spoon")
+end
+
+--- SpoonManager.from.spoonRepoZip(repository[, options]) -> definition
+--- Function
+--- Create a GitHub Spoon ZIP repository using Spoons/{name}.spoon.zip.
+function obj.from.spoonRepoZip(repository, options)
+    return obj.from.github(repository, options)
+        .spoonZipPattern("Spoons/{name}.spoon.zip")
+end
+
+obj.from.default = obj.from.spoonRepoZip("Hammerspoon/Spoons", {
+    branch = "master",
+})
+
 --- SpoonManager.add(...) -> SpoonManager
 --- Function
 --- Add one or more Spoon definitions to the managed definition list.
@@ -298,9 +318,5 @@ end
 function obj.update(...)
     return runDefinitions("update", ...)
 end
-
-obj.from.default = obj.from.github("Hammerspoon/Spoons", {
-    branch = "master",
-}).spoonZipPattern("Spoons/{name}.spoon.zip")
 
 return obj

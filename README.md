@@ -464,6 +464,74 @@ spoon.SpoonManager.from.github("muescha/SpoonRepo", {
     .install()
 ```
 
+### `SpoonManager.from.spoonRepo(repository[, options])`
+
+Creates a GitHub repository definition for the preferred Spoon source layout:
+
+```text
+Source/{name}.spoon
+```
+
+This is sugar for:
+
+```lua
+spoon.SpoonManager.from.github("owner/repo", options)
+    .spoonFolderPattern("Source/{name}.spoon")
+```
+
+Use this when a repository contains one or more Spoon source folders and you
+want to install by Spoon name without creating ZIP files.
+
+Example:
+
+```lua
+spoon.SpoonManager.from.spoonRepo("muescha/SpoonRepo", {
+    branch = "main",
+})
+    .spoon("MySpoon")
+    .install()
+```
+
+This resolves to the folder:
+
+```text
+Source/MySpoon.spoon
+```
+
+### `SpoonManager.from.spoonRepoZip(repository[, options])`
+
+Creates a GitHub repository definition for the legacy Spoon ZIP layout:
+
+```text
+Spoons/{name}.spoon.zip
+```
+
+This is sugar for:
+
+```lua
+spoon.SpoonManager.from.github("owner/repo", options)
+    .spoonZipPattern("Spoons/{name}.spoon.zip")
+```
+
+Use this when a repository already publishes installable Spoon ZIP files.
+For new repositories, prefer `SpoonManager.from.spoonRepo(...)`.
+
+Example:
+
+```lua
+spoon.SpoonManager.from.spoonRepoZip("Hammerspoon/Spoons", {
+    branch = "master",
+})
+    .spoon("Emojis")
+    .install()
+```
+
+This resolves to:
+
+```text
+https://github.com/Hammerspoon/Spoons/raw/master/Spoons/Emojis.spoon.zip
+```
+
 ### `SpoonManager.from.remoteZip(url)`
 
 Creates a definition builder from a remote ZIP URL.
@@ -539,16 +607,18 @@ spoon.SpoonManager.from.localFolder("~/Projects/experimental")
 
 Built-in source alias for the official Hammerspoon/Spoons repository.
 
-It points to:
+It is equivalent to:
+
+```lua
+spoon.SpoonManager.from.spoonRepoZip("Hammerspoon/Spoons", {
+    branch = "master",
+})
+```
+
+That means it points to:
 
 ```text
 Hammerspoon/Spoons
-```
-
-on branch:
-
-```text
-master
 ```
 
 and uses this ZIP convention:
