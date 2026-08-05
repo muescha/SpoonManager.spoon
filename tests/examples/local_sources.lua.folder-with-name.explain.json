@@ -1,0 +1,28 @@
+{
+  "command": {
+    "action": "install",
+    "from": {
+      "path": "/Users/test/Projects/experimental",
+      "type": "local-folder"
+    },
+    "to": {
+      "name": "DeepFolder",
+      "path": "/tmp/hammerspoon-test/Spoons/DeepFolder.spoon",
+      "type": "spoon"
+    }
+  },
+  "definition": {
+    "source": {
+      "path": "/Users/test/Projects/experimental",
+      "type": "local-folder"
+    },
+    "target": {
+      "name_withName": "DeepFolder"
+    }
+  },
+  "resolved": {
+    "installName": "DeepFolder",
+    "localPath": "/Users/test/Projects/experimental",
+    "sourceType": "local-folder"
+  }
+}

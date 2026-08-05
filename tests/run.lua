@@ -13,6 +13,8 @@ local T = assertions.new({
 T.SpoonManager, T.context = loadSpoonManager(repoRoot)
 
 local testFiles = {
+    "tests/examples/base_definitions.lua",
+    "tests/examples/config_sources.lua",
     "tests/examples/default_spoon.lua",
     "tests/examples/github_folder.lua",
     "tests/examples/github_patterns.lua",
@@ -22,6 +24,7 @@ local testFiles = {
     "tests/examples/zip_sources.lua",
     "tests/unit/name_resolver_test.lua",
     "tests/unit/definition_test.lua",
+    "tests/unit/manager_test.lua",
     "tests/unit/resolver_test.lua",
 }
 

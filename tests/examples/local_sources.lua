@@ -25,6 +25,18 @@ return function(T)
         T.assertMatchesJson("examples/local_sources.lua.folder-selection.explain.json", explanation)
     end)
 
+    T.test("example: local folder with explicit name", function()
+        local explanation =
+            T.SpoonManager.from.localFolder("~/Projects/experimental")
+                .withName("DeepFolder")
+                .explain("install")
+
+        T.assertEqual(explanation.definition.target.name_withName, "DeepFolder")
+        T.assertEqual(explanation.command.from.path, "/Users/test/Projects/experimental")
+        T.assertEqual(explanation.command.to.name, "DeepFolder")
+        T.assertMatchesJson("examples/local_sources.lua.folder-with-name.explain.json", explanation)
+    end)
+
     T.test("example: local zip", function()
         local explanation =
             T.SpoonManager.from.localZip("~/Downloads/DeepFolder.spoon.zip")
@@ -35,5 +47,17 @@ return function(T)
         T.assertEqual(explanation.command.from.path, "/Users/test/Downloads/DeepFolder.spoon.zip")
         T.assertEqual(explanation.command.to.name, "DeepFolder")
         T.assertMatchesJson("examples/local_sources.lua.zip.explain.json", explanation)
+    end)
+
+    T.test("example: local zip with explicit name", function()
+        local explanation =
+            T.SpoonManager.from.localZip("~/Downloads/latest.zip")
+                .withName("DeepFolder")
+                .explain("install")
+
+        T.assertEqual(explanation.definition.target.name_withName, "DeepFolder")
+        T.assertEqual(explanation.command.from.path, "/Users/test/Downloads/latest.zip")
+        T.assertEqual(explanation.command.to.name, "DeepFolder")
+        T.assertMatchesJson("examples/local_sources.lua.zip-with-name.explain.json", explanation)
     end)
 end

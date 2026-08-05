@@ -1,0 +1,32 @@
+{
+  "command": {
+    "action": "install",
+    "from": {
+      "type": "remote-zip",
+      "url": "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/TimeMachineProgress.spoon.zip"
+    },
+    "to": {
+      "name": "TimeMachineProgress",
+      "path": "/tmp/hammerspoon-test/Spoons/TimeMachineProgress.spoon",
+      "type": "spoon"
+    }
+  },
+  "definition": {
+    "source": {
+      "baseUrl": "https://github.com",
+      "pattern_spoonZipPattern": "Spoons/{name}.spoon.zip",
+      "provider": "github",
+      "repository": "Hammerspoon/Spoons",
+      "revision_branch": "master",
+      "type": "github"
+    },
+    "target": {
+      "selection_spoon": "TimeMachineProgress"
+    }
+  },
+  "resolved": {
+    "installName": "TimeMachineProgress",
+    "sourceType": "remote-zip",
+    "url": "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/TimeMachineProgress.spoon.zip"
+  }
+}
