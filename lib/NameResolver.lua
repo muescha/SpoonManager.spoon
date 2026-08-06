@@ -18,6 +18,8 @@ return function(context)
     function NameResolver.logInferred(name, kind, value)
         if name then
             logger.df("Inferred Spoon name '%s' from %s '%s'", name, kind or "value", tostring(value))
+        else
+            logger.df("Could not infer Spoon name from %s '%s'", kind or "value", tostring(value))
         end
     end
 
@@ -41,6 +43,7 @@ return function(context)
         last = last:gsub("%.spoon$", "")
 
         local inferred = NameResolver.safe(last)
+        NameResolver.logInferred(inferred, kind, value)
         return inferred
     end
 
