@@ -369,7 +369,7 @@ Expected command:
 ```lua
 {
     source = {
-        type = "zip",
+        kind = "zip",
         url = "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/Emojis.spoon.zip",
     },
     target = {

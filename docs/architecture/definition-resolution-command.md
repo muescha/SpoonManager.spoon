@@ -136,7 +136,7 @@ Example:
     action = "install",
     name = "Emojis",
     source = {
-        type = "zip",
+        kind = "zip",
         url = "https://github.com/Hammerspoon/Spoons/archive/master.zip",
         folder = "Source/Emojis.spoon",
     },
@@ -360,7 +360,7 @@ Resolved command:
 {
     action = "install",
     source = {
-        type = "zip",
+        kind = "zip",
         url = "https://github.com/Hammerspoon/Spoons/archive/master.zip",
         folder = "Source/Emojis.spoon",
     },

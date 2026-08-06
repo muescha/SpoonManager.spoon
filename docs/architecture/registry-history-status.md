@@ -39,8 +39,8 @@ Example:
         },
     },
     resolved = {
-        sourceType = "github-folder",
-        archiveUrl = "https://github.com/Hammerspoon/Spoons/archive/master.zip",
+        sourceKind = "zip",
+        url = "https://github.com/Hammerspoon/Spoons/archive/master.zip",
         extractFolder = "Source/Emojis.spoon",
         installName = "Emojis",
     },
