@@ -150,6 +150,16 @@ return function(T)
         end, "remoteZip source does not support %.spoonZipPattern")
     end)
 
+    T.test("definition rejects unknown provider capabilities", function()
+        T.assertError(function()
+            T.SpoonManager.from.config({
+                source = {
+                    type = "unknown",
+                },
+            }).path("Source/A.spoon")
+        end, "Unsupported source type: unknown")
+    end)
+
     T.test("definition does not expose replaced builder methods", function()
         local definition = T.SpoonManager.from.github("owner/repo")
 
@@ -236,5 +246,15 @@ return function(T)
                 .releaseLatest()
                 .resolve()
         end, "GitHub release sources require %.zipFile%(%.%.%.%)%.")
+    end)
+
+    T.test("resolver rejects unknown source type", function()
+        T.assertError(function()
+            T.SpoonManager.from.config({
+                source = {
+                    type = "unknown",
+                },
+            }).resolve()
+        end, "Unsupported source type: unknown")
     end)
 end
