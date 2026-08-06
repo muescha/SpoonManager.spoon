@@ -200,7 +200,7 @@ return function(T)
             }).install()
 
         T.assertFalse(result)
-        T.assertEqual(err, "GitHub release asset must point to a .zip file")
+        T.assertEqual(err, "ZIP source must point to a .zip file")
     end)
 
     T.test("resolver rejects release without zip file", function()

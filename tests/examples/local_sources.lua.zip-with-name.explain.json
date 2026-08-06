@@ -3,7 +3,7 @@
     "action": "install",
     "from": {
       "path": "/Users/test/Downloads/latest.zip",
-      "type": "localZip"
+      "type": "zip"
     },
     "name": "DeepFolder",
     "options": {
@@ -27,6 +27,6 @@
   "resolved": {
     "installName": "DeepFolder",
     "localPath": "/Users/test/Downloads/latest.zip",
-    "sourceType": "localZip"
+    "sourceType": "zip"
   }
 }

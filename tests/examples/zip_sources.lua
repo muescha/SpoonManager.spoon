@@ -5,7 +5,7 @@ return function(T)
                 .command("install").explain()
 
         T.assertEqual(explanation.config.source.type, "remoteZip")
-        T.assertEqual(explanation.command.from.type, "remoteZip")
+        T.assertEqual(explanation.command.from.type, "zip")
         T.assertEqual(explanation.command.from.url, "https://example.com/downloads/DeepFolder.spoon.zip")
         T.assertEqual(explanation.command.to.name, "DeepFolder")
         T.assertMatchesJson("examples/zip_sources.lua.remote.explain.json", explanation)

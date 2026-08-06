@@ -10,8 +10,8 @@ return function(T)
         local resolved = T.context.resolver.resolveFromDefinition(definition)
         local command = T.context.resolver.commandFromResolved(definition, "install", resolved)
 
-        T.assertEqual(command.from.type, "github-repository")
-        T.assertEqual(command.from.archiveUrl, "https://github.com/muescha/MySpoon.spoon/archive/main.zip")
+        T.assertEqual(command.from.type, "zip")
+        T.assertEqual(command.from.url, "https://github.com/muescha/MySpoon.spoon/archive/main.zip")
         T.assertEqual(command.to.name, "MySpoon")
     end)
 
@@ -30,7 +30,7 @@ return function(T)
         local command = T.context.resolver.commandFromResolved(definition, "update", resolved)
 
         T.assertEqual(command.action, "update")
-        T.assertEqual(command.from.type, "github-folder")
+        T.assertEqual(command.from.type, "zip")
         T.assertEqual(command.from.folder, "Source/A.spoon")
         T.assertEqual(command.to.name, "A")
     end)
@@ -47,7 +47,7 @@ return function(T)
         local resolved = T.context.resolver.resolveFromDefinition(definition)
         local command = T.context.resolver.commandFromResolved(definition, "install", resolved)
 
-        T.assertEqual(command.from.type, "localFolder")
+        T.assertEqual(command.from.type, "folder")
         T.assertEqual(command.from.path, "/Users/test/Projects/SpoonRepo/Source/A.spoon")
         T.assertEqual(command.to.name, "A")
     end)
@@ -56,7 +56,7 @@ return function(T)
         local selection = T.context.archive.prepareZipSelection({
             command = {
                 from = {
-                    type = "github-folder",
+                    type = "zip",
                     folder = "Source/A.spoon",
                 },
             },

@@ -113,8 +113,8 @@ Example:
         },
     },
     resolved = {
-        sourceType = "github-folder",
-        archiveUrl = "https://github.com/Hammerspoon/Spoons/archive/master.zip",
+        sourceType = "zip",
+        url = "https://github.com/Hammerspoon/Spoons/archive/master.zip",
         extractFolder = "Source/Emojis.spoon",
         installName = "Emojis",
     },
@@ -136,8 +136,8 @@ Example:
     action = "install",
     name = "Emojis",
     from = {
-        type = "github-folder",
-        archiveUrl = "https://github.com/Hammerspoon/Spoons/archive/master.zip",
+        type = "zip",
+        url = "https://github.com/Hammerspoon/Spoons/archive/master.zip",
         folder = "Source/Emojis.spoon",
     },
     to = {
@@ -182,8 +182,8 @@ Example:
         },
     },
     resolved = {
-        sourceType = "github-folder",
-        archiveUrl = "https://github.com/Hammerspoon/Spoons/archive/master.zip",
+        sourceType = "zip",
+        url = "https://github.com/Hammerspoon/Spoons/archive/master.zip",
         extractFolder = "Source/Emojis.spoon",
         installName = "Emojis",
     },
@@ -360,8 +360,8 @@ Resolved command:
 {
     action = "install",
     from = {
-        type = "github-folder",
-        archiveUrl = "https://github.com/Hammerspoon/Spoons/archive/master.zip",
+        type = "zip",
+        url = "https://github.com/Hammerspoon/Spoons/archive/master.zip",
         folder = "Source/Emojis.spoon",
     },
     to = {

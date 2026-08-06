@@ -2,7 +2,7 @@
   "command": {
     "action": "install",
     "from": {
-      "type": "remoteZip",
+      "type": "zip",
       "url": "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/TimeMachineProgress.spoon.zip"
     },
     "name": "TimeMachineProgress",
@@ -30,7 +30,7 @@
   },
   "resolved": {
     "installName": "TimeMachineProgress",
-    "sourceType": "remoteZip",
+    "sourceType": "zip",
     "url": "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/TimeMachineProgress.spoon.zip"
   }
 }

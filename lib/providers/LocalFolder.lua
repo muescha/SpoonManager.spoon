@@ -32,7 +32,7 @@ return function(context)
             end
 
             return {
-                sourceType = "localZip",
+                sourceType = "zip",
                 localPath = util.pathJoin(util.localPath(source.root), path),
                 extractFolder = extract.folder,
             }
@@ -40,13 +40,13 @@ return function(context)
 
         if source.path then
             return {
-                sourceType = LocalFolder.name,
+                sourceType = "folder",
                 localPath = util.pathJoin(util.localPath(source.root), source.path),
             }
         end
 
         return {
-            sourceType = LocalFolder.name,
+            sourceType = "folder",
             localPath = util.localPath(source.root),
         }
     end

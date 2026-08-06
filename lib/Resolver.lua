@@ -68,17 +68,12 @@ return function(context)
             use = util.copyTable(config.use),
         }
 
-        if resolved.sourceType == "github-folder" or resolved.sourceType == "github-repository" then
-            command.from.archiveUrl = resolved.archiveUrl
-            command.from.folder = resolved.extractFolder
-        elseif resolved.sourceType == "github-release" or resolved.sourceType == "remoteZip" then
+        if resolved.sourceType == "zip" then
             command.from.url = resolved.url
-            command.from.folder = resolved.extractFolder
-        elseif resolved.sourceType == "localFolder" or resolved.sourceType == "localZip" then
             command.from.path = resolved.localPath
-            if resolved.sourceType == "localZip" then
-                command.from.folder = resolved.extractFolder
-            end
+            command.from.folder = resolved.extractFolder
+        elseif resolved.sourceType == "folder" then
+            command.from.path = resolved.localPath
         end
 
         return command

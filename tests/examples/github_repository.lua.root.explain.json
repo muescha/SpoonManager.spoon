@@ -2,8 +2,8 @@
   "command": {
     "action": "install",
     "from": {
-      "archiveUrl": "https://github.com/muescha/DeepFolder.spoon/archive/main.zip",
-      "type": "github-repository"
+      "type": "zip",
+      "url": "https://github.com/muescha/DeepFolder.spoon/archive/main.zip"
     },
     "name": "DeepFolder",
     "options": {
@@ -24,8 +24,8 @@
     }
   },
   "resolved": {
-    "archiveUrl": "https://github.com/muescha/DeepFolder.spoon/archive/main.zip",
     "installName": "DeepFolder",
-    "sourceType": "github-repository"
+    "sourceType": "zip",
+    "url": "https://github.com/muescha/DeepFolder.spoon/archive/main.zip"
   }
 }

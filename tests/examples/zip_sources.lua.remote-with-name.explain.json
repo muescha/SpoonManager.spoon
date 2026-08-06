@@ -2,7 +2,7 @@
   "command": {
     "action": "install",
     "from": {
-      "type": "remoteZip",
+      "type": "zip",
       "url": "https://example.com/downloads/latest.zip"
     },
     "name": "DeepFolder",
@@ -26,7 +26,7 @@
   },
   "resolved": {
     "installName": "DeepFolder",
-    "sourceType": "remoteZip",
+    "sourceType": "zip",
     "url": "https://example.com/downloads/latest.zip"
   }
 }

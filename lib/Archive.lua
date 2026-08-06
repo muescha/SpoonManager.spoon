@@ -31,12 +31,8 @@ return function(context)
         local source = definition.command and definition.command.from or {}
         local selection = {}
 
-        if source.type == "github-folder" then
-            selection.path = source.folder or source.path
-        elseif source.type == "remoteZip" or source.type == "localZip" then
+        if source.type == "zip" then
             selection.path = source.folder
-        elseif source.type == "github-repository" then
-            selection.path = nil
         end
 
         return selection

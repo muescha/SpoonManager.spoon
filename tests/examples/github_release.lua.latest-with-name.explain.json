@@ -2,7 +2,7 @@
   "command": {
     "action": "install",
     "from": {
-      "type": "github-release",
+      "type": "zip",
       "url": "https://github.com/muescha/DeepFolder.spoon/releases/latest/download/latest.zip"
     },
     "name": "DeepFolder",
@@ -32,7 +32,7 @@
     "asset": "latest.zip",
     "installName": "DeepFolder",
     "release": "latest",
-    "sourceType": "github-release",
+    "sourceType": "zip",
     "url": "https://github.com/muescha/DeepFolder.spoon/releases/latest/download/latest.zip"
   }
 }

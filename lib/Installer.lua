@@ -57,16 +57,11 @@ return function(context)
             return nil, "Spoon definition requires a Spoon name. Add .withName(\"Name\")."
         end
 
-        if definition.command.from.type == "remoteZip" and not util.isZipPath(definition.command.from.url) then
-            return nil, "Remote ZIP URL must point to a .zip file"
-        end
-
-        if definition.command.from.type == "github-release" and not util.isZipPath(definition.command.from.url) then
-            return nil, "GitHub release asset must point to a .zip file"
-        end
-
-        if definition.command.from.type == "localZip" and not util.isZipPath(definition.command.from.path) then
-            return nil, "Local ZIP path must point to a .zip file"
+        if definition.command.from.type == "zip" then
+            local zipSource = definition.command.from.url or definition.command.from.path
+            if not util.isZipPath(zipSource) then
+                return nil, "ZIP source must point to a .zip file"
+            end
         end
 
         if definition.options and definition.options.onLocalChanges and not manager._isLocalChangesBehavior(definition.options.onLocalChanges) then
@@ -222,18 +217,14 @@ return function(context)
         local source = command.from
         local result, err
 
-        if source.type == "localFolder" then
+        if source.type == "folder" then
             result, err = Installer.installFromFolder(def, source.path)
-        elseif source.type == "localZip" then
+        elseif source.type == "zip" and source.path then
             local tmpdir = util.trim(hs.execute("/usr/bin/mktemp -d"))
             result, err = Installer.installFromZipFile(def, source.path, tmpdir)
             util.removePath(tmpdir, logger)
-        elseif source.type == "remoteZip" then
+        elseif source.type == "zip" and source.url then
             result, err = Installer.installFromRemoteZip(def, source.url)
-        elseif source.type == "github-release" then
-            result, err = Installer.installFromRemoteZip(def, source.url)
-        elseif source.type == "github-folder" or source.type == "github-repository" then
-            result, err = Installer.installFromRemoteZip(def, source.archiveUrl)
         else
             return nil, "Unsupported source type: " .. tostring(source.type), def
         end

@@ -91,13 +91,13 @@ The golden file is readable by itself:
   },
   "resolved": {
     "installName": "Emojis",
-    "sourceType": "remoteZip",
+    "sourceType": "zip",
     "url": "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/Emojis.spoon.zip"
   },
   "command": {
     "action": "install",
     "from": {
-      "type": "remoteZip",
+      "type": "zip",
       "url": "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/Emojis.spoon.zip"
     },
     "to": {
@@ -202,7 +202,7 @@ Example normalized installed snapshot:
     },
     "resolved": {
       "installName": "Emojis",
-      "sourceType": "remoteZip",
+      "sourceType": "zip",
       "url": "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/Emojis.spoon.zip"
     },
     "fingerprints": {
@@ -369,7 +369,7 @@ Expected command:
 ```lua
 {
     from = {
-        type = "remoteZip",
+        type = "zip",
         url = "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/Emojis.spoon.zip",
     },
     to = {
@@ -381,15 +381,15 @@ Expected command:
 
 Useful cases:
 
-- GitHub repository root -> `github-repository`
-- GitHub folder -> `github-folder`
-- GitHub release latest asset -> `github-release`
-- GitHub release tag asset -> `github-release`
-- GitHub Spoon ZIP pattern -> `remoteZip`
-- GitHub Spoon folder pattern -> `github-folder`
-- local folder with `path(...)` -> joined local path
-- local ZIP -> local ZIP command
-- remote ZIP -> remote ZIP command
+- GitHub repository root -> `zip`
+- GitHub folder -> `zip`
+- GitHub release latest asset -> `zip`
+- GitHub release tag asset -> `zip`
+- GitHub Spoon ZIP pattern -> `zip`
+- GitHub Spoon folder pattern -> `zip`
+- local folder with `path(...)` -> `folder`
+- local ZIP -> `zip`
+- remote ZIP -> `zip`
 
 ### Installer Behavior
 

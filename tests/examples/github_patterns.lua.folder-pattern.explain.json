@@ -2,9 +2,9 @@
   "command": {
     "action": "install",
     "from": {
-      "archiveUrl": "https://github.com/muescha/SpoonRepo/archive/main.zip",
       "folder": "Source/DeepFolder.spoon",
-      "type": "github-folder"
+      "type": "zip",
+      "url": "https://github.com/muescha/SpoonRepo/archive/main.zip"
     },
     "name": "DeepFolder",
     "options": {
@@ -30,9 +30,9 @@
     }
   },
   "resolved": {
-    "archiveUrl": "https://github.com/muescha/SpoonRepo/archive/main.zip",
     "extractFolder": "Source/DeepFolder.spoon",
     "installName": "DeepFolder",
-    "sourceType": "github-folder"
+    "sourceType": "zip",
+    "url": "https://github.com/muescha/SpoonRepo/archive/main.zip"
   }
 }

@@ -24,7 +24,7 @@ return function(context)
         local extract = config.extract or {}
 
         return {
-            sourceType = RemoteZip.name,
+            sourceType = "zip",
             url = source.url,
             extractFolder = extract.folder,
         }

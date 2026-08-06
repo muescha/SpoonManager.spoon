@@ -3,7 +3,7 @@
     "action": "install",
     "from": {
       "path": "/Users/test/Projects/experimental",
-      "type": "localFolder"
+      "type": "folder"
     },
     "name": "DeepFolder",
     "options": {
@@ -27,6 +27,6 @@
   "resolved": {
     "installName": "DeepFolder",
     "localPath": "/Users/test/Projects/experimental",
-    "sourceType": "localFolder"
+    "sourceType": "folder"
   }
 }
