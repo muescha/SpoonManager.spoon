@@ -20,7 +20,7 @@ Direct installation should not require a manifest. If a user already knows the e
 
 ```lua
 SpoonManager.from.github("owner/repo")
-    .folder("Source/A.spoon")
+    .path("Source/A.spoon")
     .install()
 ```
 
@@ -104,7 +104,7 @@ Merge rule:
 final source = manifest.source + entry.source
 ```
 
-The `name` field in a manifest entry is a human-friendly shorthand for the default Spoon selection. When the manifest is converted into a definition, it maps to `target.selection_spoon` unless the entry provides a more specific `target.selection_*` value. It should not become a separate top-level `definition.name`.
+The `name` field in a manifest entry is a human-friendly shorthand for the default Spoon selection. When the manifest is converted into a definition, it maps to `target.selection_spoon` unless the entry provides a more specific `source.path`, `source.zipFile`, or `extract.folder` value. It should not become a separate top-level `definition.name`.
 
 Example:
 
@@ -125,18 +125,16 @@ Example:
     {
       "name": "DeepFolder",
       "description": "Uses a custom folder",
-      "target": {
-        "selection_folder": "experimental/deepfolder"
+      "source": {
+        "path": "experimental/deepfolder"
       }
     },
     {
       "name": "ReleaseOnly",
       "description": "Uses a latest release asset",
       "source": {
-        "release": "latest"
-      },
-      "target": {
-        "selection_asset": "ReleaseOnly.zip"
+        "release_releaseLatest": true,
+        "zipFile": "ReleaseOnly.zip"
       }
     }
   ]
@@ -150,8 +148,8 @@ Manifests should avoid direct local filesystem paths. A public or remote `spooni
 ```json
 {
   "source": {
-    "type": "local-folder",
-    "path": "/Users/alice/Projects/Foo.spoon"
+    "type": "localFolder",
+    "root": "/Users/alice/Projects/Foo.spoon"
   }
 }
 ```
@@ -165,10 +163,8 @@ Provider-based sources are preferred:
   "source": {
     "type": "github",
     "repository": "owner/repo",
-    "revision_branch": "main"
-  },
-  "target": {
-    "selection_folder": "Source/Foo.spoon"
+    "revision_branch": "main",
+    "path": "Source/Foo.spoon"
   }
 }
 ```
@@ -240,7 +236,7 @@ Then this manifest source is allowed:
 ```json
 {
   "source": {
-    "type": "remote-zip",
+    "type": "remoteZip",
     "url": "https://spoonify.sh/downloads/Foo.zip"
   }
 }

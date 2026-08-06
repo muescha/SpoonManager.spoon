@@ -2,11 +2,11 @@
 
 This note describes a proposed architecture for source providers, source capabilities, and the install pipeline.
 
-It is intentionally a design note first. The current implementation still uses `source.type` values such as `github-folder`, `github-repository`, and `github-release` in the resolved and command stages. The goal of this proposal is to remove these source-specific execution cases over time and replace them with provider-based resolution plus a small generic installer pipeline.
+It is intentionally a design note first. The current implementation now uses provider-based resolution and generic command source kinds (`zip` and `folder`). The remaining design work is to keep simplifying the pipeline and update adjacent manifest concepts as the provider model settles.
 
 ## Problem
 
-The current builder is flexible enough to express combinations that are either ignored or ambiguous.
+The earlier builder was flexible enough to express combinations that were either ignored or ambiguous.
 
 Examples:
 
@@ -595,9 +595,9 @@ The key rule is: if the user wrote a builder value, it must either affect resolu
 
 ## Problem Case Coverage
 
-These are the known cases where the current implementation can store builder values that later do not affect execution. The provider architecture should cover each one explicitly.
+These are the known cases where the earlier implementation could store builder values that later did not affect execution. The provider architecture covers each one explicitly.
 
-| Current builder chain | Problem today | Provider model behavior |
+| Earlier builder chain | Earlier problem | Provider model behavior |
 | --- | --- | --- |
 | `remoteZip(...).folder(...)` | Folder was not passed to ZIP extraction. | `folder()` is replaced by `useFolder()`. `remoteZip` has `useFolder` capability, so the folder becomes `extract.folder`. |
 | `localZip(...).folder(...)` | Same as remote ZIP. | `localZip` has `useFolder` capability, so `useFolder()` becomes `extract.folder`. |
@@ -663,7 +663,7 @@ folder
 
 10. Update examples, snapshots, README, and network test configs.
 
-11. Housekeeping: update `docs/architecture/spoonify-manifests.md` after the provider model settles. That document still uses older terms such as `folder(...)`, `withName(...)`, `remote-zip`, `local-folder`, `selection_folder`, and `selection_asset`. Do not update it too early while the provider terminology is still being implemented.
+11. Housekeeping: update adjacent manifest docs after the provider model settles.
 
 ## Decisions
 
