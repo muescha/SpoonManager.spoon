@@ -185,6 +185,11 @@ tests/integration/.network-installs/{timestamp}/test/{test-id}/{test-id}.log.jso
 
 These files are run artifacts and are ignored by git.
 
+Test IDs such as `github-folder` are stable scenario labels for artifact paths,
+filtering, and human-readable output. They are not provider source types and
+are not command source kinds; the actual source model lives in each test's
+`config.source.type`, and executable command sources use `command.source.kind`.
+
 The result artifact has this general shape:
 
 ```json
