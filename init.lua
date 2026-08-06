@@ -125,7 +125,7 @@ local function definitionInstallName(definition)
         return definition.resolved.installName
     end
 
-    local ok, resolved = pcall(context.resolver.resolveDefinition, definition)
+    local ok, resolved = pcall(context.resolver.resolveFromDefinition, definition)
     if ok and resolved then
         return resolved.installName
     end
@@ -187,7 +187,6 @@ end
 --- Function
 --- Create a Spoon definition from a local zip file.
 function obj.from.localZip(path)
-    path = Util.localPath(path)
     Util.requireZipPath(path, "Local ZIP path")
 
     return context.definition.fromState({
@@ -202,7 +201,7 @@ end
 --- Function
 --- Create a Spoon definition from a local folder.
 function obj.from.localFolder(path)
-    path = Util.localPath(path)
+    Util.requireString(path, "Local folder path")
 
     return context.definition.fromState({
         source = {

@@ -21,7 +21,7 @@
     "sourceType": "local-folder"
   },
   "source": {
-    "path": "/Users/test/Projects/experimental",
+    "path": "~/Projects/experimental",
     "type": "local-folder"
   },
   "target": {

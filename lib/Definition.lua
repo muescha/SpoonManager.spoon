@@ -3,7 +3,6 @@ return function(context)
     Definition.__index = Definition
 
     local manager = context.manager
-    local nameResolver = context.nameResolver
     local resolver = context.resolver
     local util = context.util
 
@@ -167,11 +166,8 @@ return function(context)
             ensureNotComputed(def, "spoon", value)
             requireSpoonPattern(def)
 
-            local spoonName = nameResolver.infer(value, "Spoon name")
-            assert(spoonName, "Invalid Spoon name")
-
             local nextDef = util.copyTable(def)
-            setExclusive(ensureSection(nextDef, "target"), "selection", "spoon", spoonName)
+            setExclusive(ensureSection(nextDef, "target"), "selection", "spoon", value)
             return fromState(nextDef)
         end
 
@@ -217,12 +213,8 @@ return function(context)
             util.requireString(value, "Spoon name")
             ensureNotComputed(def, "withName", value)
 
-            local explicitName = nameResolver.infer(value, "explicit Spoon name")
-            assert(explicitName, "Invalid Spoon name")
-
             local nextDef = util.copyTable(def)
-            setExclusive(ensureSection(nextDef, "target"), "name", "withName", explicitName)
-            nameResolver.logExplicit(explicitName, value)
+            setExclusive(ensureSection(nextDef, "target"), "name", "withName", value)
             return fromState(nextDef)
         end
 

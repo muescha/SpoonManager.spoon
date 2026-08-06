@@ -6,15 +6,18 @@ return function(context)
     local paths = context.paths
     local util = context.util
 
-    function Resolver.resolveDefinition(definition)
+    function Resolver.resolveFromDefinition(definition)
         if definition.resolved then
             return util.copyTable(definition.resolved)
         end
 
         local source = definition.source or {}
         local target = definition.target or {}
+        local selectedSpoonName = nameResolver.infer(target.selection_spoon, "selected Spoon name")
         local installName = nameResolver.infer(target.name_withName, "explicit Spoon name")
-            or nameResolver.inferFromTarget(target)
+            or selectedSpoonName
+            or nameResolver.infer(target.selection_folder, "selected folder")
+            or nameResolver.infer(target.selection_asset, "selected asset")
             or nameResolver.inferFromSource(source)
 
         local resolved = {
@@ -37,11 +40,13 @@ return function(context)
                 resolved.extractFolder = target.selection_folder
                 resolved.archiveUrl = github.archiveUrl(source)
             elseif target.selection_spoon and source.pattern_spoonZipPattern then
-                local path = source.pattern_spoonZipPattern:gsub("{name}", target.selection_spoon)
+                local path = selectedSpoonName and source.pattern_spoonZipPattern:gsub("{name}", selectedSpoonName) or nil
                 resolved.sourceType = "remote-zip"
-                resolved.url = github.rawUrl(source, path)
+                if path then
+                    resolved.url = github.rawUrl(source, path)
+                end
             elseif target.selection_spoon and source.pattern_spoonFolderPattern then
-                local path = source.pattern_spoonFolderPattern:gsub("{name}", target.selection_spoon)
+                local path = selectedSpoonName and source.pattern_spoonFolderPattern:gsub("{name}", selectedSpoonName) or nil
                 resolved.sourceType = "github-folder"
                 resolved.extractFolder = path
                 resolved.archiveUrl = github.archiveUrl(source)
@@ -51,13 +56,13 @@ return function(context)
             end
         elseif source.type == "local-folder" and target.selection_folder then
             resolved.sourceType = "local-folder"
-            resolved.localPath = util.pathJoin(source.path, target.selection_folder)
+            resolved.localPath = util.pathJoin(util.localPath(source.path), target.selection_folder)
         else
             resolved.sourceType = source.type
             if source.type == "remote-zip" then
                 resolved.url = source.url
             elseif source.type == "local-folder" or source.type == "local-zip" then
-                resolved.localPath = source.path
+                resolved.localPath = util.localPath(source.path)
             end
         end
 
@@ -67,7 +72,7 @@ return function(context)
     function Resolver.withResolved(definition)
         local def = util.copyTable(definition)
         if not def.resolved then
-            def.resolved = Resolver.resolveDefinition(def)
+            def.resolved = Resolver.resolveFromDefinition(def)
         end
         return def
     end
@@ -77,7 +82,7 @@ return function(context)
             return util.copyTable(definition.command)
         end
 
-        resolved = resolved or Resolver.resolveDefinition(definition)
+        resolved = resolved or Resolver.resolveFromDefinition(definition)
         local command = {
             action = action or "install",
             name = resolved.installName,

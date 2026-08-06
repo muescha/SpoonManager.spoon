@@ -21,7 +21,7 @@
     "sourceType": "local-zip"
   },
   "source": {
-    "path": "/Users/test/Downloads/latest.zip",
+    "path": "~/Downloads/latest.zip",
     "type": "local-zip"
   },
   "target": {
