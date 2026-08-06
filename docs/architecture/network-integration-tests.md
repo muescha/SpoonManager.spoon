@@ -86,8 +86,8 @@ loads SpoonManager with that test-specific `hs.configdir`.
 network test. It describes the planned SpoonManager command.
 
 `pathTemplates.result` controls the exact JSON path for the test-run result. It
-records whether the test passed, which source and target were used, where the
-test installed files, and any error if the run failed.
+records whether the test passed, which definition was used, where the test
+installed files, and any error if the run failed.
 
 `pathTemplates.log` controls the exact JSON path for structured log output captured
 from the Hammerspoon logger stub. This includes debug messages emitted through
@@ -151,12 +151,14 @@ broken and the expected behavior is a structured error result.
 {
   "id": "remote-zip-error",
   "enabled": true,
-  "source": {
-    "type": "remote-zip",
-    "url": "https://example.com/TestSpoon.zip"
-  },
-  "target": {
-    "name": "TestSpoon"
+  "definition": {
+    "source": {
+      "type": "remote-zip",
+      "url": "https://example.com/TestSpoon.zip"
+    },
+    "target": {
+      "name_withName": "TestSpoon"
+    }
   },
   "expect": {
     "failure": {
@@ -192,8 +194,7 @@ The result artifact has this general shape:
   "test": {
     "id": "github-folder",
     "description": "Install a Spoon from a folder inside a GitHub repository archive.",
-    "source": {},
-    "target": {},
+    "definition": {},
     "expect": {}
   },
   "paths": {
@@ -262,8 +263,7 @@ Each test entry has this shape:
   "id": "github-folder",
   "enabled": true,
   "description": "Install a Spoon from a folder inside a GitHub repository archive.",
-  "source": {},
-  "target": {},
+  "definition": {},
   "expect": {
     "files": [
       "init.lua"
@@ -274,212 +274,17 @@ Each test entry has this shape:
 
 `enabled` lets a user keep examples in the file without running all of them.
 
-## Source Types
+## Definition Tests
 
-### `github-folder`
-
-Installs one explicit folder from a GitHub repository archive.
-
-```json
-{
-  "source": {
-    "type": "github-folder",
-    "repository": "Hammerspoon/Spoons",
-    "branch": "master",
-    "folder": "Source/WindowSigils.spoon"
-  },
-  "target": {
-    "name": "WindowSigils"
-  }
-}
-```
-
-Equivalent builder:
-
-```lua
-spoon.SpoonManager.from.github("Hammerspoon/Spoons", {
-    branch = "master",
-})
-    .folder("Source/WindowSigils.spoon")
-    .withName("WindowSigils")
-    .install()
-```
-
-### `spoon-repo`
-
-Installs a named Spoon from the preferred source-folder convention:
-
-```text
-Source/{name}.spoon
-```
+Each network test provides a plain SpoonManager definition. The runner passes
+this table directly to `SpoonManager.from.config(test.definition)`. This keeps
+network tests focused on download, extraction, install, and update behavior.
+Builder-to-definition equivalence is tested separately without network access in
+`tests/unit/builder_test.lua`.
 
 ```json
 {
-  "source": {
-    "type": "spoon-repo",
-    "repository": "Hammerspoon/Spoons",
-    "branch": "master"
-  },
-  "target": {
-    "spoon": "WindowSigils"
-  }
-}
-```
-
-Equivalent builder:
-
-```lua
-spoon.SpoonManager.from.spoonRepo("Hammerspoon/Spoons", {
-    branch = "master",
-})
-    .spoon("WindowSigils")
-    .install()
-```
-
-### `spoon-repo-zip`
-
-Installs a named Spoon from the legacy ZIP convention:
-
-```text
-Spoons/{name}.spoon.zip
-```
-
-```json
-{
-  "source": {
-    "type": "spoon-repo-zip",
-    "repository": "Hammerspoon/Spoons",
-    "branch": "master"
-  },
-  "target": {
-    "spoon": "WindowSigils"
-  }
-}
-```
-
-Equivalent builder:
-
-```lua
-spoon.SpoonManager.from.spoonRepoZip("Hammerspoon/Spoons", {
-    branch = "master",
-})
-    .spoon("WindowSigils")
-    .install()
-```
-
-### `github-repository`
-
-Installs a Spoon where the repository root is the Spoon root.
-
-```json
-{
-  "source": {
-    "type": "github-repository",
-    "repository": "owner/TestSpoon.spoon",
-    "branch": "main"
-  },
-  "target": {
-    "name": "TestSpoon"
-  }
-}
-```
-
-Equivalent builder:
-
-```lua
-spoon.SpoonManager.from.github("owner/TestSpoon.spoon", {
-    branch = "main",
-})
-    .withName("TestSpoon")
-    .install()
-```
-
-### `github-release`
-
-Installs a GitHub release ZIP asset. The asset must point to a `.zip` file.
-
-```json
-{
-  "source": {
-    "type": "github-release",
-    "repository": "owner/TestSpoon.spoon",
-    "release": "latest",
-    "asset": "TestSpoon.zip"
-  },
-  "target": {
-    "name": "TestSpoon"
-  }
-}
-```
-
-Equivalent builder:
-
-```lua
-spoon.SpoonManager.from.github("owner/TestSpoon.spoon")
-    .releaseLatest()
-    .asset("TestSpoon.zip")
-    .withName("TestSpoon")
-    .install()
-```
-
-For a fixed release:
-
-```json
-{
-  "source": {
-    "type": "github-release",
-    "repository": "owner/TestSpoon.spoon",
-    "release": "v1.2.3",
-    "asset": "TestSpoon.zip"
-  }
-}
-```
-
-Equivalent builder:
-
-```lua
-spoon.SpoonManager.from.github("owner/TestSpoon.spoon")
-    .release("v1.2.3")
-    .asset("TestSpoon.zip")
-    .withName("TestSpoon")
-    .install()
-```
-
-### `remote-zip`
-
-Installs an arbitrary remote ZIP URL. This should be used sparingly because it is
-not tied to a known repository provider.
-
-```json
-{
-  "source": {
-    "type": "remote-zip",
-    "url": "https://example.com/TestSpoon.zip"
-  },
-  "target": {
-    "name": "TestSpoon"
-  }
-}
-```
-
-Equivalent builder:
-
-```lua
-spoon.SpoonManager.from.remoteZip("https://example.com/TestSpoon.zip")
-    .withName("TestSpoon")
-    .install()
-```
-
-## Direct Definition Tests
-
-A test may provide a plain SpoonManager definition instead of `source` and
-`target`. The runner passes this table directly to `SpoonManager.from.config`.
-This is useful for manifest-like tests where the JSON should mirror the internal
-definition shape 1:1.
-
-```json
-{
-  "id": "remote-zip-config",
+  "id": "remote-zip",
   "enabled": true,
   "definition": {
     "source": {
@@ -495,60 +300,67 @@ definition shape 1:1.
 }
 ```
 
-Equivalent builder:
+GitHub folder definition:
 
-```lua
-spoon.SpoonManager.from.config({
-    source = {
-        type = "remote-zip",
-        url = "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/AutoMuteOnSleep.spoon.zip",
+```json
+{
+  "definition": {
+    "source": {
+      "type": "github",
+      "provider": "github",
+      "repository": "Hammerspoon/Spoons",
+      "baseUrl": "https://github.com",
+      "revision_branch": "master"
     },
-}).install()
+    "target": {
+      "selection_folder": "Source/WindowSigils.spoon",
+      "name_withName": "WindowSigils"
+    }
+  }
+}
 ```
 
 ## Optional Source Fields
 
-Provider-based source types may include:
+Provider-based definitions may include:
 
 ```json
 {
   "baseUrl": "https://github.example.com",
-  "branch": "main",
-  "ref": "v1.2.3",
+  "revision_branch": "main",
+  "revision_ref": "v1.2.3",
   "defaultBranch": "main"
 }
 ```
 
-`branch` and `ref` are selected revisions. They are mutually exclusive.
+`revision_branch` and `revision_ref` are selected revisions. They are mutually
+exclusive in builder output.
 
-`defaultBranch` is only a fallback used when neither `branch` nor `ref` is set.
-It should not prevent a test entry from overriding the branch later.
+`defaultBranch` is only a fallback used when neither `revision_branch` nor
+`revision_ref` is set.
 
 ## Target Fields
 
-Use `target.spoon` when the source type uses a Spoon name pattern:
+Use `target.selection_spoon` when the definition uses a Spoon name pattern:
 
 ```json
 {
   "target": {
-    "spoon": "WindowSigils"
+    "selection_spoon": "WindowSigils"
   }
 }
 ```
 
-Use `target.name` when the source does not determine the install name clearly,
-or when the test should explicitly rename the installed Spoon:
+Use `target.name_withName` when the source does not determine the install name
+clearly, or when the test should explicitly rename the installed Spoon:
 
 ```json
 {
   "target": {
-    "name": "WindowSigils"
+    "name_withName": "WindowSigils"
   }
 }
 ```
-
-If both are present, the future runner should apply `.spoon(target.spoon)` first
-and `.withName(target.name)` second.
 
 ## Expected Checks
 

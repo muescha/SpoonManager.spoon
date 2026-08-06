@@ -184,13 +184,19 @@ local function renderTemplate(template, values)
 end
 
 local function sourceLabel(test)
-    local source = test.source or {}
+    local definition = test.definition or {}
+    local source = definition.source or {}
     return source.type or "unknown"
 end
 
 local function targetLabel(test)
-    local target = test.target or {}
-    return target.name or target.spoon or test.id
+    local definition = test.definition or {}
+    local target = definition.target or {}
+    return target.name_withName
+        or target.selection_spoon
+        or target.selection_folder
+        or target.selection_asset
+        or test.id
 end
 
 local function assertSafeTestPath(path, label)
@@ -421,77 +427,12 @@ local function stubHammerspoon(configRoot, logs)
     }
 end
 
-local function providerOptions(source)
-    local options = {}
-
-    for _, key in ipairs({
-        "baseUrl",
-        "branch",
-        "ref",
-        "defaultBranch",
-    }) do
-        if source[key] ~= nil then
-            options[key] = source[key]
-        end
-    end
-
-    return options
-end
-
 local function buildDefinition(SpoonManager, test)
-    if test.definition then
-        return SpoonManager.from.config(test.definition)
+    if not test.definition then
+        error(test.id .. " requires definition")
     end
 
-    local source = test.source or {}
-    local target = test.target or {}
-    local definition
-
-    if source.type == "github-folder" then
-        assertString(source.repository, test.id .. ".source.repository")
-        assertString(source.folder, test.id .. ".source.folder")
-        definition = SpoonManager.from.github(source.repository, providerOptions(source))
-            .folder(source.folder)
-    elseif source.type == "spoon-repo" then
-        assertString(source.repository, test.id .. ".source.repository")
-        assertString(target.spoon, test.id .. ".target.spoon")
-        definition = SpoonManager.from.spoonRepo(source.repository, providerOptions(source))
-            .spoon(target.spoon)
-    elseif source.type == "spoon-repo-zip" then
-        assertString(source.repository, test.id .. ".source.repository")
-        assertString(target.spoon, test.id .. ".target.spoon")
-        definition = SpoonManager.from.spoonRepoZip(source.repository, providerOptions(source))
-            .spoon(target.spoon)
-    elseif source.type == "github-repository" then
-        assertString(source.repository, test.id .. ".source.repository")
-        definition = SpoonManager.from.github(source.repository, providerOptions(source))
-    elseif source.type == "github-release" then
-        assertString(source.repository, test.id .. ".source.repository")
-        assertString(source.asset, test.id .. ".source.asset")
-        definition = SpoonManager.from.github(source.repository, providerOptions(source))
-        if source.release == nil or source.release == "latest" then
-            definition = definition.releaseLatest()
-        else
-            assertString(source.release, test.id .. ".source.release")
-            definition = definition.release(source.release)
-        end
-        definition = definition.asset(source.asset)
-    elseif source.type == "remote-zip" then
-        assertString(source.url, test.id .. ".source.url")
-        definition = SpoonManager.from.remoteZip(source.url)
-    else
-        error("Unsupported network source type: " .. tostring(source.type))
-    end
-
-    if target.spoon and source.type ~= "spoon-repo" and source.type ~= "spoon-repo-zip" then
-        definition = definition.spoon(target.spoon)
-    end
-
-    if target.name then
-        definition = definition.withName(target.name)
-    end
-
-    return definition
+    return SpoonManager.from.config(test.definition)
 end
 
 local function explainPathFor(test, rootPath, installPath)
@@ -567,8 +508,6 @@ local function buildRunnerResult(test, paths)
         test = {
             id = test.id,
             description = test.description,
-            source = test.source,
-            target = test.target,
             definition = test.definition,
             expect = test.expect,
         },
