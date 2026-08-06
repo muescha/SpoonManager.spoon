@@ -94,7 +94,7 @@ end
 
 local function renderTemplate(template, values)
     return (template:gsub("{([%w_]+)}", function(key)
-        if key == "root" or key == "installPath" then
+        if key == "root" then
             return tostring(values[key] or "")
         end
         return safeId(values[key] or "")
@@ -231,7 +231,6 @@ local function artifactPathFor(test, rootPath, installPath, templateName, defaul
 
     local artifactPath = renderTemplate(template, {
         root = rootPath,
-        installPath = installPath,
         id = test.id,
         sourceType = sourceLabel(test),
         name = targetLabel(test),

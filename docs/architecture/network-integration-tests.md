@@ -97,7 +97,6 @@ Supported placeholders:
 
 ```text
 {root}
-{installPath}
 {id}
 {sourceType}
 {name}
