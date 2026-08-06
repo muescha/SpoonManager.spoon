@@ -21,7 +21,7 @@
       "url": "https://example.com/downloads/latest.zip"
     },
     "target": {
-      "name": "DeepFolder"
+      "name_withName": "DeepFolder"
     }
   },
   "resolved": {

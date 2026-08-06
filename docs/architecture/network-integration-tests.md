@@ -157,7 +157,7 @@ broken and the expected behavior is a structured error result.
       "url": "https://example.com/TestSpoon.zip"
     },
     "target": {
-      "name": "TestSpoon"
+      "name_withName": "TestSpoon"
     }
   },
   "expect": {
@@ -313,7 +313,7 @@ GitHub folder definition:
       "path": "Source/WindowSigils.spoon"
     },
     "target": {
-      "name": "WindowSigils"
+      "name_withName": "WindowSigils"
     }
   }
 }
@@ -350,13 +350,13 @@ Use `target.selection_spoon` when the definition uses a Spoon name pattern:
 }
 ```
 
-Use `target.name` when the source does not determine the install name
+Use `target.name_withName` when the source does not determine the install name
 clearly, or when the test should explicitly rename the installed Spoon:
 
 ```json
 {
   "target": {
-    "name": "WindowSigils"
+    "name_withName": "WindowSigils"
   }
 }
 ```

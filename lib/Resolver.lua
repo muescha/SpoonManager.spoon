@@ -15,7 +15,7 @@ return function(context)
         local extract = config.extract or {}
         local target = config.target or {}
         local selectedSpoonName = nameResolver.infer(target.selection_spoon, "selected Spoon name")
-        local installName = nameResolver.infer(target.name, "explicit Spoon name")
+        local installName = nameResolver.infer(target.name_withName, "explicit Spoon name")
             or selectedSpoonName
             or nameResolver.infer(extract.folder, "extract folder")
             or nameResolver.infer(source.zipFile, "ZIP file")

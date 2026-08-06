@@ -92,7 +92,7 @@ Rename only when the inferred name is not the name you want:
 ```lua
 spoon.SpoonManager.from.github("muescha/SpoonRepo")
     .path("Source/deepfolder")
-    .to("ManagedDeepFolder")
+    .withName("ManagedDeepFolder")
     .install()
 ```
 
@@ -324,12 +324,12 @@ Installs as:
 WindowGrid
 ```
 
-Use `.to(name)` to override the inferred name:
+Use `.withName(name)` to override the inferred name:
 
 ```lua
 spoon.SpoonManager.from.github("user/repo")
     .path("Source/deepfolder")
-    .to("BetterName")
+    .withName("BetterName")
     .install()
 ```
 
@@ -350,7 +350,7 @@ The API has two layers:
 
 All builder calls use dot notation and do not install anything until `install()` or `update()` is called.
 
-A builder collects the source information, extraction selection, use options, and install options. It can start broad, such as a GitHub repository, and become more specific with calls like `path(...)`, `zipFile(...)`, `useFolder(...)`, or `to(...)`.
+A builder collects the source information, extraction selection, use options, and install options. It can start broad, such as a GitHub repository, and become more specific with calls like `path(...)`, `zipFile(...)`, `useFolder(...)`, or `withName(...)`.
 
 The exported config table keeps user-provided values close to the builder calls:
 
@@ -372,7 +372,7 @@ The exported config table keeps user-provided values close to the builder calls:
 
 Builder arguments that describe names, paths, refs, URLs, patterns, releases, or assets must be strings. Passing a table, number, or another builder object raises an error instead of being converted with `tostring()`.
 
-Builder methods do not silently overwrite each other. Each group can be set once per builder: revision (`branch`/`ref`), Spoon pattern, Spoon selection (`spoon`), source path (`path`), ZIP file (`zipFile`), extract folder (`useFolder`), release, target name (`to`), and local-change behavior.
+Builder methods do not silently overwrite each other. Each group can be set once per builder: revision (`branch`/`ref`), Spoon pattern, selection (`spoon`/`folder`/`asset`), release, target name (`withName`), and local-change behavior.
 
 If you need another Spoon from the same repository, keep the broad base builder and create each selected Spoon from that base:
 
@@ -545,7 +545,7 @@ In exported configs, this uses `source.type = "remoteZip"`.
 
 The URL must point to a `.zip` file. Other archive formats are rejected.
 
-The Spoon name is inferred from the ZIP URL. Use `.to(name)` to override it.
+The Spoon name is inferred from the ZIP URL. Use `.withName(name)` to override it.
 
 Example:
 
@@ -573,7 +573,7 @@ In exported configs, this uses `source.type = "localZip"`.
 
 The path must point to a `.zip` file. Other archive formats are rejected.
 
-The Spoon name is inferred from the ZIP filename. Use `.to(name)` to override it.
+The Spoon name is inferred from the ZIP filename. Use `.withName(name)` to override it.
 
 Example:
 
@@ -608,7 +608,7 @@ With an explicit name, the same folder installs as `MySpoon`:
 
 ```lua
 spoon.SpoonManager.from.localFolder("~/Projects/experimental")
-    .to("MySpoon")
+    .withName("MySpoon")
     .install()
 ```
 
@@ -821,12 +821,12 @@ Inferred Spoon name:
 deepfolder
 ```
 
-Use `to()` only when the inferred name is not the name you want to install:
+Use `withName()` only when the inferred name is not the name you want to install:
 
 ```lua
 spoon.SpoonManager.from.github("muescha/SpoonRepo")
     .path("Source/deepfolder")
-    .to("ManagedDeepFolder")
+    .withName("ManagedDeepFolder")
     .install()
 ```
 
@@ -889,19 +889,19 @@ spoon.SpoonManager.from.github("muescha/MySpoon.spoon")
     .install()
 ```
 
-### `builder.to(name)`
+### `builder.withName(name)`
 
 Returns a new builder with a specific installed Spoon name.
 
-This is useful when the inferred name is not the name you want. For example, a folder named `Source/deepfolder` is inferred as `deepfolder`; use `to("ManagedDeepFolder")` if the installed Spoon should be named `ManagedDeepFolder`.
+This is useful when the inferred name is not the name you want. For example, a folder named `Source/deepfolder` is inferred as `deepfolder`; use `withName("ManagedDeepFolder")` if the installed Spoon should be named `ManagedDeepFolder`.
 
-In exported configs, this uses `target.name = name`.
+In exported configs, this uses `target.name_withName = name`.
 
 Example:
 
 ```lua
 spoon.SpoonManager.from.remoteZip("https://example.com/download.zip")
-    .to("ManagedDownload")
+    .withName("ManagedDownload")
     .install()
 ```
 
@@ -909,7 +909,7 @@ Example, repository root with a different local name:
 
 ```lua
 spoon.SpoonManager.from.github("muescha/MySpoon.spoon")
-    .to("ManagedMySpoon")
+    .withName("ManagedMySpoon")
     .install()
 ```
 
@@ -1227,7 +1227,7 @@ You usually do not need this for normal installs. `install()` and `update()` res
 The resolved stage contains derived values such as:
 
 ```text
-resolved.installName    = final Spoon name after inference or to(...)
+resolved.installName    = final Spoon name after inference or withName(...)
 resolved.sourceKind     = executable source kind, either zip or folder
 resolved.url            = direct ZIP URL, when the source resolves to a ZIP
 resolved.extractFolder  = folder to extract from an archive
@@ -1531,7 +1531,7 @@ The terms used in debug output and stored metadata are:
 
 ```text
 config   = the user-provided source, target, use, and options values
-resolved = inferred install name, source kind, URLs, and archive selection
+resolved = inferred install name, source type, URLs, and archive selection
 command  = final executable install/update task
 ```
 

@@ -32,7 +32,7 @@
           "path": "Source/WindowSigils.spoon"
         },
         "target": {
-          "name": "WindowSigils"
+          "name_withName": "WindowSigils"
         }
       },
       "expect": {
@@ -100,7 +100,7 @@
           "revision_branch": "main"
         },
         "target": {
-          "name": "ScreensAndWindows"
+          "name_withName": "ScreensAndWindows"
         }
       },
       "expect": {
@@ -175,7 +175,7 @@
           "url": "https://example.com/TestSpoon.zip"
         },
         "target": {
-          "name": "TestSpoon"
+          "name_withName": "TestSpoon"
         }
       },
       "expect": {

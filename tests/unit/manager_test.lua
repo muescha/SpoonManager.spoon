@@ -40,7 +40,7 @@ return function(T)
                 action = action,
                 name = (
                     target.selection_spoon
-                    or target.name
+                    or target.name_withName
                     or extract.folder
                     or source.zipFile
                     or source.path

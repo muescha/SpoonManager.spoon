@@ -306,21 +306,12 @@ return function(context)
             return fromState(nextDef)
         end
 
-        api.to = function(value)
+        api.withName = function(value)
             util.requireString(value, "Spoon name")
-            ensureNotComputed(def, "to", value)
+            ensureNotComputed(def, "withName", value)
 
             local nextDef = util.copyTable(def)
-            local target = ensureSection(nextDef.config, "target")
-            if target.name then
-                error(string.format(
-                    "%s already set; cannot call %s.",
-                    util.createLabel("to", target.name),
-                    util.createLabel("to", value)
-                ), 3)
-            end
-
-            target.name = value
+            setExclusive(ensureSection(nextDef.config, "target"), "name", "withName", value)
             return fromState(nextDef)
         end
 

@@ -11,7 +11,7 @@
 ---
 --- SpoonManager.from.github("owner/repo")
 ---     .path("Source/MySpoon.spoon")
----     .to("MySpoon")
+---     .withName("MySpoon")
 ---     .install()
 --- ```
 

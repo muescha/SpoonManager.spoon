@@ -72,7 +72,7 @@ spoon("A")                      -> target.selection_spoon = "A"
 path("Source/A.spoon")          -> source.path = "Source/A.spoon"
 zipFile("A.zip")                -> source.zipFile = "A.zip"
 useFolder("dist/A.spoon")       -> extract.folder = "dist/A.spoon"
-to("BetterName")                -> target.name = "BetterName"
+withName("BetterName")          -> target.name_withName = "BetterName"
 ```
 
 The source answers "where does the code come from?" The extract section selects a folder from a materialized source. The target section answers what the Spoon should become locally.
@@ -216,7 +216,7 @@ source = {
 
 target = {
     selection_spoon = "Emojis",
-    name = "MyEmojis",
+    name_withName = "MyEmojis",
 }
 ```
 
@@ -226,7 +226,7 @@ The groups are:
 config.source.revision_*  = one of revision_branch, revision_ref
 config.source.pattern_*   = one of pattern_spoonZipPattern, pattern_spoonFolderPattern
 config.target.selection_* = selection_spoon for pattern-based Spoon selection
-config.target.name         = explicit install name
+config.target.name_*      = one of name_withName
 ```
 
 The builder can validate and set these groups with one generic helper.
@@ -298,10 +298,10 @@ ensureNotFinalized(definition, "spoonFolderPattern", pattern)
 setExclusive(definition.config.source, "pattern", "spoonFolderPattern", pattern)
 ```
 
-Target methods use a direct single-value check:
+Target methods use `setExclusive` directly:
 
 ```lua
-definition.config.target.name = spoonName
+setExclusive(definition.config.target, "name", "withName", spoonName)
 ```
 
 ## Endpoints
@@ -320,7 +320,7 @@ useFolder(path)
 After an endpoint, source-changing methods should fail. Allowed follow-up methods are target/use/install behavior and actions:
 
 ```text
-to(...)
+withName(...)
 use(...)
 onLocalChanges(...)
 add()
@@ -436,18 +436,18 @@ extract.folder              -> infer from the extracted folder basename
 source                      -> infer from the source only if no target selection exists
 ```
 
-`.to(value)` stores an explicit override:
+`.withName(value)` stores an explicit override:
 
 ```lua
 target = {
-    name = "DeepFolder",
+    name_withName = "DeepFolder",
 }
 ```
 
 The final install name is resolved as:
 
 ```lua
-target.name
+target.name_withName
     or inferNameFromSelection(target)
     or inferNameFromSource(source)
 ```

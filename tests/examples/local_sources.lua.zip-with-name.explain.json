@@ -21,7 +21,7 @@
       "type": "localZip"
     },
     "target": {
-      "name": "DeepFolder"
+      "name_withName": "DeepFolder"
     }
   },
   "resolved": {
