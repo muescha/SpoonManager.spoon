@@ -110,10 +110,10 @@ After the source has been materialized, extraction selects the Spoon folder from
 The target describes the installed Spoon name and destination.
 
 ```lua
-.to("WidgetKit")
+.withName("WidgetKit")
 ```
 
-`to()` is the proposed clearer replacement for `withName()`. It means "install as this Spoon name". If omitted, the name is inferred from `useFolder`, `zipFile`, `path`, or the origin.
+`withName()` is the explicit install-name override. If omitted, the name is inferred from `useFolder`, `zipFile`, `path`, or the origin.
 
 ## Proposed Builder API
 
@@ -612,11 +612,11 @@ These are the known cases where the earlier implementation could store builder v
 
 Provider capabilities should make unsupported combinations fail at the builder call whenever possible. Full-combination requirements, such as "release requires zipFile", can fail during resolution because they depend on the complete config.
 
-## Migration Plan
+## Migration Status
 
-Implement in small commits.
+Implemented in small commits:
 
-1. Rename source type values in config and tests:
+1. Source type values in config and tests were renamed:
 
 ```text
 remote-zip   -> remoteZip
@@ -624,7 +624,7 @@ local-zip    -> localZip
 local-folder -> localFolder
 ```
 
-2. Introduce provider modules while preserving current behavior:
+2. Provider modules were introduced:
 
 ```text
 lib/providers/GitHub.lua
@@ -633,37 +633,41 @@ lib/providers/LocalZip.lua
 lib/providers/LocalFolder.lua
 ```
 
-3. Add `SpoonManager.providers` and internal `registerProvider()`.
+3. `SpoonManager.providers` and internal `registerProvider()` were added.
 
-4. Generate `SpoonManager.from.*` factories from providers.
+4. `SpoonManager.from.*` factories are generated from providers.
 
-5. Add capability checks to builder methods.
+5. Builder methods use provider capability checks.
 
-6. Introduce new builder names:
+6. Ambiguous builder names were replaced:
 
 ```text
 folder(...) -> path(...) or useFolder(...), depending on the intended meaning
 asset(...)  -> zipFile(...)
 ```
 
-Because there are no external users yet, aliases do not need to remain. `folder(...)` should be removed instead of kept as a legacy alias.
+No legacy aliases are kept for `folder(...)` or `asset(...)`.
 
-Keep `withName(...)` for the install-name override during the provider migration. Revisit the name after the provider model is implemented and the examples are updated.
+`withName(...)` remains the install-name override by decision. It continues to store `target.name_withName` so the existing exclusive target-name group records which builder method set the name.
 
-7. Move provider-specific resolution from `Resolver.lua` into provider `resolve()` methods.
+7. Provider-specific resolution moved from `Resolver.lua` into provider `resolve()` methods.
 
-8. Change resolved and command output to generic source kinds:
+8. Resolved and command output now use generic source kinds:
 
 ```text
 zip
 folder
 ```
 
-9. Simplify `Archive.lua` and `Installer.lua` so they execute generic commands only.
+9. `Archive.lua` and `Installer.lua` execute generic command sources only.
 
-10. Update examples, snapshots, README, and network test configs.
+10. Examples, snapshots, README, and network test configs were updated.
 
-11. Housekeeping: update adjacent manifest docs after the provider model settles.
+Remaining work:
+
+1. Continue housekeeping in adjacent docs and manifest notes when implementation details settle further.
+2. Add future providers such as GitLab, Codeberg, Forgejo, or GitHub Enterprise using the established provider interface.
+3. Revisit manifest loading only as a separate feature; it should produce the same normal config shape as the builder.
 
 ## Decisions
 
@@ -671,5 +675,5 @@ folder
 - `spoon()` remains pattern-only sugar. It should require `spoonZipPattern()` or `spoonFolderPattern()`.
 - `spoonify.json` may provide source patterns and Spoon names. Loading such a manifest should produce the same normal pattern-based config that the builder would create manually. It should not introduce a second meaning for `spoon()`.
 - `folder()` should be replaced by `path()` and `useFolder()`. Do not keep `folder()` as a legacy alias.
-- `withName()` remains the install-name override for now. Reconsider naming only after the provider implementation is in place.
+- `withName()` remains the install-name override. It intentionally keeps `target.name_withName` for the exclusive name-setting group.
 - Provider registration stays internal for version 1. `init.lua` can still use internal provider registration to build `SpoonManager.providers` and generate `SpoonManager.from.*`.
