@@ -116,10 +116,7 @@
       "description": "Install a Spoon from an arbitrary remote ZIP URL.",
       "source": {
         "type": "remote-zip",
-        "url": "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/WindowSigils.spoon.zip"
-      },
-      "target": {
-        "name": "WindowSigils"
+        "url": "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/AutoMuteOnSleep.spoon.zip"
       },
       "expect": {
         "files": [

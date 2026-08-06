@@ -554,9 +554,8 @@ Run the checked-in example directly:
   tests/integration/network.example.json
 ```
 
-The example intentionally contains both real Hammerspoon sources and placeholder
-sources. Placeholder sources should fail with ordered HTTP errors until they are
-replaced with real repositories or assets.
+The example contains real Hammerspoon sources and expected-failure placeholder
+sources. Placeholder sources must return the configured ordered HTTP error.
 
 Use `network.local.json` only for private or temporary test cases that should not
 be committed:
@@ -568,6 +567,38 @@ cp tests/integration/network.example.json tests/integration/network.local.json
   tests/integration/network.lua \
   tests/integration/network.local.json
 ```
+
+You can run only selected tests by passing filters after the config path.
+
+Exact test id:
+
+```sh
+/Users/muescha/.local/share/mise/installs/lua/5.4.4/bin/lua \
+  tests/integration/network.lua \
+  tests/integration/network.example.json \
+  remote-zip
+```
+
+zsh-safe prefix filter:
+
+```sh
+/Users/muescha/.local/share/mise/installs/lua/5.4.4/bin/lua \
+  tests/integration/network.lua \
+  tests/integration/network.example.json \
+  --prefix remote-
+```
+
+Quoted wildcard filter:
+
+```sh
+/Users/muescha/.local/share/mise/installs/lua/5.4.4/bin/lua \
+  tests/integration/network.lua \
+  tests/integration/network.example.json \
+  --match 'remote-*'
+```
+
+In zsh, unquoted `remote-*` can be expanded by the shell before Lua sees it.
+Prefer `--prefix remote-` for prefix-style selection.
 
 The runner:
 

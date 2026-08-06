@@ -3,7 +3,7 @@ local configPath = arg and arg[1]
 local runTimestamp = os.date("%Y-%m-%d-%H-%M-%S")
 
 if not configPath or configPath == "" then
-    io.stderr:write("usage: lua tests/integration/network.lua tests/integration/network.local.json\n")
+    io.stderr:write("usage: lua tests/integration/network.lua tests/integration/network.local.json [test-id|--prefix prefix|--match pattern]\n")
     os.exit(2)
 end
 
@@ -90,6 +90,88 @@ local function assertString(value, label)
     if type(value) ~= "string" or value == "" then
         error(label .. " must be a non-empty string")
     end
+end
+
+local function wildcardToPattern(value)
+    local parts = { "^" }
+    for index = 1, #value do
+        local char = value:sub(index, index)
+        if char == "*" then
+            table.insert(parts, ".*")
+        elseif char:match("[%w_]") then
+            table.insert(parts, char)
+        else
+            table.insert(parts, "%" .. char)
+        end
+    end
+    table.insert(parts, "$")
+    return table.concat(parts)
+end
+
+local function parseFilters()
+    local filters = {}
+    local index = 2
+
+    local function addFilter(kind, value)
+        assertString(value, "network test filter")
+        table.insert(filters, {
+            kind = kind,
+            value = value,
+            pattern = kind == "match" and wildcardToPattern(value) or nil,
+        })
+    end
+
+    while arg and index <= #arg do
+        local item = arg[index]
+
+        if item == "--id" or item == "--only" then
+            index = index + 1
+            addFilter("id", arg[index])
+        elseif item == "--prefix" then
+            index = index + 1
+            addFilter("prefix", arg[index])
+        elseif item == "--match" then
+            index = index + 1
+            addFilter("match", arg[index])
+        elseif item:match("^%-%-id=") or item:match("^%-%-only=") then
+            addFilter("id", item:match("^[^=]+=(.*)$"))
+        elseif item:match("^%-%-prefix=") then
+            addFilter("prefix", item:match("^[^=]+=(.*)$"))
+        elseif item:match("^%-%-match=") then
+            addFilter("match", item:match("^[^=]+=(.*)$"))
+        elseif item:find("*", 1, true) then
+            addFilter("match", item)
+        else
+            addFilter("id", item)
+        end
+
+        index = index + 1
+    end
+
+    return filters
+end
+
+local filters = parseFilters()
+
+local function testMatchesFilters(test)
+    if #filters == 0 then
+        return true
+    end
+
+    local id = test.id or ""
+    for _, filter in ipairs(filters) do
+        if filter.kind == "id" and id == filter.value then
+            return true
+        end
+        if filter.kind == "prefix" and id:sub(1, #filter.value) == filter.value then
+            return true
+        end
+        if filter.kind == "match" and id:match(filter.pattern) then
+            return true
+        end
+    end
+
+    return false
 end
 
 local function renderTemplate(template, values)
@@ -530,7 +612,7 @@ local rootPath = rootPathForRun()
 cleanRootBeforeRun(rootPath)
 
 for _, test in ipairs(config.tests or {}) do
-    if test.enabled then
+    if test.enabled and testMatchesFilters(test) then
         enabled = enabled + 1
         assertString(test.id, "test.id")
 
