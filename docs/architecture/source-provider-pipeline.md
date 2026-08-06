@@ -1,8 +1,8 @@
 # Source Providers and Install Pipeline
 
-This note describes a proposed architecture for source providers, source capabilities, and the install pipeline.
+This note describes the completed architecture for source providers, source capabilities, and the install pipeline.
 
-It is intentionally a design note first. The current implementation now uses provider-based resolution and generic command source kinds (`zip` and `folder`). The remaining design work is to keep simplifying the pipeline and update adjacent manifest concepts as the provider model settles.
+The implementation uses provider-based resolution and generic command source kinds (`zip` and `folder`). Future provider ideas live in `future-source-providers.md`; manifest loading remains a separate feature.
 
 ## Problem
 
@@ -668,11 +668,12 @@ folder
 
 10. Examples, snapshots, README, and network test configs were updated.
 
-Remaining work:
+The source provider pipeline migration is complete.
 
-1. Continue housekeeping in adjacent docs and manifest notes when implementation details settle further.
-2. Add future providers such as GitLab, Codeberg, Forgejo, or GitHub Enterprise using the established provider interface.
-3. Revisit manifest loading only as a separate feature; it should produce the same normal config shape as the builder.
+Follow-up work is tracked separately:
+
+- future provider ideas: `future-source-providers.md`
+- manifest concepts: `spoonify-manifests.md`
 
 ## Decisions
 
