@@ -27,26 +27,15 @@ return function(context)
         return true
     end
 
-    function Archive.prepareZipSelection(definition)
-        local source = definition.command and definition.command.from or {}
-        local selection = {}
-
-        if source.type == "zip" then
-            selection.path = source.folder
-        end
-
-        return selection
-    end
-
-    function Archive.extractZipToSpoon(zipFile, definition, tmpdir)
+    function Archive.extractZipToSpoon(zipFile, selection, tmpdir)
         local extractDir = util.pathJoin(tmpdir, "extract")
         util.ensureDir(extractDir, logger)
 
-        local selection = Archive.prepareZipSelection(definition)
+        selection = selection or {}
         local unzipCommand
 
-        if selection.path then
-            local pattern = "*/" .. selection.path:gsub("^/+", "") .. "/*"
+        if selection.folder then
+            local pattern = "*/" .. selection.folder:gsub("^/+", "") .. "/*"
             unzipCommand = "/usr/bin/unzip -q " .. util.shellQuote(zipFile) .. " " .. util.shellQuote(pattern) .. " -d " .. util.shellQuote(extractDir) .. " 2>&1"
         else
             unzipCommand = "/usr/bin/unzip -q " .. util.shellQuote(zipFile) .. " -d " .. util.shellQuote(extractDir) .. " 2>&1"
@@ -58,12 +47,12 @@ return function(context)
         end
 
         local sourceFolder
-        if selection.path then
+        if selection.folder then
             sourceFolder = util.execute(
-                "/usr/bin/find " .. util.shellQuote(extractDir) .. " -type d -path " .. util.shellQuote("*/" .. selection.path) .. " -print -quit",
+                "/usr/bin/find " .. util.shellQuote(extractDir) .. " -type d -path " .. util.shellQuote("*/" .. selection.folder) .. " -print -quit",
                 logger,
                 "Could not locate extracted folder %s",
-                selection.path
+                selection.folder
             )
         else
             sourceFolder = util.execute(

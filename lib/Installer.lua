@@ -160,7 +160,9 @@ return function(context)
     end
 
     function Installer.installFromZipFile(definition, zipFile, tmpdir)
-        local sourceFolder, err = archive.extractZipToSpoon(zipFile, definition, tmpdir)
+        local sourceFolder, err = archive.extractZipToSpoon(zipFile, {
+            folder = definition.command.from.folder,
+        }, tmpdir)
         if not sourceFolder then
             return nil, err
         end
