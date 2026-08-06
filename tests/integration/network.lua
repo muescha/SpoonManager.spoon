@@ -1,6 +1,6 @@
 local repoRoot = os.getenv("PWD")
 local configPath = arg and arg[1]
-local runTimestamp = os.date("!%Y-%m-%d-%H-%M-%S")
+local runTimestamp = os.date("%Y-%m-%d-%H-%M-%S")
 
 if not configPath or configPath == "" then
     io.stderr:write("usage: lua tests/integration/network.lua tests/integration/network.local.json\n")
