@@ -42,7 +42,6 @@ return function(context)
             definition = definition.definition,
             resolved = definition.resolved,
             command = definition.command,
-            normalized = definition.normalized,
             fingerprints = {
                 localHash = localHash,
             },

@@ -5,6 +5,10 @@
       "path": "/Users/test/Downloads/DeepFolder.spoon.zip",
       "type": "local-zip"
     },
+    "name": "DeepFolder",
+    "options": {
+      "onLocalChanges": "abort"
+    },
     "to": {
       "name": "DeepFolder",
       "path": "/tmp/hammerspoon-test/Spoons/DeepFolder.spoon",

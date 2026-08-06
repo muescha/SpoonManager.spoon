@@ -5,6 +5,10 @@
       "type": "remote-zip",
       "url": "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/TimeMachineProgress.spoon.zip"
     },
+    "name": "TimeMachineProgress",
+    "options": {
+      "onLocalChanges": "abort"
+    },
     "to": {
       "name": "TimeMachineProgress",
       "path": "/tmp/hammerspoon-test/Spoons/TimeMachineProgress.spoon",

@@ -152,8 +152,8 @@ end
 
 function obj._installAndRememberDefinition(definition, action)
     local config = definitionConfig(definition)
-    local result, err, normalized = obj._installDefinition(config, action)
-    config = normalized or config
+    local result, err, prepared = obj._installDefinition(config, action)
+    config = prepared or config
 
     if result then
         obj._rememberDefinition(config, result.name)

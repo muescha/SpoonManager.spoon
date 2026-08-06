@@ -5,6 +5,10 @@
       "type": "github-release",
       "url": "https://github.com/muescha/DeepFolder.spoon/releases/latest/download/DeepFolder.zip"
     },
+    "name": "DeepFolder",
+    "options": {
+      "onLocalChanges": "abort"
+    },
     "to": {
       "name": "DeepFolder",
       "path": "/tmp/hammerspoon-test/Spoons/DeepFolder.spoon",

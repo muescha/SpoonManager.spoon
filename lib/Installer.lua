@@ -30,27 +30,19 @@ return function(context)
         return util.execute(command, logger, "Could not checksum %s", path)
     end
 
-    function Installer.normalizeDefinition(definition, action)
+    function Installer.prepareDefinition(definition, action)
         local def = util.copyTable(definition)
         action = action or "install"
 
         def = resolver.withCommand(def, action)
-        def.options = util.mergeTables(manager.installOptions, def.options or {})
-        def.name = def.resolved.installName
-        def.normalized = {
-            name = def.name,
-            action = action,
-            options = util.copyTable(def.options),
-            source = util.copyTable(def.command.from),
-            target = util.copyTable(def.command.to),
-            use = util.copyTable(def.use),
-        }
+        def.name = def.command.name
+        def.options = util.copyTable(def.command.options)
+        def.use = util.copyTable(def.command.use)
 
         if not def.definition then
             def.definition = util.copyTable(definition)
             def.definition.resolved = nil
             def.definition.command = nil
-            def.definition.normalized = nil
             def.definition.name = nil
         end
 
@@ -206,7 +198,7 @@ return function(context)
     end
 
     function Installer.installDefinition(definition, action)
-        local def = Installer.normalizeDefinition(definition, action)
+        local def = Installer.prepareDefinition(definition, action)
         local command = util.copyTable(def.command)
         command.action = action or "install"
 
@@ -228,7 +220,6 @@ return function(context)
                 path = paths.targetPath(def.name),
                 command = command,
                 resolved = def.resolved,
-                normalized = def.normalized,
                 source = def.command.from,
                 use = def.use,
             }, nil, def
@@ -257,7 +248,6 @@ return function(context)
             result.action = action
             result.command = command
             result.resolved = def.resolved
-            result.normalized = def.normalized
         end
         return result, err, def
     end

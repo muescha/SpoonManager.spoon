@@ -3,7 +3,6 @@ return function(context)
     Definition.__index = Definition
 
     local manager = context.manager
-    local installer = context.installer
     local nameResolver = context.nameResolver
     local resolver = context.resolver
     local util = context.util
@@ -52,10 +51,6 @@ return function(context)
     end
 
     local function computedStage(definition)
-        if definition.normalized then
-            return "normalized"
-        end
-
         if definition.command then
             return "command"
         end
@@ -124,11 +119,6 @@ return function(context)
 
         api.command = function(action)
             def = resolver.withCommand(def, action)
-            return api
-        end
-
-        api.normalize = function(action)
-            def = installer.normalizeDefinition(def, action)
             return api
         end
 

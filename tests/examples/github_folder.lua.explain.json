@@ -6,6 +6,10 @@
       "folder": "Source/deepfolder",
       "type": "github-folder"
     },
+    "name": "DeepFolder",
+    "options": {
+      "onLocalChanges": "abort"
+    },
     "to": {
       "name": "DeepFolder",
       "path": "/tmp/hammerspoon-test/Spoons/DeepFolder.spoon",

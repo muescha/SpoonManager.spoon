@@ -5,6 +5,10 @@
       "archiveUrl": "https://github.com/muescha/DeepFolder.spoon/archive/main.zip",
       "type": "github-repository"
     },
+    "name": "DeepFolder",
+    "options": {
+      "onLocalChanges": "abort"
+    },
     "to": {
       "name": "DeepFolder",
       "path": "/tmp/hammerspoon-test/Spoons/DeepFolder.spoon",

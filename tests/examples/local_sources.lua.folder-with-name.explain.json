@@ -5,6 +5,10 @@
       "path": "/Users/test/Projects/experimental",
       "type": "local-folder"
     },
+    "name": "DeepFolder",
+    "options": {
+      "onLocalChanges": "abort"
+    },
     "to": {
       "name": "DeepFolder",
       "path": "/tmp/hammerspoon-test/Spoons/DeepFolder.spoon",

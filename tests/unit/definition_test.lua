@@ -36,15 +36,13 @@ return function(T)
         end, "definition already has command values; cannot call %.withName%('B'%)")
     end)
 
-    T.test("definition rejects use changes after normalize", function()
+    T.test("definition rejects rebuilding command with another action", function()
         T.assertError(function()
             T.SpoonManager.from.github("owner/repo")
                 .folder("Source/A.spoon")
-                .normalize("install")
-                .use({
-                    start = true,
-                })
-        end, "definition already has normalized values; cannot call %.use%(%)")
+                .command("install")
+                .command("update")
+        end, "definition already has command values for install; cannot build command for update%.")
     end)
 
     T.test("definition rejects branch after spoon selection", function()

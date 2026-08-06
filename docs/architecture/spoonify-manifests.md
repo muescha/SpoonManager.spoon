@@ -104,7 +104,7 @@ Merge rule:
 final source = manifest.source + entry.source
 ```
 
-The `name` field in a manifest entry is a human-friendly shorthand for the default Spoon selection. When the manifest is normalized, it maps to `target.selection_spoon` unless the entry provides a more specific `target.selection_*` value. It should not become a separate top-level `definition.name`.
+The `name` field in a manifest entry is a human-friendly shorthand for the default Spoon selection. When the manifest is converted into a definition, it maps to `target.selection_spoon` unless the entry provides a more specific `target.selection_*` value. It should not become a separate top-level `definition.name`.
 
 Example:
 

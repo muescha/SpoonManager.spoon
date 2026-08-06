@@ -397,10 +397,10 @@ Builder methods do not silently overwrite each other. Each group can be set once
 Internally, SpoonManager resolves a definition into an executable command at the last moment:
 
 ```text
-definition -> resolved -> command -> normalized -> installed record
+definition -> resolved -> command -> installed record
 ```
 
-`definition.toConfig()` returns only the declarative definition. Install results and `installed.json` additionally include `resolved`, `command`, and `normalized` data for debugging and update checks.
+`definition.toConfig()` returns only the declarative definition. Install results and `installed.json` additionally include `resolved` and `command` data for debugging and update checks.
 
 ### `SpoonManager.from.config(config)`
 
@@ -1233,12 +1233,6 @@ local command =
         .spoon("Emojis")
         .command("install")
         .explain()
-
-local normalized =
-    spoon.SpoonManager.from.default
-        .spoon("Emojis")
-        .normalize("install")
-        .explain()
 ```
 
 After one of these stages has been calculated, the definition is frozen for further builder changes. Start from the base definition when you want a variation:
@@ -1259,7 +1253,6 @@ The stages are only calculated once and then reused:
 definition
   -> resolved
   -> command
-  -> normalized
   -> install/update
 ```
 

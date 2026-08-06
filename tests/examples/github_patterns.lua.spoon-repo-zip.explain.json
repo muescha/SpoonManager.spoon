@@ -5,6 +5,10 @@
       "type": "remote-zip",
       "url": "https://github.com/muescha/SpoonRepo/raw/main/Spoons/DeepFolder.spoon.zip"
     },
+    "name": "DeepFolder",
+    "options": {
+      "onLocalChanges": "abort"
+    },
     "to": {
       "name": "DeepFolder",
       "path": "/tmp/hammerspoon-test/Spoons/DeepFolder.spoon",

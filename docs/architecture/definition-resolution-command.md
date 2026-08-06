@@ -18,10 +18,10 @@ The core idea is that user-facing builder calls and manifest files should produc
 The intended lifecycle is:
 
 ```text
-definition -> resolved -> command -> normalized -> install/update -> installed record
+definition -> resolved -> command -> install/update -> installed record
 ```
 
-`definition` is the durable input. `resolved` is the first derived view. `command` is the executable task. `normalized` is the install-ready definition with defaults merged in. `installed` is the persistent local registry record after execution.
+`definition` is the durable input. `resolved` is the first derived view. `command` is the complete executable task with defaults merged in. `installed` is the persistent local registry record after execution.
 
 `explain()` is passive. It returns the current definition state only. It does not resolve names, build commands, or normalize options. To inspect later stages, call the stage explicitly first:
 
@@ -29,10 +29,9 @@ definition -> resolved -> command -> normalized -> install/update -> installed r
 definition.explain()
 definition.resolve().explain()
 definition.command("install").explain()
-definition.normalize("install").explain()
 ```
 
-After `resolve()`, `command()`, `normalize()`, `install()`, or `update()` has enriched a definition, further builder changes are rejected. Start from the base definition to create another variation.
+After `resolve()`, `command()`, `install()`, or `update()` has enriched a definition, further builder changes are rejected. Start from the base definition to create another variation.
 
 ### Definition
 
@@ -109,13 +108,14 @@ The resolved table is calculated once. Later stages reuse `definition.resolved` 
 
 ### Command
 
-A command is the final executable install/update task. It is built from the definition and resolved values.
+A command is the final executable install/update task. It is built from the definition and resolved values. It also carries install/update options and post-install `use` behavior.
 
 Example:
 
 ```lua
 {
     action = "install",
+    name = "Emojis",
     from = {
         type = "github-folder",
         archiveUrl = "https://github.com/Hammerspoon/Spoons/archive/master.zip",
@@ -126,45 +126,18 @@ Example:
         name = "Emojis",
         path = "~/.hammerspoon/Spoons/Emojis.spoon",
     },
+    options = {
+        onLocalChanges = "abort",
+    },
+    use = {
+        start = true,
+    },
 }
 ```
 
 The installer should execute commands, not interpret builder history directly.
 
-The command should stay small. It should not embed the full `definition` or `resolved` view. When the command is built, it is stored as `definition.command` and reused by install/update.
-
-### Normalized Definition
-
-Normalization prepares the enriched definition for execution. It keeps the declarative source and target data, but adds the final merged install options and a compact execution summary.
-
-```lua
-{
-    name = "Emojis",
-    source = { ... },
-    target = { ... },
-    resolved = { ... },
-    command = { ... },
-    normalized = {
-        name = "Emojis",
-        action = "install",
-        options = {
-            onLocalChanges = "abort",
-        },
-        source = {
-            type = "github-folder",
-            archiveUrl = "https://github.com/Hammerspoon/Spoons/archive/master.zip",
-            folder = "Source/Emojis.spoon",
-        },
-        target = {
-            type = "spoon",
-            name = "Emojis",
-            path = "~/.hammerspoon/Spoons/Emojis.spoon",
-        },
-    },
-}
-```
-
-`normalized` is useful for install results, logs, and registry entries. It is not meant to be hand-authored in `spoonify.json`; it is produced by SpoonManager.
+The command should stay compact, but it is the complete execution view. It should not embed the full `definition` or `resolved` view. When the command is built, it is stored as `definition.command` and reused by install/update.
 
 ### Installed Record
 

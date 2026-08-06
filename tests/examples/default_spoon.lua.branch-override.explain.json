@@ -5,6 +5,10 @@
       "type": "remote-zip",
       "url": "https://github.com/Hammerspoon/Spoons/raw/main/Spoons/Emojis.spoon.zip"
     },
+    "name": "Emojis",
+    "options": {
+      "onLocalChanges": "abort"
+    },
     "to": {
       "name": "Emojis",
       "path": "/tmp/hammerspoon-test/Spoons/Emojis.spoon",

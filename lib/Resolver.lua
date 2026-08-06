@@ -1,6 +1,7 @@
 return function(context)
     local Resolver = {}
     local github = context.github
+    local manager = context.manager
     local nameResolver = context.nameResolver
     local paths = context.paths
     local util = context.util
@@ -79,6 +80,7 @@ return function(context)
         resolved = resolved or Resolver.resolveDefinition(definition)
         local command = {
             action = action or "install",
+            name = resolved.installName,
             from = {
                 type = resolved.sourceType,
             },
@@ -87,6 +89,8 @@ return function(context)
                 name = resolved.installName,
                 path = resolved.installName and paths.targetPath(resolved.installName) or nil,
             },
+            options = util.mergeTables(manager.installOptions, definition.options or {}),
+            use = util.copyTable(definition.use),
         }
 
         if resolved.sourceType == "github-folder" or resolved.sourceType == "github-repository" then
@@ -103,9 +107,21 @@ return function(context)
 
     function Resolver.withCommand(definition, action)
         local def = Resolver.withResolved(definition)
-        if not def.command or (action and def.command.action ~= action) then
-            def.command = Resolver.toCommand(def, action, def.resolved)
+        action = action or "install"
+
+        if def.command then
+            if def.command.action ~= action then
+                error(string.format(
+                    "definition already has command values for %s; cannot build command for %s.",
+                    tostring(def.command.action),
+                    tostring(action)
+                ), 2)
+            end
+
+            return def
         end
+
+        def.command = Resolver.toCommand(def, action, def.resolved)
         return def
     end
 
