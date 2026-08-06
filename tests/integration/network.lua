@@ -184,14 +184,14 @@ local function renderTemplate(template, values)
 end
 
 local function sourceLabel(test)
-    local definition = test.definition or {}
-    local source = definition.source or {}
+    local config = test.config or {}
+    local source = config.source or {}
     return source.type or "unknown"
 end
 
 local function targetLabel(test)
-    local definition = test.definition or {}
-    local target = definition.target or {}
+    local config = test.config or {}
+    local target = config.target or {}
     return target.name_withName
         or target.selection_spoon
         or target.selection_folder
@@ -428,11 +428,11 @@ local function stubHammerspoon(configRoot, logs)
 end
 
 local function buildDefinition(SpoonManager, test)
-    if not test.definition then
-        error(test.id .. " requires definition")
+    if not test.config then
+        error(test.id .. " requires config")
     end
 
-    return SpoonManager.from.config(test.definition)
+    return SpoonManager.from.config(test.config)
 end
 
 local function explainPathFor(test, rootPath, installPath)
@@ -508,7 +508,7 @@ local function buildRunnerResult(test, paths)
         test = {
             id = test.id,
             description = test.description,
-            definition = test.definition,
+            config = test.config,
             expect = test.expect,
         },
         paths = paths,

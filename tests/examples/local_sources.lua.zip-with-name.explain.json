@@ -15,16 +15,18 @@
       "type": "spoon"
     }
   },
+  "config": {
+    "source": {
+      "path": "~/Downloads/latest.zip",
+      "type": "local-zip"
+    },
+    "target": {
+      "name_withName": "DeepFolder"
+    }
+  },
   "resolved": {
     "installName": "DeepFolder",
     "localPath": "/Users/test/Downloads/latest.zip",
     "sourceType": "local-zip"
-  },
-  "source": {
-    "path": "~/Downloads/latest.zip",
-    "type": "local-zip"
-  },
-  "target": {
-    "name_withName": "DeepFolder"
   }
 }

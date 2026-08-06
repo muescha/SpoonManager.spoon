@@ -86,8 +86,8 @@ loads SpoonManager with that test-specific `hs.configdir`.
 network test. It describes the planned SpoonManager command.
 
 `pathTemplates.result` controls the exact JSON path for the test-run result. It
-records whether the test passed, which definition was used, where the test
-installed files, and any error if the run failed.
+records whether the test passed, which config was used, where the test installed
+files, and any error if the run failed.
 
 `pathTemplates.log` controls the exact JSON path for structured log output captured
 from the Hammerspoon logger stub. This includes debug messages emitted through
@@ -151,7 +151,7 @@ broken and the expected behavior is a structured error result.
 {
   "id": "remote-zip-error",
   "enabled": true,
-  "definition": {
+  "config": {
     "source": {
       "type": "remote-zip",
       "url": "https://example.com/TestSpoon.zip"
@@ -194,7 +194,7 @@ The result artifact has this general shape:
   "test": {
     "id": "github-folder",
     "description": "Install a Spoon from a folder inside a GitHub repository archive.",
-    "definition": {},
+    "config": {},
     "expect": {}
   },
   "paths": {
@@ -205,8 +205,7 @@ The result artifact has this general shape:
     "log": "...log.json"
   },
   "spoonExplain": {
-    "source": {},
-    "target": {},
+    "config": {},
     "resolved": {},
     "command": {}
   },
@@ -263,7 +262,7 @@ Each test entry has this shape:
   "id": "github-folder",
   "enabled": true,
   "description": "Install a Spoon from a folder inside a GitHub repository archive.",
-  "definition": {},
+  "config": {},
   "expect": {
     "files": [
       "init.lua"
@@ -276,8 +275,8 @@ Each test entry has this shape:
 
 ## Definition Tests
 
-Each network test provides a plain SpoonManager definition. The runner passes
-this table directly to `SpoonManager.from.config(test.definition)`. This keeps
+Each network test provides a plain SpoonManager config. The runner passes
+this table directly to `SpoonManager.from.config(test.config)`. This keeps
 network tests focused on download, extraction, install, and update behavior.
 Builder-to-definition equivalence is tested separately without network access in
 `tests/unit/builder_test.lua`.
@@ -286,7 +285,7 @@ Builder-to-definition equivalence is tested separately without network access in
 {
   "id": "remote-zip",
   "enabled": true,
-  "definition": {
+  "config": {
     "source": {
       "type": "remote-zip",
       "url": "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/AutoMuteOnSleep.spoon.zip"
@@ -304,7 +303,7 @@ GitHub folder definition:
 
 ```json
 {
-  "definition": {
+  "config": {
     "source": {
       "type": "github",
       "provider": "github",

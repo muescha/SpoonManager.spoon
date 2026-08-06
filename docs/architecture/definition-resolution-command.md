@@ -1,27 +1,27 @@
-# Definition, Resolution, and Commands
+# Config, Resolution, and Commands
 
 This note describes the intended internal model for SpoonManager.
 
-The core idea is that user-facing builder calls and manifest files should produce a simple declarative definition. The definition keeps the user-provided values as close to 1:1 as possible. SpoonManager then enriches the same definition step by step until it can execute an install or update command.
+The core idea is that user-facing builder calls and manifest files should produce a simple declarative config. The config keeps the user-provided values as close to 1:1 as possible. SpoonManager then wraps that config in a runtime definition and enriches that definition step by step until it can execute an install or update command.
 
 ## Goals
 
-- Keep definitions readable and predictable.
+- Keep configs readable and predictable.
 - Store each calculated stage once and reuse it.
 - Make `toConfig()` useful for users, agents, GUI tools, and future manifests.
 - Make it possible to reconstruct a readable builder chain from a config.
 - Keep installer execution separate from source description.
-- Avoid `_builder` metadata by validating the real definition fields.
+- Avoid `_builder` metadata by validating the real config fields.
 
 ## Layers
 
 The intended lifecycle is:
 
 ```text
-definition -> resolved -> command -> install/update -> installed record
+config -> resolved -> command -> install/update -> installed record
 ```
 
-`definition` is the durable input. `resolved` is the first derived view. `command` is the complete executable task with defaults merged in. `installed` is the persistent local registry record after execution.
+`config` is the durable input. `definition` is the runtime wrapper that contains `config` plus optional derived stages. `resolved` is the first derived view. `command` is the complete executable task with defaults merged in. `installed` is the persistent local registry record after execution.
 
 `explain()` is passive. It returns the current definition state only. It does not resolve names, build commands, or normalize options. To inspect later stages, call the stage explicitly first:
 
@@ -33,9 +33,9 @@ definition.command("install").explain()
 
 After `resolve()`, `command()`, `install()`, or `update()` has enriched a definition, further builder changes are rejected. Start from the base definition to create another variation.
 
-### Definition
+### Config
 
-A definition describes what the user or manifest declared.
+A config describes what the user or manifest declared.
 
 Example:
 
@@ -76,11 +76,7 @@ withName("BetterName")          -> target.name_withName = "BetterName"
 
 The source answers "where does the code come from?" The target section answers "which Spoon should be selected and what should it become locally?"
 
-### Resolved Definition
-
-Resolution enriches a definition with derived values. These values are useful for debugging, logging, GUI previews, and command construction, but they do not replace the original declarative input.
-
-Example:
+`definition.toConfig()` returns just the inner config:
 
 ```lua
 {
@@ -93,6 +89,28 @@ Example:
     target = {
         selection_spoon = "Emojis",
     },
+}
+```
+
+### Resolved Definition
+
+Resolution enriches a definition with derived values. These values are useful for debugging, logging, GUI previews, and command construction, but they do not replace the original declarative input.
+
+Example:
+
+```lua
+{
+    config = {
+        source = {
+            type = "github",
+            repository = "Hammerspoon/Spoons",
+            revision_branch = "master",
+            pattern_spoonFolderPattern = "Source/{name}.spoon",
+        },
+        target = {
+            selection_spoon = "Emojis",
+        },
+    },
     resolved = {
         sourceType = "github-folder",
         archiveUrl = "https://github.com/Hammerspoon/Spoons/archive/master.zip",
@@ -102,7 +120,7 @@ Example:
 }
 ```
 
-Resolution is where source defaults are applied. For example, GitHub may default to `main` when neither `source.revision_branch` nor `source.revision_ref` is set. That default does not need to be written back into the source section; it appears in the resolved and command stages.
+Resolution is where source defaults are applied. For example, GitHub may default to `main` when neither `config.source.revision_branch` nor `config.source.revision_ref` is set. That default does not need to be written back into the source section; it appears in the resolved and command stages.
 
 The resolved table is calculated once. Later stages reuse `definition.resolved` instead of inferring names and URLs again.
 
@@ -151,7 +169,7 @@ Example:
     path = "~/.hammerspoon/Spoons/Emojis.spoon",
     installedAt = "2026-08-05T03:12:00Z",
     updatedAt = "2026-08-05T03:12:00Z",
-    definition = {
+    config = {
         source = {
             type = "github",
             repository = "Hammerspoon/Spoons",
@@ -204,10 +222,10 @@ target = {
 The groups are:
 
 ```text
-source.revision_*  = one of revision_branch, revision_ref
-source.pattern_*   = one of pattern_spoonZipPattern, pattern_spoonFolderPattern
-target.selection_* = one of selection_spoon, selection_folder, selection_asset
-target.name_*      = one of name_withName
+config.source.revision_*  = one of revision_branch, revision_ref
+config.source.pattern_*   = one of pattern_spoonZipPattern, pattern_spoonFolderPattern
+config.target.selection_* = one of selection_spoon, selection_folder, selection_asset
+config.target.name_*      = one of name_withName
 ```
 
 The builder can validate and set these groups with one generic helper.
@@ -257,7 +275,7 @@ Source-changing methods also need to fail after the Spoon selection has been fin
 ```lua
 local function ensureNotFinalized(definition, method, value)
     local selectedMethod, selectedValue =
-        findFlatGroupValue(definition.target, "selection")
+        findFlatGroupValue(definition.config.target, "selection")
 
     if selectedMethod then
         error(string.format(
@@ -273,17 +291,17 @@ Source methods use two direct steps:
 
 ```lua
 ensureNotFinalized(definition, "branch", branchName)
-setExclusive(definition.source, "revision", "branch", branchName)
+setExclusive(definition.config.source, "revision", "branch", branchName)
 
 ensureNotFinalized(definition, "spoonFolderPattern", pattern)
-setExclusive(definition.source, "pattern", "spoonFolderPattern", pattern)
+setExclusive(definition.config.source, "pattern", "spoonFolderPattern", pattern)
 ```
 
 Endpoint and target methods use `setExclusive` directly:
 
 ```lua
-setExclusive(definition.target, "selection", "folder", folderPath)
-setExclusive(definition.target, "name", "withName", spoonName)
+setExclusive(definition.config.target, "selection", "folder", folderPath)
+setExclusive(definition.config.target, "name", "withName", spoonName)
 ```
 
 ## Endpoints
@@ -319,7 +337,7 @@ SpoonManager.from.github("Hammerspoon/Spoons")
     .spoon("Emojis")
 ```
 
-Definition:
+Config:
 
 ```lua
 {
@@ -352,7 +370,7 @@ Resolved command:
 }
 ```
 
-No `origin` is needed in the definition because the original definition is never overwritten.
+No `origin` is needed in the config because the original config is never overwritten.
 
 ## Folder Values
 

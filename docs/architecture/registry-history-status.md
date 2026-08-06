@@ -27,7 +27,7 @@ Example:
     path = "~/.hammerspoon/Spoons/Emojis.spoon",
     installedAt = "2026-08-05T03:12:00Z",
     updatedAt = "2026-08-05T03:12:00Z",
-    definition = {
+    config = {
         source = {
             type = "github",
             repository = "Hammerspoon/Spoons",
@@ -64,7 +64,7 @@ Success:
     success = true,
     action = "install",
     name = "Emojis",
-    definition = { ... },
+    config = { ... },
     resolved = { ... },
     command = { ... },
     installed = { ... },
@@ -80,7 +80,7 @@ Failure:
     name = "Emojis",
     stage = "download",
     error = "HTTP 404",
-    definition = { ... },
+    config = { ... },
     resolved = { ... },
     command = { ... },
 }
@@ -108,7 +108,7 @@ Example event:
     success = false,
     stage = "download",
     error = "HTTP 404",
-    definition = { ... },
+    config = { ... },
     resolved = { ... },
 }
 ```
@@ -173,4 +173,3 @@ runtime result     = current action success/failure
 ```
 
 Persistent history and GUI status can be added later without changing the installed registry model.
-

@@ -15,20 +15,22 @@
       "type": "spoon"
     }
   },
+  "config": {
+    "source": {
+      "baseUrl": "https://github.com",
+      "pattern_spoonZipPattern": "dist/{name}.spoon.zip",
+      "provider": "github",
+      "repository": "muescha/SpoonRepo",
+      "revision_branch": "main",
+      "type": "github"
+    },
+    "target": {
+      "selection_spoon": "DeepFolder"
+    }
+  },
   "resolved": {
     "installName": "DeepFolder",
     "sourceType": "remote-zip",
     "url": "https://github.com/muescha/SpoonRepo/raw/main/dist/DeepFolder.spoon.zip"
-  },
-  "source": {
-    "baseUrl": "https://github.com",
-    "pattern_spoonZipPattern": "dist/{name}.spoon.zip",
-    "provider": "github",
-    "repository": "muescha/SpoonRepo",
-    "revision_branch": "main",
-    "type": "github"
-  },
-  "target": {
-    "selection_spoon": "DeepFolder"
   }
 }

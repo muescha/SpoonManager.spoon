@@ -1192,11 +1192,22 @@ spoon.SpoonManager.from.default
 
 ### `definition.toConfig()`
 
-Returns the plain Lua table behind a definition builder.
+Returns the plain config table behind a definition builder.
 
 This is useful for debugging, storing definitions, or generating a future `spoonify.json`.
 
-The returned table does not include private builder metadata. SpoonManager validates conflicts from the real definition fields, for example `source.revision_branch`, `source.revision_ref`, and `target.selection_folder`.
+The returned config contains only values the user declared through the builder:
+
+```text
+config.source  = where the Spoon comes from
+config.target  = which Spoon is selected and what local name it should have
+config.use     = optional post-install hs.spoons.use options
+config.options = optional install/update behavior
+```
+
+It does not include derived runtime values such as inferred names, download URLs, install paths, or commands. Those are added only when `resolve()`, `command(...)`, `install()`, or `update()` runs.
+
+SpoonManager validates conflicts from the real config fields, for example `source.revision_branch`, `source.revision_ref`, and `target.selection_folder`.
 
 Example:
 
@@ -1249,6 +1260,23 @@ print(hs.inspect(current))
 
 `explain()` is intentionally passive. It does not infer names, build URLs, or create commands.
 
+Before resolving, the output contains only `config`:
+
+```lua
+{
+    config = {
+        source = {
+            type = "github",
+            repository = "Hammerspoon/Spoons",
+            pattern_spoonZipPattern = "Spoons/{name}.spoon.zip",
+        },
+        target = {
+            selection_spoon = "Emojis",
+        },
+    },
+}
+```
+
 To inspect later stages, request them explicitly first:
 
 ```lua
@@ -1280,7 +1308,7 @@ local windowSigils =
 The stages are only calculated once and then reused:
 
 ```text
-definition
+config
   -> resolved
   -> command
   -> install/update
@@ -1413,8 +1441,7 @@ On success:
     reason = "already-installed",
     name = "Emojis",
     path = "~/.hammerspoon/Spoons/Emojis.spoon",
-    source = {},
-    definition = {},
+    config = {},
     resolved = {},
     command = {},
     use = {},
@@ -1441,7 +1468,7 @@ After a successful install or update, SpoonManager stores install metadata here:
 ~/.hammerspoon/.config/SpoonManager/installed.json
 ```
 
-It contains the original definition, the resolved install data, the effective command source, and a checksum of the installed Spoon folder. That checksum is used to detect local changes before `update()`.
+It contains the original config, the resolved install data, the effective command, and a checksum of the installed Spoon folder. That checksum is used to detect local changes before `update()`.
 
 Shape:
 
@@ -1452,9 +1479,9 @@ Shape:
         installedAt = "2026-08-05T03:12:00Z",
         updatedAt = "2026-08-05T03:12:00Z",
         path = "~/.hammerspoon/Spoons/Emojis.spoon",
-        definition = {},
+        config = {},
         resolved = {},
-        source = {},
+        command = {},
         use = {},
         fingerprints = {
             localHash = "sha256:...",

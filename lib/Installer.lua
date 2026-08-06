@@ -31,20 +31,15 @@ return function(context)
     end
 
     function Installer.prepareDefinition(definition, action)
-        local def = util.copyTable(definition)
+        local def = definition.config and util.copyTable(definition) or {
+            config = util.copyTable(definition),
+        }
         action = action or "install"
 
         def = resolver.withCommand(def, action)
         def.name = def.command.name
         def.options = util.copyTable(def.command.options)
         def.use = util.copyTable(def.command.use)
-
-        if not def.definition then
-            def.definition = util.copyTable(definition)
-            def.definition.resolved = nil
-            def.definition.command = nil
-            def.definition.name = nil
-        end
 
         return def
     end
@@ -217,6 +212,7 @@ return function(context)
                 reason = "already-installed",
                 name = def.name,
                 path = paths.targetPath(def.name),
+                config = def.config,
                 command = command,
                 resolved = def.resolved,
                 use = def.use,
@@ -244,6 +240,7 @@ return function(context)
 
         if result then
             result.action = action
+            result.config = def.config
             result.command = command
             result.resolved = def.resolved
         end

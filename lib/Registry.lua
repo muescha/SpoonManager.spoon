@@ -39,7 +39,7 @@ return function(context)
             updatedAt = now,
             path = destination,
             checksum = localHash,
-            definition = definition.definition,
+            config = definition.config,
             resolved = definition.resolved,
             command = definition.command,
             fingerprints = {

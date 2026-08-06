@@ -25,20 +25,22 @@ return function(T)
         local calls = {}
 
         manager.clear()
-        manager._installDefinition = function(definition, action)
+        manager._installDefinition = function(definitionConfig, action)
+            local config = definitionConfig.config or definitionConfig
+            local target = config.target or {}
             table.insert(calls, {
-                definition = definition,
+                config = config,
                 action = action,
             })
 
             return {
                 success = true,
                 action = action,
-                name = definition.target and (
-                    definition.target.selection_spoon
-                    or definition.target.name_withName
-                    or definition.target.selection_folder
-                    or definition.target.selection_asset
+                name = (
+                    target.selection_spoon
+                    or target.name_withName
+                    or target.selection_folder
+                    or target.selection_asset
                 ) or "unknown",
             }
         end
@@ -64,13 +66,13 @@ return function(T)
             T.assertTrue(installResult.success)
             T.assertEqual(#calls, 2)
             T.assertEqual(calls[1].action, "install")
-            T.assertEqual(calls[2].definition.target.selection_spoon, "TimeMachineProgress")
+            T.assertEqual(calls[2].config.target.selection_spoon, "TimeMachineProgress")
 
             local updateResult = manager.update()
             T.assertTrue(updateResult.success)
             T.assertEqual(#calls, 4)
             T.assertEqual(calls[3].action, "update")
-            T.assertEqual(calls[4].definition.target.selection_spoon, "TimeMachineProgress")
+            T.assertEqual(calls[4].config.target.selection_spoon, "TimeMachineProgress")
         end)
     end)
 
@@ -84,7 +86,7 @@ return function(T)
             manager.install()
 
             T.assertEqual(#calls, 1)
-            T.assertEqual(calls[1].definition.target.selection_spoon, "Emojis")
+            T.assertEqual(calls[1].config.target.selection_spoon, "Emojis")
         end)
     end)
 
@@ -103,7 +105,7 @@ return function(T)
             manager.update()
             T.assertEqual(#calls, 4)
             T.assertEqual(calls[3].action, "update")
-            T.assertEqual(calls[4].definition.target.selection_spoon, "TimeMachineProgress")
+            T.assertEqual(calls[4].config.target.selection_spoon, "TimeMachineProgress")
         end)
     end)
 
@@ -120,7 +122,7 @@ return function(T)
             manager.update()
             T.assertEqual(#calls, 2)
             T.assertEqual(calls[2].action, "update")
-            T.assertEqual(calls[2].definition.target.selection_spoon, "Emojis")
+            T.assertEqual(calls[2].config.target.selection_spoon, "Emojis")
         end)
     end)
 

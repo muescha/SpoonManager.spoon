@@ -22,7 +22,7 @@
       "id": "github-folder",
       "enabled": true,
       "description": "Install a Spoon from a folder inside a GitHub repository archive.",
-      "definition": {
+      "config": {
         "source": {
           "type": "github",
           "provider": "github",
@@ -45,7 +45,7 @@
       "id": "spoon-repo",
       "enabled": true,
       "description": "Install a named Spoon from a repository using Source/{name}.spoon.",
-      "definition": {
+      "config": {
         "source": {
           "type": "github",
           "provider": "github",
@@ -68,7 +68,7 @@
       "id": "spoon-repo-zip",
       "enabled": true,
       "description": "Install a named Spoon from a repository using Spoons/{name}.spoon.zip.",
-      "definition": {
+      "config": {
         "source": {
           "type": "github",
           "provider": "github",
@@ -91,7 +91,7 @@
       "id": "github-repository",
       "enabled": true,
       "description": "Install a Spoon where the GitHub repository root is the Spoon root.",
-      "definition": {
+      "config": {
         "source": {
           "type": "github",
           "provider": "github",
@@ -113,7 +113,7 @@
       "id": "github-release-latest",
       "enabled": true,
       "description": "Install a Spoon from the latest GitHub release ZIP asset.",
-      "definition": {
+      "config": {
         "source": {
           "type": "github",
           "provider": "github",
@@ -135,7 +135,7 @@
       "id": "github-release-ref",
       "enabled": true,
       "description": "Install a Spoon from a fixed GitHub release ZIP asset.",
-      "definition": {
+      "config": {
         "source": {
           "type": "github",
           "provider": "github",
@@ -157,7 +157,7 @@
       "id": "remote-zip",
       "enabled": true,
       "description": "Install a Spoon from an arbitrary remote ZIP URL.",
-      "definition": {
+      "config": {
         "source": {
           "type": "remote-zip",
           "url": "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/AutoMuteOnSleep.spoon.zip"
@@ -173,7 +173,7 @@
       "id": "remote-zip-error",
       "enabled": true,
       "description": "Verify that a missing remote ZIP returns a structured failure.",
-      "definition": {
+      "config": {
         "source": {
           "type": "remote-zip",
           "url": "https://example.com/TestSpoon.zip"

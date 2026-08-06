@@ -6,9 +6,9 @@ return function(context)
     local resolver = context.resolver
     local util = context.util
 
-    local function ensureSection(definition, sectionName)
-        definition[sectionName] = util.copyTable(definition[sectionName] or {})
-        return definition[sectionName]
+    local function ensureSection(config, sectionName)
+        config[sectionName] = util.copyTable(config[sectionName] or {})
+        return config[sectionName]
     end
 
     local function findFlatGroupValue(container, group)
@@ -38,7 +38,7 @@ return function(context)
     end
 
     local function ensureNotFinalized(definition, method, value)
-        local selectedMethod, selectedValue = findFlatGroupValue(definition.target, "selection")
+        local selectedMethod, selectedValue = findFlatGroupValue(definition.config.target, "selection")
 
         if selectedMethod then
             error(string.format(
@@ -74,7 +74,7 @@ return function(context)
     end
 
     local function requireSpoonPattern(definition)
-        local source = definition.source or {}
+        local source = definition.config.source or {}
 
         if source.pattern_spoonZipPattern or source.pattern_spoonFolderPattern then
             return
@@ -83,13 +83,21 @@ return function(context)
         error(".spoon() requires .spoonZipPattern(...) or .spoonFolderPattern(...) on this source.", 3)
     end
 
-    local function fromState(state)
-        local def = util.copyTable(state)
+    local function fromState(config)
+        local def
+
+        if config and config.config then
+            def = util.copyTable(config)
+        else
+            def = {
+                config = util.copyTable(config or {}),
+            }
+        end
 
         local api = {}
 
         api.toConfig = function()
-            return util.copyTable(def)
+            return util.copyTable(def.config)
         end
 
         api.explain = function()
@@ -112,7 +120,7 @@ return function(context)
             local nextDef = util.copyTable(def)
             ensureNotComputed(nextDef, "branch", branchName)
             ensureNotFinalized(nextDef, "branch", branchName)
-            setExclusive(ensureSection(nextDef, "source"), "revision", "branch", branchName)
+            setExclusive(ensureSection(nextDef.config, "source"), "revision", "branch", branchName)
             return fromState(nextDef)
         end
 
@@ -122,7 +130,7 @@ return function(context)
             local nextDef = util.copyTable(def)
             ensureNotComputed(nextDef, "ref", refName)
             ensureNotFinalized(nextDef, "ref", refName)
-            setExclusive(ensureSection(nextDef, "source"), "revision", "ref", refName)
+            setExclusive(ensureSection(nextDef.config, "source"), "revision", "ref", refName)
             return fromState(nextDef)
         end
 
@@ -132,7 +140,7 @@ return function(context)
             local nextDef = util.copyTable(def)
             ensureNotComputed(nextDef, "spoonZipPattern", pattern)
             ensureNotFinalized(nextDef, "spoonZipPattern", pattern)
-            setExclusive(ensureSection(nextDef, "source"), "pattern", "spoonZipPattern", pattern)
+            setExclusive(ensureSection(nextDef.config, "source"), "pattern", "spoonZipPattern", pattern)
             return fromState(nextDef)
         end
 
@@ -142,7 +150,7 @@ return function(context)
             local nextDef = util.copyTable(def)
             ensureNotComputed(nextDef, "spoonFolderPattern", pattern)
             ensureNotFinalized(nextDef, "spoonFolderPattern", pattern)
-            setExclusive(ensureSection(nextDef, "source"), "pattern", "spoonFolderPattern", pattern)
+            setExclusive(ensureSection(nextDef.config, "source"), "pattern", "spoonFolderPattern", pattern)
             return fromState(nextDef)
         end
 
@@ -152,7 +160,7 @@ return function(context)
             requireSpoonPattern(def)
 
             local nextDef = util.copyTable(def)
-            setExclusive(ensureSection(nextDef, "target"), "selection", "spoon", value)
+            setExclusive(ensureSection(nextDef.config, "target"), "selection", "spoon", value)
             return fromState(nextDef)
         end
 
@@ -161,7 +169,7 @@ return function(context)
 
             local nextDef = util.copyTable(def)
             ensureNotComputed(nextDef, "folder", path)
-            setExclusive(ensureSection(nextDef, "target"), "selection", "folder", path)
+            setExclusive(ensureSection(nextDef.config, "target"), "selection", "folder", path)
             return fromState(nextDef)
         end
 
@@ -169,7 +177,7 @@ return function(context)
             local nextDef = util.copyTable(def)
             ensureNotComputed(nextDef, "releaseLatest")
             ensureNotFinalized(nextDef, "releaseLatest")
-            setExclusive(ensureSection(nextDef, "source"), "release", "releaseLatest", true)
+            setExclusive(ensureSection(nextDef.config, "source"), "release", "releaseLatest", true)
             return fromState(nextDef)
         end
 
@@ -179,7 +187,7 @@ return function(context)
             local nextDef = util.copyTable(def)
             ensureNotComputed(nextDef, "release", releaseName)
             ensureNotFinalized(nextDef, "release", releaseName)
-            setExclusive(ensureSection(nextDef, "source"), "release", "release", releaseName)
+            setExclusive(ensureSection(nextDef.config, "source"), "release", "release", releaseName)
             return fromState(nextDef)
         end
 
@@ -188,7 +196,7 @@ return function(context)
 
             local nextDef = util.copyTable(def)
             ensureNotComputed(nextDef, "asset", assetName)
-            setExclusive(ensureSection(nextDef, "target"), "selection", "asset", assetName)
+            setExclusive(ensureSection(nextDef.config, "target"), "selection", "asset", assetName)
             return fromState(nextDef)
         end
 
@@ -197,14 +205,14 @@ return function(context)
             ensureNotComputed(def, "withName", value)
 
             local nextDef = util.copyTable(def)
-            setExclusive(ensureSection(nextDef, "target"), "name", "withName", value)
+            setExclusive(ensureSection(nextDef.config, "target"), "name", "withName", value)
             return fromState(nextDef)
         end
 
         api.use = function(useOptions)
             local nextDef = util.copyTable(def)
             ensureNotComputed(nextDef, "use")
-            nextDef.use = util.mergeTables(nextDef.use or {}, useOptions or {})
+            nextDef.config.use = util.mergeTables(nextDef.config.use or {}, useOptions or {})
             return fromState(nextDef)
         end
 
@@ -213,8 +221,8 @@ return function(context)
 
             local nextDef = util.copyTable(def)
             ensureNotComputed(nextDef, "onLocalChanges", behavior)
-            setExclusive(ensureSection(nextDef, "options"), "localChanges", "onLocalChanges", behavior)
-            nextDef.options.onLocalChanges = behavior
+            setExclusive(ensureSection(nextDef.config, "options"), "localChanges", "onLocalChanges", behavior)
+            nextDef.config.options.onLocalChanges = behavior
             return fromState(nextDef)
         end
 
@@ -225,13 +233,21 @@ return function(context)
 
         api.install = function()
             local result, err, nextDef = manager._installAndRememberDefinition(def, "install")
-            def = nextDef or def
+            if nextDef then
+                def = nextDef.config and nextDef or {
+                    config = nextDef,
+                }
+            end
             return result, err
         end
 
         api.update = function()
             local result, err, nextDef = manager._installAndRememberDefinition(def, "update")
-            def = nextDef or def
+            if nextDef then
+                def = nextDef.config and nextDef or {
+                    config = nextDef,
+                }
+            end
             return result, err
         end
 

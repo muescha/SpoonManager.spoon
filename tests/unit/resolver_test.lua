@@ -1,8 +1,11 @@
 return function(T)
     T.test("resolver maps github repository root", function()
-        local definition =
+        local config =
             T.SpoonManager.from.github("muescha/MySpoon.spoon")
                 .toConfig()
+        local definition = {
+            config = config,
+        }
 
         local resolved = T.context.resolver.resolveFromDefinition(definition)
         local command = T.context.resolver.commandFromResolved(definition, "install", resolved)
@@ -13,12 +16,15 @@ return function(T)
     end)
 
     T.test("resolver maps github folder pattern", function()
-        local definition =
+        local config =
             T.SpoonManager.from.github("owner/repo")
                 .branch("main")
                 .spoonFolderPattern("Source/{name}.spoon")
                 .spoon("A")
                 .toConfig()
+        local definition = {
+            config = config,
+        }
 
         local resolved = T.context.resolver.resolveFromDefinition(definition)
         local command = T.context.resolver.commandFromResolved(definition, "update", resolved)
@@ -30,10 +36,13 @@ return function(T)
     end)
 
     T.test("resolver maps local folder selection", function()
-        local definition =
+        local config =
             T.SpoonManager.from.localFolder("~/Projects/SpoonRepo")
                 .folder("Source/A.spoon")
                 .toConfig()
+        local definition = {
+            config = config,
+        }
 
         local resolved = T.context.resolver.resolveFromDefinition(definition)
         local command = T.context.resolver.commandFromResolved(definition, "install", resolved)

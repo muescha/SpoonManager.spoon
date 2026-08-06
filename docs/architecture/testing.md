@@ -46,15 +46,15 @@ Example shape:
 
 ```lua
 test("default spoon zip", function()
-    local definition =
+    local config =
         SpoonManager.from.default
             .spoon("Emojis")
             .toConfig()
 
-    assertEqual(definition.source.type, "github")
-    assertEqual(definition.source.revision_branch, "master")
-    assertEqual(definition.source.pattern_spoonZipPattern, "Spoons/{name}.spoon.zip")
-    assertEqual(definition.target.selection_spoon, "Emojis")
+    assertEqual(config.source.type, "github")
+    assertEqual(config.source.revision_branch, "master")
+    assertEqual(config.source.pattern_spoonZipPattern, "Spoons/{name}.spoon.zip")
+    assertEqual(config.target.selection_spoon, "Emojis")
 end)
 ```
 
@@ -187,7 +187,7 @@ Example normalized installed snapshot:
     "installedAt": "<timestamp>",
     "updatedAt": "<timestamp>",
     "path": "<spoons>/Emojis.spoon",
-    "definition": {
+    "config": {
       "source": {
         "type": "github",
         "provider": "github",
@@ -477,12 +477,12 @@ Example:
 ```lua
 return function(test, SpoonManager)
     test("install official Spoon by name", function()
-        local definition =
+        local config =
             SpoonManager.from.default
                 .spoon("TimeMachineProgress")
                 .toConfig()
 
-        assertEqual(definition.target.selection_spoon, "TimeMachineProgress")
+        assertEqual(config.target.selection_spoon, "TimeMachineProgress")
     end)
 end
 ```

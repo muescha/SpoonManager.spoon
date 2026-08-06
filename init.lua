@@ -113,6 +113,10 @@ local function definitionConfig(definition)
         return definition.toConfig()
     end
 
+    if definition.config then
+        return Util.copyTable(definition.config)
+    end
+
     return Util.copyTable(definition)
 end
 
@@ -125,7 +129,10 @@ local function definitionInstallName(definition)
         return definition.resolved.installName
     end
 
-    local ok, resolved = pcall(context.resolver.resolveFromDefinition, definition)
+    local state = definition.config and definition or {
+        config = definitionConfig(definition),
+    }
+    local ok, resolved = pcall(context.resolver.resolveFromDefinition, state)
     if ok and resolved then
         return resolved.installName
     end
@@ -319,7 +326,7 @@ local function runDefinitions(action, ...)
         else
             result.success = false
             table.insert(result.errors, {
-                name = definition.name,
+                name = definitionInstallName(definition),
                 error = err,
                 definition = definition,
             })

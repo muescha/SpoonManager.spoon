@@ -15,21 +15,23 @@
       "type": "spoon"
     }
   },
+  "config": {
+    "source": {
+      "baseUrl": "https://github.com",
+      "provider": "github",
+      "release_release": "v1.2.3",
+      "repository": "muescha/DeepFolder.spoon",
+      "type": "github"
+    },
+    "target": {
+      "selection_asset": "DeepFolder.zip"
+    }
+  },
   "resolved": {
     "asset": "DeepFolder.zip",
     "installName": "DeepFolder",
     "release": "v1.2.3",
     "sourceType": "github-release",
     "url": "https://github.com/muescha/DeepFolder.spoon/releases/download/v1.2.3/DeepFolder.zip"
-  },
-  "source": {
-    "baseUrl": "https://github.com",
-    "provider": "github",
-    "release_release": "v1.2.3",
-    "repository": "muescha/DeepFolder.spoon",
-    "type": "github"
-  },
-  "target": {
-    "selection_asset": "DeepFolder.zip"
   }
 }

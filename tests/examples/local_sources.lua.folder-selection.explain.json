@@ -15,16 +15,18 @@
       "type": "spoon"
     }
   },
+  "config": {
+    "source": {
+      "path": "~/Projects/SpoonRepo",
+      "type": "local-folder"
+    },
+    "target": {
+      "selection_folder": "Source/DeepFolder.spoon"
+    }
+  },
   "resolved": {
     "installName": "DeepFolder",
     "localPath": "/Users/test/Projects/SpoonRepo/Source/DeepFolder.spoon",
     "sourceType": "local-folder"
-  },
-  "source": {
-    "path": "~/Projects/SpoonRepo",
-    "type": "local-folder"
-  },
-  "target": {
-    "selection_folder": "Source/DeepFolder.spoon"
   }
 }

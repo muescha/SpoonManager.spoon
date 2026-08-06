@@ -11,8 +11,9 @@ return function(context)
             return util.copyTable(definition.resolved)
         end
 
-        local source = definition.source or {}
-        local target = definition.target or {}
+        local config = definition.config or {}
+        local source = config.source or {}
+        local target = config.target or {}
         local selectedSpoonName = nameResolver.infer(target.selection_spoon, "selected Spoon name")
         local release = source.release_release or (source.release_releaseLatest and "latest") or "latest"
         local installName = nameResolver.infer(target.name_withName, "explicit Spoon name")
@@ -83,6 +84,7 @@ return function(context)
             return util.copyTable(definition.command)
         end
 
+        local config = definition.config or {}
         resolved = resolved or Resolver.resolveFromDefinition(definition)
         local command = {
             action = action or "install",
@@ -95,8 +97,8 @@ return function(context)
                 name = resolved.installName,
                 path = resolved.installName and paths.targetPath(resolved.installName) or nil,
             },
-            options = util.mergeTables(manager.installOptions, definition.options or {}),
-            use = util.copyTable(definition.use),
+            options = util.mergeTables(manager.installOptions, config.options or {}),
+            use = util.copyTable(config.use),
         }
 
         if resolved.sourceType == "github-folder" or resolved.sourceType == "github-repository" then
