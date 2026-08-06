@@ -12,66 +12,6 @@ SpoonManager is an experimental Hammerspoon Spoon installer with explicit source
 - Protect existing local changes by default.
 - Keep catalogs optional for later search, GUI, or SpoonHub-style workflows.
 
-## Setup
-
-Install or symlink the Spoon into your Hammerspoon Spoons directory:
-
-```sh
-ln -s /path/to/SpoonManager.spoon ~/.hammerspoon/Spoons/SpoonManager.spoon
-```
-
-For development, use a symlink so changes in the repository are visible after a Hammerspoon reload:
-
-```sh
-ln -s /Users/muescha/Work/github.com/muescha/SpoonManager.spoon ~/.hammerspoon/Spoons/SpoonManager.spoon
-```
-
-Load SpoonManager in your `~/.hammerspoon/init.lua` before using it:
-
-```lua
-hs.loadSpoon("SpoonManager")
-```
-
-After `hs.loadSpoon("SpoonManager")`, Hammerspoon stores the returned Spoon object in:
-
-```lua
-spoon.SpoonManager
-```
-
-That is why the examples use `spoon.SpoonManager`.
-
-Minimal setup:
-
-```lua
-hs.loadSpoon("SpoonManager")
-
-spoon.SpoonManager.from.default
-    .spoon("Emojis")
-    .install()
-```
-
-You can also keep a local variable if you prefer shorter code:
-
-```lua
-hs.loadSpoon("SpoonManager")
-
-local SpoonManager = spoon.SpoonManager
-
-SpoonManager.from.default
-    .spoon("Emojis")
-    .install()
-```
-
-There is no separate `setup()` call right now. Loading the Spoon is enough.
-Configuration is done by setting fields directly, for example:
-
-```lua
-hs.loadSpoon("SpoonManager")
-
-spoon.SpoonManager.configDir =
-    hs.configdir .. "/.config/SpoonManager"
-```
-
 ## Examples
 
 Install from the default Hammerspoon Spoons repository:
@@ -191,6 +131,66 @@ Update explicitly when you want SpoonManager to fetch the external source again:
 spoon.SpoonManager.from.default
     .spoon("Emojis")
     .update()
+```
+
+## Setup
+
+Install or symlink the Spoon into your Hammerspoon Spoons directory:
+
+```sh
+ln -s /path/to/SpoonManager.spoon ~/.hammerspoon/Spoons/SpoonManager.spoon
+```
+
+For development, use a symlink so changes in the repository are visible after a Hammerspoon reload:
+
+```sh
+ln -s /Users/muescha/Work/github.com/muescha/SpoonManager.spoon ~/.hammerspoon/Spoons/SpoonManager.spoon
+```
+
+Load SpoonManager in your `~/.hammerspoon/init.lua` before using it:
+
+```lua
+hs.loadSpoon("SpoonManager")
+```
+
+After `hs.loadSpoon("SpoonManager")`, Hammerspoon stores the returned Spoon object in:
+
+```lua
+spoon.SpoonManager
+```
+
+That is why the examples use `spoon.SpoonManager`.
+
+Minimal setup:
+
+```lua
+hs.loadSpoon("SpoonManager")
+
+spoon.SpoonManager.from.default
+    .spoon("Emojis")
+    .install()
+```
+
+You can also keep a local variable if you prefer shorter code:
+
+```lua
+hs.loadSpoon("SpoonManager")
+
+local SpoonManager = spoon.SpoonManager
+
+SpoonManager.from.default
+    .spoon("Emojis")
+    .install()
+```
+
+There is no separate `setup()` call right now. Loading the Spoon is enough.
+Configuration is done by setting fields directly, for example:
+
+```lua
+hs.loadSpoon("SpoonManager")
+
+spoon.SpoonManager.configDir =
+    hs.configdir .. "/.config/SpoonManager"
 ```
 
 ## Local Changes
