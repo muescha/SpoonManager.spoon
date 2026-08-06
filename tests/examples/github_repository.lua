@@ -5,7 +5,7 @@ return function(T)
                 .command("install").explain()
 
         T.assertEqual(explanation.config.source.repository, "muescha/DeepFolder.spoon")
-        T.assertEqual(explanation.command.from.type, "zip")
+        T.assertEqual(explanation.command.from.kind, "zip")
         T.assertEqual(explanation.command.from.url, "https://github.com/muescha/DeepFolder.spoon/archive/main.zip")
         T.assertEqual(explanation.command.to.name, "DeepFolder")
         T.assertMatchesJson("examples/github_repository.lua.root.explain.json", explanation)

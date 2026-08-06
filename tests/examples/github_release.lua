@@ -8,7 +8,7 @@ return function(T)
 
         T.assertEqual(explanation.config.source.release_releaseLatest, true)
         T.assertEqual(explanation.config.source.zipFile, "DeepFolder.zip")
-        T.assertEqual(explanation.command.from.type, "zip")
+        T.assertEqual(explanation.command.from.kind, "zip")
         T.assertEqual(explanation.command.from.url, "https://github.com/muescha/DeepFolder.spoon/releases/latest/download/DeepFolder.zip")
         T.assertEqual(explanation.command.to.name, "DeepFolder")
         T.assertMatchesJson("examples/github_release.lua.latest.explain.json", explanation)

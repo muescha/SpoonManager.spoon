@@ -57,7 +57,7 @@ return function(context)
             action = action or "install",
             name = resolved.installName,
             from = {
-                type = resolved.sourceType,
+                kind = resolved.sourceType,
             },
             to = {
                 type = "spoon",

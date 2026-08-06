@@ -2,7 +2,7 @@
   "command": {
     "action": "update",
     "from": {
-      "type": "zip",
+      "kind": "zip",
       "url": "https://github.com/muescha/DeepFolder.spoon/archive/v1.2.3.zip"
     },
     "name": "DeepFolder",

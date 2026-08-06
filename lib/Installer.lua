@@ -49,7 +49,7 @@ return function(context)
             return nil, "Spoon definition must be a table"
         end
 
-        if not definition.command or not definition.command.from or not definition.command.from.type then
+        if not definition.command or not definition.command.from or not definition.command.from.kind then
             return nil, "Spoon definition requires a source"
         end
 
@@ -57,7 +57,7 @@ return function(context)
             return nil, "Spoon definition requires a Spoon name. Add .withName(\"Name\")."
         end
 
-        if definition.command.from.type == "zip" then
+        if definition.command.from.kind == "zip" then
             local zipSource = definition.command.from.url or definition.command.from.path
             if not util.isZipPath(zipSource) then
                 return nil, "ZIP source must point to a .zip file"
@@ -219,16 +219,16 @@ return function(context)
         local source = command.from
         local result, err
 
-        if source.type == "folder" then
+        if source.kind == "folder" then
             result, err = Installer.installFromFolder(def, source.path)
-        elseif source.type == "zip" and source.path then
+        elseif source.kind == "zip" and source.path then
             local tmpdir = util.trim(hs.execute("/usr/bin/mktemp -d"))
             result, err = Installer.installFromZipFile(def, source.path, tmpdir)
             util.removePath(tmpdir, logger)
-        elseif source.type == "zip" and source.url then
+        elseif source.kind == "zip" and source.url then
             result, err = Installer.installFromRemoteZip(def, source.url)
         else
-            return nil, "Unsupported source type: " .. tostring(source.type), def
+            return nil, "Unsupported source type: " .. tostring(source.kind), def
         end
 
         if result then

@@ -3,7 +3,7 @@
     "action": "install",
     "from": {
       "folder": "Source/DeepFolder.spoon",
-      "type": "zip",
+      "kind": "zip",
       "url": "https://github.com/muescha/SpoonRepo/archive/main.zip"
     },
     "name": "DeepFolder",

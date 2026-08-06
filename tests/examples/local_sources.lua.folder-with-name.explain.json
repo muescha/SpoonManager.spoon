@@ -2,8 +2,8 @@
   "command": {
     "action": "install",
     "from": {
-      "path": "/Users/test/Projects/experimental",
-      "type": "folder"
+      "kind": "folder",
+      "path": "/Users/test/Projects/experimental"
     },
     "name": "DeepFolder",
     "options": {

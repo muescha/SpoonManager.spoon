@@ -2,8 +2,8 @@
   "command": {
     "action": "install",
     "from": {
-      "path": "/Users/test/Downloads/DeepFolder.spoon.zip",
-      "type": "zip"
+      "kind": "zip",
+      "path": "/Users/test/Downloads/DeepFolder.spoon.zip"
     },
     "name": "DeepFolder",
     "options": {

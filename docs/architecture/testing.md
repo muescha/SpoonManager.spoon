@@ -97,7 +97,7 @@ The golden file is readable by itself:
   "command": {
     "action": "install",
     "from": {
-      "type": "zip",
+      "kind": "zip",
       "url": "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/Emojis.spoon.zip"
     },
     "to": {
