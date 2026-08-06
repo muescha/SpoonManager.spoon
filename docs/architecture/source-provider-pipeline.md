@@ -293,7 +293,7 @@ function GitHub.createSource(repository, options)
 end
 
 function GitHub.resolve(config, context)
-    -- returns a provider-resolved working source
+    -- returns provider-resolved source values
 end
 
 return GitHub
@@ -318,12 +318,13 @@ function RemoteZip.createSource(url)
     }
 end
 
-function RemoteZip.resolve(config, context)
+function RemoteZip.resolve(config)
+    local extract = config.extract or {}
+
     return {
-        source = {
-            kind = "zip",
-            url = config.source.url,
-        },
+        sourceKind = "zip",
+        url = config.source.url,
+        extractFolder = extract.folder,
     }
 end
 
@@ -436,58 +437,62 @@ The resolver should dispatch to the provider:
 function Resolver.resolveFromDefinition(definition)
     local config = definition.config or {}
     local source = config.source or {}
+    local extract = config.extract or {}
+    local target = config.target or {}
+    local selectedSpoonName = nameResolver.infer(target.selection_spoon, "selected Spoon name")
     local provider = manager.providers[source.type]
 
     if not provider then
         error("Unsupported source type: " .. tostring(source.type))
     end
 
-    local resolved = provider.resolve(config, context)
-    resolved.extract = util.copyTable(config.extract)
-    resolved.installName = nameResolver.inferInstallName(config, resolved)
+    local resolved = {
+        installName = nameResolver.infer(target.name_withName, "explicit Spoon name")
+            or selectedSpoonName
+            or nameResolver.infer(extract.folder, "extract folder")
+            or nameResolver.infer(source.zipFile, "ZIP file")
+            or nameResolver.infer(source.path, "source path")
+            or nameResolver.inferFromSource(source),
+    }
+
+    resolved = util.mergeTables(resolved, provider.resolve(config, {
+        selectedSpoonName = selectedSpoonName,
+    }))
     return resolved
 end
 ```
 
-Provider resolution returns a generic working source, not installer-specific source types such as `github-folder`.
+Provider resolution returns generic source values, not installer-specific source types such as `github-folder`.
 
 Examples:
 
 ```lua
 {
-    source = {
-        kind = "zip",
-        url = "https://github.com/owner/repo/archive/main.zip",
-        extract = {
-            folder = "Source/WidgetKit.spoon",
-        },
-    },
+    sourceKind = "zip",
+    url = "https://github.com/owner/repo/archive/main.zip",
+    extractFolder = "Source/WidgetKit.spoon",
 }
 ```
 
 ```lua
 {
-    source = {
-        kind = "zip",
-        url = "https://github.com/owner/repo/raw/main/downloads/WidgetKit.zip",
-    },
+    sourceKind = "zip",
+    url = "https://github.com/owner/repo/raw/main/downloads/WidgetKit.zip",
 }
 ```
 
 ```lua
 {
-    source = {
-        kind = "folder",
-        path = "/Users/me/Projects/SpoonRepo/Source/WidgetKit.spoon",
-    },
+    sourceKind = "folder",
+    localPath = "/Users/me/Projects/SpoonRepo/Source/WidgetKit.spoon",
 }
 ```
 
-`source.extract` is only needed when materializing the working source itself requires selecting a folder first. GitHub repository folder installs are the main case:
+`extractFolder` is only needed when materializing the working source requires selecting a folder from an archive. GitHub repository folder installs are the main case:
 
 ```text
 GitHub repo archive
-  -> source.extract folder
+  -> extractFolder
   -> working source folder
 ```
 
