@@ -448,6 +448,57 @@ local function assertExpectedFiles(test, result)
     end
 end
 
+local function expectedFilesCheck(test, result)
+    local expected = test.expect or {}
+    local files = expected.files or {}
+
+    assertExpectedFiles(test, result)
+
+    return {
+        success = true,
+        files = files,
+    }
+end
+
+local function compactRunResult(result)
+    if not result then
+        return nil
+    end
+
+    return {
+        action = result.action,
+        name = result.name,
+        path = result.path,
+        skipped = result.skipped or nil,
+        reason = result.reason,
+    }
+end
+
+local function buildRunnerResult(test, paths)
+    return {
+        success = false,
+        timestamp = runTimestamp,
+        test = {
+            id = test.id,
+            description = test.description,
+            source = test.source,
+            target = test.target,
+            expect = test.expect,
+        },
+        paths = paths,
+        spoonExplain = nil,
+        runs = {},
+        checks = {},
+    }
+end
+
+local function errorBlock(message, trace)
+    return {
+        message = message,
+        trace = trace,
+    }
+end
+
 local enabled = 0
 local passed = 0
 local failed = 0
@@ -474,6 +525,13 @@ for _, test in ipairs(config.tests or {}) do
             explainPath = explainPathFor(test, rootPath, installPath)
             runnerPath = runnerPathFor(test, rootPath, installPath)
             logPath = logPathFor(test, rootPath, installPath)
+            runnerResult = buildRunnerResult(test, {
+                root = rootPath,
+                install = installPath,
+                explain = explainPath,
+                result = runnerPath,
+                log = logPath,
+            })
 
             cleanInstallPathBeforeTest(test, installPath)
             ensureDir(installPath)
@@ -482,37 +540,48 @@ for _, test in ipairs(config.tests or {}) do
             local SpoonManager = dofile(repoRoot .. "/init.lua")
             local definition = buildDefinition(SpoonManager, test)
             definition.command("install")
-            json.write(explainPath, definition.explain())
+            runnerResult.spoonExplain = definition.explain()
+            json.write(explainPath, runnerResult.spoonExplain)
 
             local result, installErr = definition.install()
             if not result then
+                runnerResult.runs.install = {
+                    success = false,
+                    error = errorBlock(installErr or "install failed", installErr),
+                }
                 error(installErr or "install failed")
             end
-            assertExpectedFiles(test, result)
+            runnerResult.runs.install = {
+                success = true,
+                result = compactRunResult(result),
+            }
+            runnerResult.checks.expectedFiles = expectedFilesCheck(test, result)
 
             local skipped, skipErr = definition.install()
             if not skipped then
+                runnerResult.checks.alreadyInstalledSkip = {
+                    success = false,
+                    error = errorBlock(skipErr or "second install failed", skipErr),
+                }
                 error(skipErr or "second install failed")
             end
             if not skipped.skipped then
+                runnerResult.checks.alreadyInstalledSkip = {
+                    success = false,
+                    result = compactRunResult(skipped),
+                    error = errorBlock("second install should have skipped an already installed Spoon"),
+                }
                 error("second install should have skipped an already installed Spoon")
             end
 
-            runnerResult = {
-                id = test.id,
-                description = test.description,
+            runnerResult.checks.alreadyInstalledSkip = {
                 success = true,
-                timestamp = runTimestamp,
-                root = rootPath,
-                installPath = installPath,
-                explainPath = explainPath,
-                runnerPath = runnerPath,
-                logPath = logPath,
-                source = test.source,
-                target = test.target,
-                install = result,
-                secondInstall = skipped,
+                result = {
+                    skipped = skipped.skipped,
+                    reason = skipped.reason,
+                },
             }
+            runnerResult.success = true
         end, debug.traceback)
 
         if ok then
@@ -537,20 +606,16 @@ for _, test in ipairs(config.tests or {}) do
             print("failed")
             print(err)
             if runnerPath then
-                json.write(runnerPath, {
-                    id = test.id,
-                    description = test.description,
-                    success = false,
-                    timestamp = runTimestamp,
+                runnerResult = runnerResult or buildRunnerResult(test, {
                     root = rootPath,
-                    installPath = installPath,
-                    explainPath = explainPath,
-                    runnerPath = runnerPath,
-                    logPath = logPath,
-                    source = test.source,
-                    target = test.target,
-                    error = err,
+                    install = installPath,
+                    explain = explainPath,
+                    result = runnerPath,
+                    log = logPath,
                 })
+                runnerResult.success = false
+                runnerResult.error = errorBlock(failureMessage, err)
+                json.write(runnerPath, runnerResult)
             end
             if logPath then
                 json.write(logPath, {

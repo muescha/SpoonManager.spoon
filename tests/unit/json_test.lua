@@ -36,4 +36,8 @@ return function(T)
   "beta": 2
 }]])
     end)
+
+    T.test("json helper encodes empty tables as objects", function()
+        T.assertEqual(json.encode({}), "{}")
+    end)
 end

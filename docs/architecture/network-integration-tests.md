@@ -160,22 +160,57 @@ The result artifact has this general shape:
 
 ```json
 {
-  "id": "github-folder",
   "success": true,
   "timestamp": "2026-08-05-14-30-12",
-  "root": "tests/integration/.network-installs",
-  "installPath": "tests/integration/.network-installs/testinstalls/...",
-  "explainPath": "...explain.json",
-  "runnerPath": "...result.json",
-  "logPath": "...log.json",
-  "source": {},
-  "target": {},
-  "install": {},
-  "secondInstall": {}
+  "test": {
+    "id": "github-folder",
+    "description": "Install a Spoon from a folder inside a GitHub repository archive.",
+    "source": {},
+    "target": {},
+    "expect": {}
+  },
+  "paths": {
+    "root": "tests/integration/.network-installs/2026-08-05-14-30-12",
+    "install": "tests/integration/.network-installs/2026-08-05-14-30-12/test/github-folder",
+    "explain": "...explain.json",
+    "result": "...result.json",
+    "log": "...log.json"
+  },
+  "spoonExplain": {
+    "source": {},
+    "target": {},
+    "resolved": {},
+    "command": {}
+  },
+  "runs": {
+    "install": {
+      "success": true,
+      "result": {
+        "action": "install",
+        "name": "WindowSigils",
+        "path": ".../Spoons/WindowSigils.spoon"
+      }
+    }
+  },
+  "checks": {
+    "expectedFiles": {
+      "success": true,
+      "files": ["init.lua"]
+    },
+    "alreadyInstalledSkip": {
+      "success": true,
+      "result": {
+        "skipped": true,
+        "reason": "already-installed"
+      }
+    }
+  }
 }
 ```
 
-On failure, `success` is false and `error` contains the traceback. The runner keeps processing later enabled tests and reports all failures in test order at the end.
+On failure, `success` is false and `error` contains the short message plus traceback.
+Failed run/check details are stored under `runs.*.error` or `checks.*.error`.
+The runner keeps processing later enabled tests and reports all failures in test order at the end.
 
 The log artifact has this shape:
 

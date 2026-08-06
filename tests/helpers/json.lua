@@ -65,12 +65,9 @@ local function encodeJson(value, indent)
     local suffix = string.rep(" ", indent)
     local parts = {}
 
-    if isArray(value) then
+    if next(value) ~= nil and isArray(value) then
         for index = 1, #value do
             table.insert(parts, prefix .. encodeJson(value[index], nextIndent))
-        end
-        if #parts == 0 then
-            return "[]"
         end
         return "[\n" .. table.concat(parts, ",\n") .. "\n" .. suffix .. "]"
     end
