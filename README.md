@@ -622,6 +622,15 @@ spoon.SpoonManager.from.localFolder("~/Projects/MySpoon.spoon")
 
 Example, override the installed Spoon name:
 
+Without an explicit name, this installs as `experimental`:
+
+```lua
+spoon.SpoonManager.from.localFolder("~/Projects/experimental")
+    .install()
+```
+
+With an explicit name, the same folder installs as `MySpoon`:
+
 ```lua
 spoon.SpoonManager.from.localFolder("~/Projects/experimental")
     .withName("MySpoon")
@@ -1232,6 +1241,56 @@ Example output:
         start = true,
     },
 }
+```
+
+### `definition.resolve()`
+
+Returns a new definition with the `resolved` stage calculated.
+
+You usually do not need this for normal installs. `install()` and `update()` resolve automatically. Use `resolve()` when you want to preview or debug what SpoonManager inferred before it builds an executable command.
+
+The resolved stage contains derived values such as:
+
+```text
+resolved.installName    = final Spoon name after inference or withName(...)
+resolved.sourceType     = executable source kind, for example remote-zip or github-folder
+resolved.url            = direct ZIP URL, when the source resolves to a ZIP
+resolved.archiveUrl     = repository archive URL, when a folder/repository is installed
+resolved.extractFolder  = folder to extract from an archive
+```
+
+Example:
+
+```lua
+local resolved =
+    spoon.SpoonManager.from.default
+        .spoon("Emojis")
+        .resolve()
+        .explain()
+
+print(hs.inspect(resolved.resolved))
+```
+
+Example output:
+
+```lua
+{
+    installName = "Emojis",
+    sourceType = "remote-zip",
+    url = "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/Emojis.spoon.zip",
+}
+```
+
+After `resolve()`, the definition is frozen for further builder changes. Start from the base definition when you want another variation:
+
+```lua
+local base = spoon.SpoonManager.from.default
+
+local emojis =
+    base.spoon("Emojis").resolve()
+
+local windowSigils =
+    base.spoon("WindowSigils")
 ```
 
 ### `definition.explain()`
