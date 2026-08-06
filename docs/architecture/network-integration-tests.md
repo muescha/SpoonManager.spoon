@@ -470,6 +470,42 @@ spoon.SpoonManager.from.remoteZip("https://example.com/TestSpoon.zip")
     .install()
 ```
 
+## Direct Definition Tests
+
+A test may provide a plain SpoonManager definition instead of `source` and
+`target`. The runner passes this table directly to `SpoonManager.from.config`.
+This is useful for manifest-like tests where the JSON should mirror the internal
+definition shape 1:1.
+
+```json
+{
+  "id": "remote-zip-config",
+  "enabled": true,
+  "definition": {
+    "source": {
+      "type": "remote-zip",
+      "url": "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/AutoMuteOnSleep.spoon.zip"
+    }
+  },
+  "expect": {
+    "files": [
+      "init.lua"
+    ]
+  }
+}
+```
+
+Equivalent builder:
+
+```lua
+spoon.SpoonManager.from.config({
+    source = {
+        type = "remote-zip",
+        url = "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/AutoMuteOnSleep.spoon.zip",
+    },
+}).install()
+```
+
 ## Optional Source Fields
 
 Provider-based source types may include:

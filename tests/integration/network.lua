@@ -439,6 +439,10 @@ local function providerOptions(source)
 end
 
 local function buildDefinition(SpoonManager, test)
+    if test.definition then
+        return SpoonManager.from.config(test.definition)
+    end
+
     local source = test.source or {}
     local target = test.target or {}
     local definition
@@ -565,6 +569,7 @@ local function buildRunnerResult(test, paths)
             description = test.description,
             source = test.source,
             target = test.target,
+            definition = test.definition,
             expect = test.expect,
         },
         paths = paths,

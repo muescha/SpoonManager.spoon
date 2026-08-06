@@ -125,6 +125,22 @@
       }
     },
     {
+      "id": "remote-zip-config",
+      "enabled": true,
+      "description": "Install a Spoon from a plain definition table through from.config.",
+      "definition": {
+        "source": {
+          "type": "remote-zip",
+          "url": "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/AutoMuteOnSleep.spoon.zip"
+        }
+      },
+      "expect": {
+        "files": [
+          "init.lua"
+        ]
+      }
+    },
+    {
       "id": "remote-zip-error",
       "enabled": true,
       "description": "Verify that a missing remote ZIP returns a structured failure.",
