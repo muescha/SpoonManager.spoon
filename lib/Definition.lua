@@ -73,21 +73,6 @@ return function(context)
         end
     end
 
-    local function requireNoRelease(definition, method, value)
-        local source = definition.source or {}
-
-        if source.release then
-            local existingMethod = source.release == "latest" and "releaseLatest" or "release"
-            local existingValue = source.release == "latest" and nil or source.release
-
-            error(string.format(
-                "%s already set; cannot call %s.",
-                util.createLabel(existingMethod, existingValue),
-                util.createLabel(method, value)
-            ), 3)
-        end
-    end
-
     local function requireSpoonPattern(definition)
         local source = definition.source or {}
 
@@ -184,8 +169,7 @@ return function(context)
             local nextDef = util.copyTable(def)
             ensureNotComputed(nextDef, "releaseLatest")
             ensureNotFinalized(nextDef, "releaseLatest")
-            requireNoRelease(nextDef, "releaseLatest")
-            ensureSection(nextDef, "source").release = "latest"
+            setExclusive(ensureSection(nextDef, "source"), "release", "releaseLatest", true)
             return fromState(nextDef)
         end
 
@@ -195,8 +179,7 @@ return function(context)
             local nextDef = util.copyTable(def)
             ensureNotComputed(nextDef, "release", releaseName)
             ensureNotFinalized(nextDef, "release", releaseName)
-            requireNoRelease(nextDef, "release", releaseName)
-            ensureSection(nextDef, "source").release = releaseName
+            setExclusive(ensureSection(nextDef, "source"), "release", "release", releaseName)
             return fromState(nextDef)
         end
 

@@ -108,7 +108,7 @@ return function(T)
             T.SpoonManager.from.github("owner/repo")
                 .releaseLatest()
                 .release("v1.2.3")
-        end, "%.releaseLatest%('latest'%) already set; cannot call %.release%('v1%.2%.3'%)")
+        end, "%.releaseLatest%(%) already set; cannot call %.release%('v1%.2%.3'%)")
     end)
 
     T.test("definition rejects spoon then folder selection", function()
@@ -162,7 +162,7 @@ return function(T)
                 source = {
                     type = "github",
                     repository = "owner/repo",
-                    release = "latest",
+                    release_releaseLatest = true,
                 },
                 target = {
                     selection_asset = "A.tar.gz",

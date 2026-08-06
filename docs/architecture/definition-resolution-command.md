@@ -62,8 +62,8 @@ ref("v1.2.3")                   -> source.revision_ref = "v1.2.3"
 remoteZip(url)                  -> source.url = url
 localFolder(path)               -> source.path = path
 localZip(path)                  -> source.path = path
-releaseLatest()                 -> source.release = "latest"
-release("v1.2.3")               -> source.release = "v1.2.3"
+releaseLatest()                 -> source.release_releaseLatest = true
+release("v1.2.3")               -> source.release_release = "v1.2.3"
 spoonZipPattern("Spoons/{name}.spoon.zip")
                                   -> source.pattern_spoonZipPattern = "Spoons/{name}.spoon.zip"
 spoonFolderPattern("Source/{name}.spoon")

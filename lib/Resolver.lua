@@ -14,6 +14,7 @@ return function(context)
         local source = definition.source or {}
         local target = definition.target or {}
         local selectedSpoonName = nameResolver.infer(target.selection_spoon, "selected Spoon name")
+        local release = source.release_release or (source.release_releaseLatest and "latest") or "latest"
         local installName = nameResolver.infer(target.name_withName, "explicit Spoon name")
             or selectedSpoonName
             or nameResolver.infer(target.selection_folder, "selected folder")
@@ -28,11 +29,11 @@ return function(context)
             if target.selection_asset then
                 resolved.sourceType = "github-release"
                 resolved.asset = target.selection_asset
-                resolved.release = source.release or "latest"
+                resolved.release = release
                 resolved.url = github.releaseAssetUrl({
                     baseUrl = source.baseUrl,
                     repository = source.repository,
-                    release = source.release or "latest",
+                    release = release,
                     asset = target.selection_asset,
                 })
             elseif target.selection_folder then

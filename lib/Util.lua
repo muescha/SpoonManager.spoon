@@ -114,7 +114,7 @@ function Util.requireString(value, label)
 end
 
 function Util.createLabel(method, value)
-    if value == nil then
+    if value == true or value == nil then
         return "." .. method .. "()"
     end
 
