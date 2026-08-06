@@ -95,41 +95,62 @@
         "source": {
           "type": "github",
           "provider": "github",
-          "repository": "owner/TestSpoon.spoon",
+          "repository": "vruyr/hammerspoon-screensandwindows.spoon",
           "baseUrl": "https://github.com",
           "revision_branch": "main"
         },
         "target": {
-          "name_withName": "TestSpoon"
+          "name_withName": "ScreensAndWindows"
         }
       },
       "expect": {
-        "failure": {
-          "messageContains": "HTTP status 404"
-        }
+        "files": [
+          "init.lua"
+        ]
       }
     },
     {
-      "id": "github-release",
+      "id": "github-release-latest",
       "enabled": true,
-      "description": "Install a Spoon from a GitHub release ZIP asset.",
+      "description": "Install a Spoon from the latest GitHub release ZIP asset.",
       "definition": {
         "source": {
           "type": "github",
           "provider": "github",
-          "repository": "owner/TestSpoon.spoon",
+          "repository": "fork-my-spoons/gitlab-merge-requests.spoon",
           "baseUrl": "https://github.com",
           "release_releaseLatest": true
         },
         "target": {
-          "selection_asset": "TestSpoon.zip",
-          "name_withName": "TestSpoon"
+          "selection_asset": "gitlab-merge-requests.spoon.zip"
         }
       },
       "expect": {
-        "failure": {
-          "messageContains": "HTTP status 404"
+        "files": [
+          "init.lua"
+        ]
+      }
+    },
+    {
+      "id": "github-release-ref",
+      "enabled": true,
+      "description": "Install a Spoon from a fixed GitHub release ZIP asset.",
+      "definition": {
+        "source": {
+          "type": "github",
+          "provider": "github",
+          "repository": "fork-my-spoons/gitlab-merge-requests.spoon",
+          "baseUrl": "https://github.com",
+          "release_release": "v1.1"
+        },
+        "target": {
+          "selection_asset": "gitlab-merge-requests.spoon.zip"
         }
+      },
+      "expect": {
+        "files": [
+          "init.lua"
+        ]
       }
     },
     {

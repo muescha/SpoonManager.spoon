@@ -402,8 +402,8 @@ Run the checked-in example directly:
   tests/integration/network.example.json
 ```
 
-The example contains real Hammerspoon sources and expected-failure placeholder
-sources. Placeholder sources must return the configured ordered HTTP error.
+The example contains real Hammerspoon sources plus an expected-failure remote ZIP
+case. Expected-failure sources must return the configured ordered HTTP error.
 
 Use `network.local.json` only for private or temporary test cases that should not
 be committed:
