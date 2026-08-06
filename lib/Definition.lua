@@ -90,6 +90,14 @@ return function(context)
         end
     end
 
+    local function requireFileName(value, label)
+        util.requireZipPath(value, label)
+
+        if value:find("[/\\]") then
+            error(string.format("%s must be a file name, not a path: %s", label, tostring(value)), 3)
+        end
+    end
+
     local function requireSpoonPattern(definition)
         local source = definition.config.source or {}
 
@@ -185,13 +193,62 @@ return function(context)
             return fromState(nextDef)
         end
 
-        api.folder = function(path)
+        api.path = function(path)
+            util.requireString(path, "Source path")
+
+            local nextDef = util.copyTable(def)
+            ensureNotComputed(nextDef, "path", path)
+            requireCapability(nextDef, "path", "path", path)
+            ensureNotFinalized(nextDef, "path", path)
+
+            local source = ensureSection(nextDef.config, "source")
+            local releaseMethod, releaseValue = findFlatGroupValue(source, "release")
+            if releaseMethod then
+                error(string.format(
+                    ".%s already set; cannot call %s.",
+                    util.createLabel(releaseMethod, releaseValue):sub(2),
+                    util.createLabel("path", path)
+                ), 3)
+            end
+
+            local patternMethod, patternValue = findFlatGroupValue(source, "pattern")
+            if patternMethod then
+                error(string.format(
+                    ".%s already set; cannot call %s.",
+                    util.createLabel(patternMethod, patternValue):sub(2),
+                    util.createLabel("path", path)
+                ), 3)
+            end
+
+            if source.path then
+                error(string.format(
+                    "%s already set; cannot call %s.",
+                    util.createLabel("path", source.path),
+                    util.createLabel("path", path)
+                ), 3)
+            end
+
+            source.path = path
+            return fromState(nextDef)
+        end
+
+        api.useFolder = function(path)
             util.requireString(path, "Folder path")
 
             local nextDef = util.copyTable(def)
-            ensureNotComputed(nextDef, "folder", path)
-            requireCapability(nextDef, "folder", "folder", path)
-            setExclusive(ensureSection(nextDef.config, "target"), "selection", "folder", path)
+            ensureNotComputed(nextDef, "useFolder", path)
+            requireCapability(nextDef, "useFolder", "useFolder", path)
+
+            local extract = ensureSection(nextDef.config, "extract")
+            if extract.folder then
+                error(string.format(
+                    "%s already set; cannot call %s.",
+                    util.createLabel("useFolder", extract.folder),
+                    util.createLabel("useFolder", path)
+                ), 3)
+            end
+
+            extract.folder = path
             return fromState(nextDef)
         end
 
@@ -199,6 +256,13 @@ return function(context)
             local nextDef = util.copyTable(def)
             ensureNotComputed(nextDef, "releaseLatest")
             requireCapability(nextDef, "release", "releaseLatest")
+            if nextDef.config.source and nextDef.config.source.path then
+                error(string.format(
+                    "%s already set; cannot call %s.",
+                    util.createLabel("path", nextDef.config.source.path),
+                    util.createLabel("releaseLatest")
+                ), 3)
+            end
             ensureNotFinalized(nextDef, "releaseLatest")
             setExclusive(ensureSection(nextDef.config, "source"), "release", "releaseLatest", true)
             return fromState(nextDef)
@@ -210,18 +274,35 @@ return function(context)
             local nextDef = util.copyTable(def)
             ensureNotComputed(nextDef, "release", releaseName)
             requireCapability(nextDef, "release", "release", releaseName)
+            if nextDef.config.source and nextDef.config.source.path then
+                error(string.format(
+                    "%s already set; cannot call %s.",
+                    util.createLabel("path", nextDef.config.source.path),
+                    util.createLabel("release", releaseName)
+                ), 3)
+            end
             ensureNotFinalized(nextDef, "release", releaseName)
             setExclusive(ensureSection(nextDef.config, "source"), "release", "release", releaseName)
             return fromState(nextDef)
         end
 
-        api.asset = function(assetName)
-            util.requireZipPath(assetName, "Release asset")
+        api.zipFile = function(fileName)
+            requireFileName(fileName, "ZIP file")
 
             local nextDef = util.copyTable(def)
-            ensureNotComputed(nextDef, "asset", assetName)
-            requireCapability(nextDef, "asset", "asset", assetName)
-            setExclusive(ensureSection(nextDef.config, "target"), "selection", "asset", assetName)
+            ensureNotComputed(nextDef, "zipFile", fileName)
+            requireCapability(nextDef, "zipFile", "zipFile", fileName)
+
+            local source = ensureSection(nextDef.config, "source")
+            if source.zipFile then
+                error(string.format(
+                    "%s already set; cannot call %s.",
+                    util.createLabel("zipFile", source.zipFile),
+                    util.createLabel("zipFile", fileName)
+                ), 3)
+            end
+
+            source.zipFile = fileName
             return fromState(nextDef)
         end
 

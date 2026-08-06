@@ -27,7 +27,7 @@ return function(T)
         local releases = T.SpoonManager.from.github("muescha/DeepFolder.spoon")
         local explanation = releases
             .releaseLatest()
-            .asset("DeepFolder.zip")
+            .zipFile("DeepFolder.zip")
             .command("install").explain()
 
         T.assertEqual(explanation.config.source.release_releaseLatest, true)
@@ -39,7 +39,7 @@ return function(T)
         local releases = T.SpoonManager.from.github("muescha/DeepFolder.spoon")
         local explanation = releases
             .release("v1.2.3")
-            .asset("DeepFolder.zip")
+            .zipFile("DeepFolder.zip")
             .command("install").explain()
 
         T.assertEqual(explanation.config.source.release_release, "v1.2.3")

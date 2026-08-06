@@ -53,7 +53,10 @@ return function(context)
         end
 
         return NameResolver.infer(source.name, "source name")
+            or NameResolver.infer(source.zipFile, "ZIP file")
             or NameResolver.infer(source.path, "source path")
+            or NameResolver.infer(source.file, "source file")
+            or NameResolver.infer(source.root, "source root")
             or NameResolver.infer(source.url, "URL")
             or NameResolver.infer(source.repository, "repository")
     end
@@ -64,8 +67,6 @@ return function(context)
         end
 
         return NameResolver.infer(target.selection_spoon, "selected Spoon name")
-            or NameResolver.infer(target.selection_folder, "selected folder")
-            or NameResolver.infer(target.selection_asset, "selected asset")
     end
 
     return NameResolver

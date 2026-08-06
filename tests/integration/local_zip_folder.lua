@@ -122,7 +122,7 @@ return function(T)
         local SpoonManager = dofile(T.repoRoot .. "/init.lua")
         local ok, result, err = pcall(function()
             return SpoonManager.from.localZip(zipFile)
-                .folder("bundles/releases/current/WidgetKit.spoon")
+                .useFolder("bundles/releases/current/WidgetKit.spoon")
                 .install()
         end)
 

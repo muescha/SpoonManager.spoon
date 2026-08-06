@@ -17,7 +17,7 @@ return function(T)
             T.SpoonManager.from.github("Hammerspoon/Spoons", {
                 branch = "master",
             })
-                .folder("Source/WindowSigils.spoon")
+                .path("Source/WindowSigils.spoon")
                 .withName("WindowSigils"),
             {
                 source = {
@@ -26,9 +26,9 @@ return function(T)
                     repository = "Hammerspoon/Spoons",
                     baseUrl = "https://github.com",
                     revision_branch = "master",
+                    path = "Source/WindowSigils.spoon",
                 },
                 target = {
-                    selection_folder = "Source/WindowSigils.spoon",
                     name_withName = "WindowSigils",
                 },
             }
@@ -108,7 +108,7 @@ return function(T)
             "github release builder config",
             T.SpoonManager.from.github("owner/TestSpoon.spoon")
                 .releaseLatest()
-                .asset("TestSpoon.zip")
+                .zipFile("TestSpoon.zip")
                 .withName("TestSpoon"),
             {
                 source = {
@@ -117,9 +117,9 @@ return function(T)
                     repository = "owner/TestSpoon.spoon",
                     baseUrl = "https://github.com",
                     release_releaseLatest = true,
+                    zipFile = "TestSpoon.zip",
                 },
                 target = {
-                    selection_asset = "TestSpoon.zip",
                     name_withName = "TestSpoon",
                 },
             }

@@ -21,10 +21,8 @@
       "provider": "github",
       "release_release": "v1.2.3",
       "repository": "muescha/DeepFolder.spoon",
-      "type": "github"
-    },
-    "target": {
-      "selection_asset": "DeepFolder.zip"
+      "type": "github",
+      "zipFile": "DeepFolder.zip"
     }
   },
   "resolved": {

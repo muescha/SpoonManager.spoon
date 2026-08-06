@@ -10,7 +10,7 @@
 ---     .install()
 ---
 --- SpoonManager.from.github("owner/repo")
----     .folder("Source/MySpoon.spoon")
+---     .path("Source/MySpoon.spoon")
 ---     .withName("MySpoon")
 ---     .install()
 --- ```

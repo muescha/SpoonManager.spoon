@@ -60,8 +60,8 @@ from.github("owner/repo")        -> source.repository = "owner/repo"
 branch("main")                  -> source.revision_branch = "main"
 ref("v1.2.3")                   -> source.revision_ref = "v1.2.3"
 remoteZip(url)                  -> source.url = url
-localFolder(path)               -> source.path = path
-localZip(path)                  -> source.path = path
+localFolder(path)               -> source.root = path
+localZip(path)                  -> source.file = path
 releaseLatest()                 -> source.release_releaseLatest = true
 release("v1.2.3")               -> source.release_release = "v1.2.3"
 spoonZipPattern("Spoons/{name}.spoon.zip")
@@ -69,12 +69,13 @@ spoonZipPattern("Spoons/{name}.spoon.zip")
 spoonFolderPattern("Source/{name}.spoon")
                                   -> source.pattern_spoonFolderPattern = "Source/{name}.spoon"
 spoon("A")                      -> target.selection_spoon = "A"
-folder("Source/A.spoon")        -> target.selection_folder = "Source/A.spoon"
-asset("A.zip")                  -> target.selection_asset = "A.zip"
+path("Source/A.spoon")          -> source.path = "Source/A.spoon"
+zipFile("A.zip")                -> source.zipFile = "A.zip"
+useFolder("dist/A.spoon")       -> extract.folder = "dist/A.spoon"
 withName("BetterName")          -> target.name_withName = "BetterName"
 ```
 
-The source answers "where does the code come from?" The target section answers "which Spoon should be selected and what should it become locally?"
+The source answers "where does the code come from?" The extract section selects a folder from a materialized source. The target section answers what the Spoon should become locally.
 
 `definition.toConfig()` returns just the inner config:
 
@@ -224,7 +225,7 @@ The groups are:
 ```text
 config.source.revision_*  = one of revision_branch, revision_ref
 config.source.pattern_*   = one of pattern_spoonZipPattern, pattern_spoonFolderPattern
-config.target.selection_* = one of selection_spoon, selection_folder, selection_asset
+config.target.selection_* = selection_spoon for pattern-based Spoon selection
 config.target.name_*      = one of name_withName
 ```
 
@@ -270,7 +271,7 @@ If `source.revision_branch = "master"` already exists and the user calls `.ref("
 branch('master') already set; cannot call ref('v1.2.3').
 ```
 
-Source-changing methods also need to fail after the Spoon selection has been finalized. A definition is finalized once any `target.selection_*` endpoint exists. Keep this check explicit instead of hiding it in an overly generic setter.
+Source-changing methods also need to fail after pattern-based Spoon selection has been finalized. A definition is finalized once `target.selection_spoon` exists. Keep this check explicit instead of hiding it in an overly generic setter.
 
 ```lua
 local function ensureNotFinalized(definition, method, value)
@@ -297,23 +298,23 @@ ensureNotFinalized(definition, "spoonFolderPattern", pattern)
 setExclusive(definition.config.source, "pattern", "spoonFolderPattern", pattern)
 ```
 
-Endpoint and target methods use `setExclusive` directly:
+Target methods use `setExclusive` directly:
 
 ```lua
-setExclusive(definition.config.target, "selection", "folder", folderPath)
 setExclusive(definition.config.target, "name", "withName", spoonName)
 ```
 
 ## Endpoints
 
-Endpoint methods select the concrete Spoon from the source. They write to the `target` section and finalize source selection.
+Endpoint methods select the concrete Spoon from the source. Pattern-based Spoon selection writes to the `target` section and finalizes source selection. Direct source methods write to `source` or `extract`.
 
 Endpoint methods:
 
 ```text
 spoon(name)
-folder(path)
-asset(name)
+path(path)
+zipFile(name)
+useFolder(path)
 ```
 
 After an endpoint, source-changing methods should fail. Allowed follow-up methods are target/use/install behavior and actions:
@@ -374,23 +375,24 @@ No `origin` is needed in the config because the original config is never overwri
 
 ## Folder Values
 
-`.folder(value)` should always set `target.selection_folder = value`.
-
-This avoids ambiguous meanings for `source.path`.
+`.path(value)` should always set `source.path = value`.
 
 Recommended meaning:
 
 ```text
-source.path             = local file or local base folder
-source.url              = remote ZIP URL
-target.selection_folder  = selected folder inside the source
+source.root      = local base folder
+source.file      = local ZIP file
+source.path      = selected path inside a repository or local folder
+source.url       = remote ZIP URL
+source.zipFile   = selected ZIP file from a repository or release
+extract.folder   = selected folder inside a materialized ZIP/source
 ```
 
 Examples:
 
 ```lua
 SpoonManager.from.github("muescha/SpoonRepo")
-    .folder("Source/MySpoon.spoon")
+    .path("Source/MySpoon.spoon")
 ```
 
 ```lua
@@ -398,31 +400,27 @@ SpoonManager.from.github("muescha/SpoonRepo")
     source = {
         type = "github",
         repository = "muescha/SpoonRepo",
-    },
-    target = {
-        selection_folder = "Source/MySpoon.spoon",
+        path = "Source/MySpoon.spoon",
     },
 }
 ```
 
 ```lua
 SpoonManager.from.localFolder("~/Projects/SpoonRepo")
-    .folder("Source/MySpoon.spoon")
+    .path("Source/MySpoon.spoon")
 ```
 
 ```lua
 {
     source = {
         type = "localFolder",
-        path = "/Users/example/Projects/SpoonRepo",
-    },
-    target = {
-        selection_folder = "Source/MySpoon.spoon",
+        root = "/Users/example/Projects/SpoonRepo",
+        path = "Source/MySpoon.spoon",
     },
 }
 ```
 
-The resolved command can join local `source.path` and `target.selection_folder` when needed.
+The resolved command can join local `source.root` and `source.path` when needed.
 
 ## Name Resolution
 
@@ -432,8 +430,9 @@ Selection methods provide the default install name:
 
 ```text
 target.selection_spoon      -> infer from the selected Spoon name
-target.selection_folder     -> infer from the folder basename
-target.selection_asset      -> infer from the ZIP asset name
+source.path                 -> infer from the selected source path
+source.zipFile              -> infer from the ZIP file name
+extract.folder              -> infer from the extracted folder basename
 source                      -> infer from the source only if no target selection exists
 ```
 
@@ -441,7 +440,6 @@ source                      -> infer from the source only if no target selection
 
 ```lua
 target = {
-    selection_folder = "Source/deepfolder",
     name_withName = "DeepFolder",
 }
 ```

@@ -17,7 +17,7 @@
   },
   "config": {
     "source": {
-      "path": "~/Projects/DeepFolder.spoon",
+      "root": "~/Projects/DeepFolder.spoon",
       "type": "localFolder"
     }
   },

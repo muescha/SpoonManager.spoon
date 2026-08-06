@@ -275,7 +275,7 @@ Examples:
 ```lua
 SpoonManager.from.github("owner/repo")
     .branch("main")
-    .folder("Source/A.spoon")
+    .path("Source/A.spoon")
     .withName("BetterA")
     .toConfig()
 ```
@@ -288,9 +288,9 @@ Expected:
         type = "github",
         repository = "owner/repo",
         revision_branch = "main",
+        path = "Source/A.spoon",
     },
     target = {
-        selection_folder = "Source/A.spoon",
         name_withName = "BetterA",
     },
 }
@@ -299,9 +299,9 @@ Expected:
 Useful cases:
 
 - `from.default.spoon("Emojis")`
-- `from.github("owner/repo").folder("Source/A.spoon")`
-- `from.github("owner/repo").releaseLatest().asset("A.zip")`
-- `from.github("owner/repo").release("v1.2.0").asset("A.zip")`
+- `from.github("owner/repo").path("Source/A.spoon")`
+- `from.github("owner/repo").releaseLatest().zipFile("A.zip")`
+- `from.github("owner/repo").release("v1.2.0").zipFile("A.zip")`
 - `from.remoteZip("https://example.com/A.zip")`
 - `from.localZip("~/Downloads/A.zip")`
 - `from.localFolder("~/Projects/A.spoon")`
@@ -348,8 +348,8 @@ More cases:
 - `branch(...)` then `ref(...)`
 - `ref(...)` then `branch(...)`
 - `spoonZipPattern(...)` then `spoonFolderPattern(...)`
-- `spoon(...)` then `folder(...)`
-- `folder(...)` then `asset(...)`
+- `spoon(...)` then `path(...)`
+- `path(...)` then `path(...)`
 - `withName(...)` then `withName(...)`
 - source-changing method after final selection, for example `spoon("A").branch("main")`
 
@@ -387,7 +387,7 @@ Useful cases:
 - GitHub release tag asset -> `github-release`
 - GitHub Spoon ZIP pattern -> `remoteZip`
 - GitHub Spoon folder pattern -> `github-folder`
-- local folder with `folder(...)` -> joined local path
+- local folder with `path(...)` -> joined local path
 - local ZIP -> local ZIP command
 - remote ZIP -> remote ZIP command
 

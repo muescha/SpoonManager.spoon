@@ -27,6 +27,8 @@ return function(T)
         manager.clear()
         manager._installDefinition = function(definitionConfig, action)
             local config = definitionConfig.config or definitionConfig
+            local source = config.source or {}
+            local extract = config.extract or {}
             local target = config.target or {}
             table.insert(calls, {
                 config = config,
@@ -39,8 +41,9 @@ return function(T)
                 name = (
                     target.selection_spoon
                     or target.name_withName
-                    or target.selection_folder
-                    or target.selection_asset
+                    or extract.folder
+                    or source.zipFile
+                    or source.path
                 ) or "unknown",
             }
         end

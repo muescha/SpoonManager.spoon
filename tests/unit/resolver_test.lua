@@ -38,7 +38,7 @@ return function(T)
     T.test("resolver maps local folder selection", function()
         local config =
             T.SpoonManager.from.localFolder("~/Projects/SpoonRepo")
-                .folder("Source/A.spoon")
+                .path("Source/A.spoon")
                 .toConfig()
         local definition = {
             config = config,

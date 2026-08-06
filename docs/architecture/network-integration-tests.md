@@ -309,10 +309,10 @@ GitHub folder definition:
       "provider": "github",
       "repository": "Hammerspoon/Spoons",
       "baseUrl": "https://github.com",
-      "revision_branch": "master"
+      "revision_branch": "master",
+      "path": "Source/WindowSigils.spoon"
     },
     "target": {
-      "selection_folder": "Source/WindowSigils.spoon",
       "name_withName": "WindowSigils"
     }
   }

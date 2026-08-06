@@ -17,7 +17,7 @@
   },
   "config": {
     "source": {
-      "path": "~/Downloads/DeepFolder.spoon.zip",
+      "file": "~/Downloads/DeepFolder.spoon.zip",
       "type": "localZip"
     }
   },

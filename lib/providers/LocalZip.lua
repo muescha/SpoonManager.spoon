@@ -7,7 +7,6 @@ return function(context)
 
         capabilities = {
             useFolder = true,
-            folder = true,
         },
     }
 
@@ -16,7 +15,7 @@ return function(context)
 
         return {
             type = LocalZip.name,
-            path = path,
+            file = path,
         }
     end
 

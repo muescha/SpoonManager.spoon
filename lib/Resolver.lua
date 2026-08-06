@@ -13,13 +13,15 @@ return function(context)
 
         local config = definition.config or {}
         local source = config.source or {}
+        local extract = config.extract or {}
         local target = config.target or {}
         local selectedSpoonName = nameResolver.infer(target.selection_spoon, "selected Spoon name")
         local release = source.release_release or (source.release_releaseLatest and "latest") or "latest"
         local installName = nameResolver.infer(target.name_withName, "explicit Spoon name")
             or selectedSpoonName
-            or nameResolver.infer(target.selection_folder, "selected folder")
-            or nameResolver.infer(target.selection_asset, "selected asset")
+            or nameResolver.infer(extract.folder, "extract folder")
+            or nameResolver.infer(source.zipFile, "ZIP file")
+            or nameResolver.infer(source.path, "source path")
             or nameResolver.inferFromSource(source)
 
         local resolved = {
@@ -27,19 +29,32 @@ return function(context)
         }
 
         if source.type == "github" then
-            if target.selection_asset then
+            if (source.release_release or source.release_releaseLatest) and not source.zipFile then
+                error("GitHub release sources require .zipFile(...).", 2)
+            end
+
+            if source.zipFile and (source.release_release or source.release_releaseLatest) then
                 resolved.sourceType = "github-release"
-                resolved.asset = target.selection_asset
+                resolved.asset = source.zipFile
                 resolved.release = release
                 resolved.url = github.releaseAssetUrl({
                     baseUrl = source.baseUrl,
                     repository = source.repository,
                     release = release,
-                    asset = target.selection_asset,
+                    asset = source.zipFile,
                 })
-            elseif target.selection_folder then
+                resolved.extractFolder = extract.folder
+            elseif source.zipFile then
+                local path = source.zipFile
+                if source.path then
+                    path = util.pathJoin(source.path, source.zipFile)
+                end
+                resolved.sourceType = "remoteZip"
+                resolved.url = github.rawUrl(source, path)
+                resolved.extractFolder = extract.folder
+            elseif source.path then
                 resolved.sourceType = "github-folder"
-                resolved.extractFolder = target.selection_folder
+                resolved.extractFolder = source.path
                 resolved.archiveUrl = github.archiveUrl(source)
             elseif target.selection_spoon and source.pattern_spoonZipPattern then
                 local path = selectedSpoonName and source.pattern_spoonZipPattern:gsub("{name}", selectedSpoonName) or nil
@@ -56,18 +71,28 @@ return function(context)
                 resolved.sourceType = "github-repository"
                 resolved.archiveUrl = github.archiveUrl(source)
             end
-        elseif source.type == "localFolder" and target.selection_folder then
+        elseif source.type == "localFolder" and source.zipFile then
+            local path = source.zipFile
+            if source.path then
+                path = util.pathJoin(source.path, source.zipFile)
+            end
+            resolved.sourceType = "localZip"
+            resolved.localPath = util.pathJoin(util.localPath(source.root), path)
+            resolved.extractFolder = extract.folder
+        elseif source.type == "localFolder" and source.path then
             resolved.sourceType = "localFolder"
-            resolved.localPath = util.pathJoin(util.localPath(source.path), target.selection_folder)
+            resolved.localPath = util.pathJoin(util.localPath(source.root), source.path)
         else
             resolved.sourceType = source.type
             if source.type == "remoteZip" then
                 resolved.url = source.url
-                resolved.extractFolder = target.selection_folder
-            elseif source.type == "localFolder" or source.type == "localZip" then
-                resolved.localPath = util.localPath(source.path)
+                resolved.extractFolder = extract.folder
+            elseif source.type == "localFolder" then
+                resolved.localPath = util.localPath(source.root)
+            elseif source.type == "localZip" then
+                resolved.localPath = util.localPath(source.file)
                 if source.type == "localZip" then
-                    resolved.extractFolder = target.selection_folder
+                    resolved.extractFolder = extract.folder
                 end
             end
         end

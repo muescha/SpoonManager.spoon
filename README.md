@@ -37,7 +37,7 @@ Install from a folder inside a GitHub repository:
 ```lua
 spoon.SpoonManager.from.github("muescha/SpoonRepo")
     .branch("main")
-    .folder("Source/DeepFolder.spoon")
+    .path("Source/DeepFolder.spoon")
     .install()
 ```
 
@@ -53,7 +53,7 @@ Install from the latest GitHub release asset:
 ```lua
 spoon.SpoonManager.from.github("muescha/DeepFolder.spoon")
     .releaseLatest()
-    .asset("DeepFolder.zip")
+    .zipFile("DeepFolder.zip")
     .install()
 ```
 
@@ -62,7 +62,7 @@ Install from a tagged GitHub release asset:
 ```lua
 spoon.SpoonManager.from.github("muescha/DeepFolder.spoon")
     .release("v1.2.0")
-    .asset("DeepFolder.zip")
+    .zipFile("DeepFolder.zip")
     .install()
 ```
 
@@ -91,7 +91,7 @@ Rename only when the inferred name is not the name you want:
 
 ```lua
 spoon.SpoonManager.from.github("muescha/SpoonRepo")
-    .folder("Source/deepfolder")
+    .path("Source/deepfolder")
     .withName("ManagedDeepFolder")
     .install()
 ```
@@ -119,7 +119,7 @@ local emojis =
 
 local deepFolder =
     spoon.SpoonManager.from.github("muescha/SpoonRepo")
-        .folder("Source/DeepFolder.spoon")
+        .path("Source/DeepFolder.spoon")
 
 spoon.SpoonManager.add(emojis, deepFolder)
 spoon.SpoonManager.install()
@@ -240,8 +240,8 @@ Examples:
 | `folder/WindowGrid.spoon` | `WindowGrid` |
 | `user/WindowTools` | `WindowTools` |
 | `user/WindowTools.spoon` | `WindowTools` |
-| `asset("WindowGrid.zip")` | `WindowGrid` |
-| `asset("WindowGrid.spoon.zip")` | `WindowGrid` |
+| `zipFile("WindowGrid.zip")` | `WindowGrid` |
+| `zipFile("WindowGrid.spoon.zip")` | `WindowGrid` |
 
 Remote ZIP URL:
 
@@ -299,7 +299,7 @@ GitHub folder:
 
 ```lua
 spoon.SpoonManager.from.github("user/repo")
-    .folder("Source/deepfolder.spoon")
+    .path("Source/deepfolder.spoon")
     .install()
 ```
 
@@ -314,7 +314,7 @@ GitHub release asset:
 ```lua
 spoon.SpoonManager.from.github("user/repo")
     .releaseLatest()
-    .asset("WindowGrid.spoon.zip")
+    .zipFile("WindowGrid.spoon.zip")
     .install()
 ```
 
@@ -328,7 +328,7 @@ Use `.withName(name)` to override the inferred name:
 
 ```lua
 spoon.SpoonManager.from.github("user/repo")
-    .folder("Source/deepfolder")
+    .path("Source/deepfolder")
     .withName("BetterName")
     .install()
 ```
@@ -350,7 +350,7 @@ The API has two layers:
 
 All builder calls use dot notation and do not install anything until `install()` or `update()` is called.
 
-A builder collects the source information, target selection, use options, and install options. It can start broad, such as a GitHub repository, and become more specific with calls like `folder(...)`, `asset(...)`, or `withName(...)`.
+A builder collects the source information, extraction selection, use options, and install options. It can start broad, such as a GitHub repository, and become more specific with calls like `path(...)`, `zipFile(...)`, `useFolder(...)`, or `withName(...)`.
 
 The exported config table keeps user-provided values close to the builder calls:
 
@@ -463,7 +463,7 @@ Example, Spoon is in a subfolder:
 spoon.SpoonManager.from.github("muescha/SpoonRepo", {
     branch = "main",
 })
-    .folder("Source/MySpoon.spoon")
+    .path("Source/MySpoon.spoon")
     .install()
 ```
 
@@ -670,7 +670,7 @@ Example:
 ```lua
 spoon.SpoonManager.from.github("muescha/SpoonRepo")
     .branch("develop")
-    .folder("Source/MySpoon.spoon")
+    .path("Source/MySpoon.spoon")
     .install()
 ```
 
@@ -687,7 +687,7 @@ Example, tag:
 ```lua
 spoon.SpoonManager.from.github("muescha/SpoonRepo")
     .ref("v1.2.3")
-    .folder("Source/MySpoon.spoon")
+    .path("Source/MySpoon.spoon")
     .install()
 ```
 
@@ -696,7 +696,7 @@ Example, commit:
 ```lua
 spoon.SpoonManager.from.github("muescha/SpoonRepo")
     .ref("abc123def456")
-    .folder("Source/MySpoon.spoon")
+    .path("Source/MySpoon.spoon")
     .install()
 ```
 
@@ -782,7 +782,7 @@ spoon.SpoonManager.from.github("muescha/SpoonRepo")
     .spoon("MySpoon") -- error
 ```
 
-Use `.folder(...)` for an explicit repository folder, or call `.install()` directly
+Use `.path(...)` for an explicit repository folder, or call `.install()` directly
 when the repository root itself is the Spoon:
 
 ```lua
@@ -790,11 +790,11 @@ spoon.SpoonManager.from.github("muescha/MySpoon.spoon")
     .install()
 ```
 
-### `builder.folder(path)`
+### `builder.path(path)`
 
 Creates a Spoon builder from a folder inside the repository or local folder.
 
-In exported configs, this stores the selected folder in `target.selection_folder`.
+In exported configs, this stores the selected source path in `source.path`.
 
 For GitHub sources, SpoonManager downloads the generated repository archive and extracts only the selected folder.
 
@@ -803,7 +803,7 @@ Example:
 ```lua
 spoon.SpoonManager.from.github("Hammerspoon/Spoons")
     .branch("master")
-    .folder("Source/TimeMachineProgress.spoon")
+    .path("Source/TimeMachineProgress.spoon")
     .install()
 ```
 
@@ -811,7 +811,7 @@ If the folder does not end in `.spoon`, SpoonManager still infers the name from 
 
 ```lua
 spoon.SpoonManager.from.github("muescha/SpoonRepo")
-    .folder("Source/deepfolder")
+    .path("Source/deepfolder")
     .install()
 ```
 
@@ -825,7 +825,7 @@ Use `withName()` only when the inferred name is not the name you want to install
 
 ```lua
 spoon.SpoonManager.from.github("muescha/SpoonRepo")
-    .folder("Source/deepfolder")
+    .path("Source/deepfolder")
     .withName("ManagedDeepFolder")
     .install()
 ```
@@ -834,14 +834,14 @@ spoon.SpoonManager.from.github("muescha/SpoonRepo")
 
 Returns a new builder for the latest stable GitHub release.
 
-This does not call the GitHub API. It uses GitHub's stable latest-release download path once `asset(name)` is selected.
+This does not call the GitHub API. It uses GitHub's stable latest-release download path once `zipFile(name)` is selected.
 
 Example:
 
 ```lua
 spoon.SpoonManager.from.github("muescha/MySpoon.spoon")
     .releaseLatest()
-    .asset("MySpoon.zip")
+    .zipFile("MySpoon.zip")
     .install()
 ```
 
@@ -860,7 +860,7 @@ Example:
 ```lua
 spoon.SpoonManager.from.github("muescha/MySpoon.spoon")
     .release("v1.2.0")
-    .asset("MySpoon.zip")
+    .zipFile("MySpoon.zip")
     .install()
 ```
 
@@ -870,22 +870,22 @@ Resolved URL:
 https://github.com/muescha/MySpoon.spoon/releases/download/v1.2.0/MySpoon.zip
 ```
 
-### `builder.asset(name)`
+### `builder.zipFile(name)`
 
-Selects a release asset and returns a Spoon builder.
+Selects a ZIP file and returns a Spoon builder.
 
 Usually used after `releaseLatest()` or `release(name)`.
 
-The asset name must end in `.zip`. Other archive formats are rejected.
+The ZIP file name must end in `.zip`. Other archive formats are rejected.
 
-In exported configs, this stores the selected asset in `target.selection_asset`.
+In exported configs, this stores the selected ZIP file in `source.zipFile`.
 
 Example:
 
 ```lua
 spoon.SpoonManager.from.github("muescha/MySpoon.spoon")
     .releaseLatest()
-    .asset("MySpoon.zip")
+    .zipFile("MySpoon.zip")
     .install()
 ```
 
@@ -1182,7 +1182,7 @@ config.options = optional install/update behavior
 
 It does not include derived runtime values such as inferred names, download URLs, install paths, or commands. Those are added only when `resolve()`, `command(...)`, `install()`, or `update()` runs.
 
-SpoonManager validates conflicts from the real config fields, for example `source.revision_branch`, `source.revision_ref`, and `target.selection_folder`.
+SpoonManager validates conflicts from the real config fields, for example `source.revision_branch`, `source.revision_ref`, and `source.path`.
 
 Example:
 

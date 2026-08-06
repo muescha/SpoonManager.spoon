@@ -9,7 +9,6 @@ return function(context)
             path = true,
             zipFile = true,
             useFolder = true,
-            folder = true,
         },
     }
 
@@ -18,7 +17,7 @@ return function(context)
 
         return {
             type = LocalFolder.name,
-            path = path,
+            root = path,
         }
     end
 

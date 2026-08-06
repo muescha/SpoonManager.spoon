@@ -17,7 +17,7 @@
   },
   "config": {
     "source": {
-      "path": "~/Downloads/latest.zip",
+      "file": "~/Downloads/latest.zip",
       "type": "localZip"
     },
     "target": {

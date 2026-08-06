@@ -191,11 +191,14 @@ end
 
 local function targetLabel(test)
     local config = test.config or {}
+    local source = config.source or {}
+    local extract = config.extract or {}
     local target = config.target or {}
     return target.name_withName
         or target.selection_spoon
-        or target.selection_folder
-        or target.selection_asset
+        or extract.folder
+        or source.zipFile
+        or source.path
         or test.id
 end
 

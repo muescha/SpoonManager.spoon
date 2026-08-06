@@ -3,11 +3,11 @@ return function(T)
         local explanation =
             T.SpoonManager.from.github("muescha/DeepFolder.spoon")
                 .releaseLatest()
-                .asset("DeepFolder.zip")
+                .zipFile("DeepFolder.zip")
                 .command("install").explain()
 
         T.assertEqual(explanation.config.source.release_releaseLatest, true)
-        T.assertEqual(explanation.config.target.selection_asset, "DeepFolder.zip")
+        T.assertEqual(explanation.config.source.zipFile, "DeepFolder.zip")
         T.assertEqual(explanation.command.from.type, "github-release")
         T.assertEqual(explanation.command.from.url, "https://github.com/muescha/DeepFolder.spoon/releases/latest/download/DeepFolder.zip")
         T.assertEqual(explanation.command.to.name, "DeepFolder")
@@ -18,7 +18,7 @@ return function(T)
         local explanation =
             T.SpoonManager.from.github("muescha/DeepFolder.spoon")
                 .releaseLatest()
-                .asset("latest.zip")
+                .zipFile("latest.zip")
                 .withName("DeepFolder")
                 .command("install").explain()
 
@@ -32,7 +32,7 @@ return function(T)
         local explanation =
             T.SpoonManager.from.github("muescha/DeepFolder.spoon")
                 .release("v1.2.3")
-                .asset("DeepFolder.zip")
+                .zipFile("DeepFolder.zip")
                 .command("install").explain()
 
         T.assertEqual(explanation.config.source.release_release, "v1.2.3")
@@ -44,7 +44,7 @@ return function(T)
         local explanation =
             T.SpoonManager.from.github("muescha/DeepFolder.spoon")
                 .release("v1.2.3")
-                .asset("latest.zip")
+                .zipFile("latest.zip")
                 .withName("DeepFolder")
                 .command("install").explain()
 

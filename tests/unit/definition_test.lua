@@ -1,7 +1,7 @@
 return function(T)
     T.test("definition stages enrich state only when requested", function()
         local definition = T.SpoonManager.from.github("owner/repo")
-            .folder("Source/A.spoon")
+            .path("Source/A.spoon")
 
         local plain = definition.explain()
         T.assertFalse(plain.resolved)
@@ -40,7 +40,7 @@ return function(T)
     T.test("definition rejects source changes after resolve", function()
         T.assertError(function()
             T.SpoonManager.from.github("owner/repo")
-                .folder("Source/A.spoon")
+                .path("Source/A.spoon")
                 .resolve()
                 .branch("main")
         end, "definition already has resolved values; cannot call %.branch%('main'%)")
@@ -49,7 +49,7 @@ return function(T)
     T.test("definition rejects target changes after command", function()
         T.assertError(function()
             T.SpoonManager.from.github("owner/repo")
-                .folder("Source/A.spoon")
+                .path("Source/A.spoon")
                 .command("install")
                 .withName("B")
         end, "definition already has command values; cannot call %.withName%('B'%)")
@@ -58,7 +58,7 @@ return function(T)
     T.test("definition rejects rebuilding command with another action", function()
         T.assertError(function()
             T.SpoonManager.from.github("owner/repo")
-                .folder("Source/A.spoon")
+                .path("Source/A.spoon")
                 .command("install")
                 .command("update")
         end, "definition already has command values for install; cannot build command for update%.")
@@ -80,12 +80,12 @@ return function(T)
         end, "%.branch%('main'%) already set; cannot call %.ref%('v1%.2%.3'%)")
     end)
 
-    T.test("definition rejects duplicate selection group", function()
+    T.test("definition rejects duplicate source path", function()
         T.assertError(function()
             T.SpoonManager.from.github("owner/repo")
-                .folder("Source/A.spoon")
-                .asset("A.zip")
-        end, "%.folder%('Source/A%.spoon'%) already set; cannot call %.asset%('A%.zip'%)")
+                .path("Source/A.spoon")
+                .path("Source/B.spoon")
+        end, "%.path%('Source/A%.spoon'%) already set; cannot call %.path%('Source/B%.spoon'%)")
     end)
 
     T.test("definition rejects duplicate spoon pattern group", function()
@@ -116,8 +116,8 @@ return function(T)
             T.SpoonManager.from.github("owner/repo")
                 .spoonZipPattern("dist/{name}.zip")
                 .spoon("A")
-                .folder("Source/A.spoon")
-        end, "%.spoon%('A'%) already set; cannot call %.folder%('Source/A%.spoon'%)")
+                .path("Source/A.spoon")
+        end, "%.spoon%('A'%) already selected; cannot call %.path%('Source/A%.spoon'%)")
     end)
 
     T.test("definition rejects duplicate explicit name", function()
@@ -136,8 +136,8 @@ return function(T)
 
         T.assertError(function()
             T.SpoonManager.from.localZip("~/Downloads/A.zip")
-                .asset("A.zip")
-        end, "localZip source does not support %.asset")
+                .zipFile("A.zip")
+        end, "localZip source does not support %.zipFile")
 
         T.assertError(function()
             T.SpoonManager.from.localFolder("~/Projects/A.spoon")
@@ -150,6 +150,13 @@ return function(T)
         end, "remoteZip source does not support %.spoonZipPattern")
     end)
 
+    T.test("definition does not expose replaced builder methods", function()
+        local definition = T.SpoonManager.from.github("owner/repo")
+
+        T.assertEqual(definition.folder, nil)
+        T.assertEqual(definition.asset, nil)
+    end)
+
     T.test("definition rejects non string arguments", function()
         T.assertError(function()
             T.SpoonManager.from.github({
@@ -159,10 +166,10 @@ return function(T)
 
         T.assertError(function()
             T.SpoonManager.from.github("owner/repo")
-                .folder({
+                .path({
                     "Source/A.spoon",
                 })
-        end, "Folder path must be a string")
+        end, "Source path must be a string")
 
         T.assertError(function()
             T.SpoonManager.from.github("owner/repo")
@@ -174,8 +181,8 @@ return function(T)
         T.assertError(function()
             T.SpoonManager.from.github("owner/repo")
                 .releaseLatest()
-                .asset("A.tar.gz")
-        end, "Release asset must point to a %.zip file")
+                .zipFile("A.tar.gz")
+        end, "ZIP file must point to a %.zip file")
     end)
 
     T.test("installer rejects non zip release asset from config", function()
@@ -185,14 +192,22 @@ return function(T)
                     type = "github",
                     repository = "owner/repo",
                     release_releaseLatest = true,
+                    zipFile = "A.tar.gz",
                 },
                 target = {
-                    selection_asset = "A.tar.gz",
                     name_withName = "A",
                 },
             }).install()
 
         T.assertFalse(result)
         T.assertEqual(err, "GitHub release asset must point to a .zip file")
+    end)
+
+    T.test("resolver rejects release without zip file", function()
+        T.assertError(function()
+            T.SpoonManager.from.github("owner/repo")
+                .releaseLatest()
+                .resolve()
+        end, "GitHub release sources require %.zipFile%(%.%.%.%)%.")
     end)
 end
