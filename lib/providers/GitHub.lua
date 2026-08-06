@@ -12,6 +12,8 @@ return function(context)
             zipFile = true,
             release = true,
             useFolder = true,
+            folder = true,
+            asset = true,
             spoonZipPattern = true,
             spoonFolderPattern = true,
         },

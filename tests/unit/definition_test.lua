@@ -128,6 +128,28 @@ return function(T)
         end, "%.withName%('A'%) already set; cannot call %.withName%('B'%)")
     end)
 
+    T.test("definition rejects unsupported source capabilities", function()
+        T.assertError(function()
+            T.SpoonManager.from.remoteZip("https://example.com/A.zip")
+                .branch("main")
+        end, "remoteZip source does not support %.branch")
+
+        T.assertError(function()
+            T.SpoonManager.from.localZip("~/Downloads/A.zip")
+                .asset("A.zip")
+        end, "localZip source does not support %.asset")
+
+        T.assertError(function()
+            T.SpoonManager.from.localFolder("~/Projects/A.spoon")
+                .releaseLatest()
+        end, "localFolder source does not support %.releaseLatest")
+
+        T.assertError(function()
+            T.SpoonManager.from.remoteZip("https://example.com/A.zip")
+                .spoonZipPattern("Spoons/{name}.spoon.zip")
+        end, "remoteZip source does not support %.spoonZipPattern")
+    end)
+
     T.test("definition rejects non string arguments", function()
         T.assertError(function()
             T.SpoonManager.from.github({

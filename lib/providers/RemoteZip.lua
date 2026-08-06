@@ -7,6 +7,7 @@ return function(context)
 
         capabilities = {
             useFolder = true,
+            folder = true,
         },
     }
 

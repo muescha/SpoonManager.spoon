@@ -9,6 +9,7 @@ return function(context)
             path = true,
             zipFile = true,
             useFolder = true,
+            folder = true,
         },
     }
 

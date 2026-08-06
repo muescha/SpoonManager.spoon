@@ -73,6 +73,23 @@ return function(context)
         end
     end
 
+    local function requireCapability(definition, capability, method, value)
+        local source = definition.config.source or {}
+        local provider = manager.providers[source.type]
+
+        if not provider then
+            error("Unsupported source type: " .. tostring(source.type), 3)
+        end
+
+        if not provider.capabilities or not provider.capabilities[capability] then
+            error(string.format(
+                "%s source does not support %s.",
+                tostring(source.type),
+                util.createLabel(method, value)
+            ), 3)
+        end
+    end
+
     local function requireSpoonPattern(definition)
         local source = definition.config.source or {}
 
@@ -119,6 +136,7 @@ return function(context)
 
             local nextDef = util.copyTable(def)
             ensureNotComputed(nextDef, "branch", branchName)
+            requireCapability(nextDef, "branch", "branch", branchName)
             ensureNotFinalized(nextDef, "branch", branchName)
             setExclusive(ensureSection(nextDef.config, "source"), "revision", "branch", branchName)
             return fromState(nextDef)
@@ -129,6 +147,7 @@ return function(context)
 
             local nextDef = util.copyTable(def)
             ensureNotComputed(nextDef, "ref", refName)
+            requireCapability(nextDef, "ref", "ref", refName)
             ensureNotFinalized(nextDef, "ref", refName)
             setExclusive(ensureSection(nextDef.config, "source"), "revision", "ref", refName)
             return fromState(nextDef)
@@ -139,6 +158,7 @@ return function(context)
 
             local nextDef = util.copyTable(def)
             ensureNotComputed(nextDef, "spoonZipPattern", pattern)
+            requireCapability(nextDef, "spoonZipPattern", "spoonZipPattern", pattern)
             ensureNotFinalized(nextDef, "spoonZipPattern", pattern)
             setExclusive(ensureSection(nextDef.config, "source"), "pattern", "spoonZipPattern", pattern)
             return fromState(nextDef)
@@ -149,6 +169,7 @@ return function(context)
 
             local nextDef = util.copyTable(def)
             ensureNotComputed(nextDef, "spoonFolderPattern", pattern)
+            requireCapability(nextDef, "spoonFolderPattern", "spoonFolderPattern", pattern)
             ensureNotFinalized(nextDef, "spoonFolderPattern", pattern)
             setExclusive(ensureSection(nextDef.config, "source"), "pattern", "spoonFolderPattern", pattern)
             return fromState(nextDef)
@@ -169,6 +190,7 @@ return function(context)
 
             local nextDef = util.copyTable(def)
             ensureNotComputed(nextDef, "folder", path)
+            requireCapability(nextDef, "folder", "folder", path)
             setExclusive(ensureSection(nextDef.config, "target"), "selection", "folder", path)
             return fromState(nextDef)
         end
@@ -176,6 +198,7 @@ return function(context)
         api.releaseLatest = function()
             local nextDef = util.copyTable(def)
             ensureNotComputed(nextDef, "releaseLatest")
+            requireCapability(nextDef, "release", "releaseLatest")
             ensureNotFinalized(nextDef, "releaseLatest")
             setExclusive(ensureSection(nextDef.config, "source"), "release", "releaseLatest", true)
             return fromState(nextDef)
@@ -186,6 +209,7 @@ return function(context)
 
             local nextDef = util.copyTable(def)
             ensureNotComputed(nextDef, "release", releaseName)
+            requireCapability(nextDef, "release", "release", releaseName)
             ensureNotFinalized(nextDef, "release", releaseName)
             setExclusive(ensureSection(nextDef.config, "source"), "release", "release", releaseName)
             return fromState(nextDef)
@@ -196,6 +220,7 @@ return function(context)
 
             local nextDef = util.copyTable(def)
             ensureNotComputed(nextDef, "asset", assetName)
+            requireCapability(nextDef, "asset", "asset", assetName)
             setExclusive(ensureSection(nextDef.config, "target"), "selection", "asset", assetName)
             return fromState(nextDef)
         end
