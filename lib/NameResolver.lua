@@ -41,7 +41,6 @@ return function(context)
         last = last:gsub("%.spoon$", "")
 
         local inferred = NameResolver.safe(last)
-        NameResolver.logInferred(inferred, kind, value)
         return inferred
     end
 

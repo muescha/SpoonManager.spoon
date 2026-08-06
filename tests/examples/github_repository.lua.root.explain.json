@@ -11,17 +11,15 @@
       "type": "spoon"
     }
   },
-  "definition": {
-    "source": {
-      "baseUrl": "https://github.com",
-      "provider": "github",
-      "repository": "muescha/DeepFolder.spoon",
-      "type": "github"
-    }
-  },
   "resolved": {
     "archiveUrl": "https://github.com/muescha/DeepFolder.spoon/archive/main.zip",
     "installName": "DeepFolder",
     "sourceType": "github-repository"
+  },
+  "source": {
+    "baseUrl": "https://github.com",
+    "provider": "github",
+    "repository": "muescha/DeepFolder.spoon",
+    "type": "github"
   }
 }

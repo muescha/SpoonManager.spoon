@@ -1,4 +1,52 @@
 return function(T)
+    T.test("definition stages enrich state only when requested", function()
+        local definition = T.SpoonManager.from.github("owner/repo")
+            .folder("Source/A.spoon")
+
+        local plain = definition.explain()
+        T.assertFalse(plain.resolved)
+        T.assertFalse(plain.command)
+
+        local resolved = definition.resolve().explain()
+        T.assertTrue(resolved.resolved)
+        T.assertFalse(resolved.command)
+        T.assertEqual(resolved.resolved.installName, "A")
+
+        local commanded = definition.command("install").explain()
+        T.assertTrue(commanded.resolved)
+        T.assertTrue(commanded.command)
+        T.assertEqual(commanded.command.to.name, "A")
+    end)
+
+    T.test("definition rejects source changes after resolve", function()
+        T.assertError(function()
+            T.SpoonManager.from.github("owner/repo")
+                .folder("Source/A.spoon")
+                .resolve()
+                .branch("main")
+        end, "definition already has resolved values; cannot call %.branch%('main'%)")
+    end)
+
+    T.test("definition rejects target changes after command", function()
+        T.assertError(function()
+            T.SpoonManager.from.github("owner/repo")
+                .folder("Source/A.spoon")
+                .command("install")
+                .withName("B")
+        end, "definition already has command values; cannot call %.withName%('B'%)")
+    end)
+
+    T.test("definition rejects use changes after normalize", function()
+        T.assertError(function()
+            T.SpoonManager.from.github("owner/repo")
+                .folder("Source/A.spoon")
+                .normalize("install")
+                .use({
+                    start = true,
+                })
+        end, "definition already has normalized values; cannot call %.use%(%)")
+    end)
+
     T.test("definition rejects branch after spoon selection", function()
         T.assertError(function()
             T.SpoonManager.from.default

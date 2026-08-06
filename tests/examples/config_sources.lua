@@ -12,7 +12,7 @@ return function(T)
                 target = {
                     selection_folder = "Source/DeepFolder.spoon",
                 },
-            }).explain("install")
+            }).command("install").explain()
 
         T.assertEqual(explanation.command.from.type, "github-folder")
         T.assertEqual(explanation.command.from.folder, "Source/DeepFolder.spoon")
@@ -30,7 +30,7 @@ return function(T)
                 target = {
                     name_withName = "DeepFolder",
                 },
-            }).explain("install")
+            }).command("install").explain()
 
         T.assertEqual(explanation.command.from.type, "remote-zip")
         T.assertEqual(explanation.command.to.name, "DeepFolder")

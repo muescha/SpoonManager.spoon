@@ -444,7 +444,8 @@ for _, test in ipairs(config.tests or {}) do
             stubHammerspoon(installPath, logs)
             local SpoonManager = dofile(repoRoot .. "/init.lua")
             local definition = buildDefinition(SpoonManager, test)
-            json.write(explainPath, definition.explain("install"))
+            definition.command("install")
+            json.write(explainPath, definition.explain())
 
             local result, installErr = definition.install()
             if not result then

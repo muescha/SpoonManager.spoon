@@ -3,6 +3,7 @@ return function(context)
     Definition.__index = Definition
 
     local manager = context.manager
+    local installer = context.installer
     local nameResolver = context.nameResolver
     local resolver = context.resolver
     local util = context.util
@@ -50,6 +51,34 @@ return function(context)
         end
     end
 
+    local function computedStage(definition)
+        if definition.normalized then
+            return "normalized"
+        end
+
+        if definition.command then
+            return "command"
+        end
+
+        if definition.resolved then
+            return "resolved"
+        end
+
+        return nil
+    end
+
+    local function ensureNotComputed(definition, method, value)
+        local stage = computedStage(definition)
+
+        if stage then
+            error(string.format(
+                "definition already has %s values; cannot call %s. Start from the base definition instead.",
+                stage,
+                util.createLabel(method, value)
+            ), 3)
+        end
+    end
+
     local function requireNoRelease(definition, method, value)
         local source = definition.source or {}
 
@@ -84,14 +113,30 @@ return function(context)
             return util.copyTable(def)
         end
 
-        api.explain = function(action)
-            return resolver.explain(def, action)
+        api.explain = function()
+            return resolver.explain(def)
+        end
+
+        api.resolve = function()
+            def = resolver.withResolved(def)
+            return api
+        end
+
+        api.command = function(action)
+            def = resolver.withCommand(def, action)
+            return api
+        end
+
+        api.normalize = function(action)
+            def = installer.normalizeDefinition(def, action)
+            return api
         end
 
         api.branch = function(branchName)
             util.requireString(branchName, "Branch name")
 
             local nextDef = util.copyTable(def)
+            ensureNotComputed(nextDef, "branch", branchName)
             ensureNotFinalized(nextDef, "branch", branchName)
             setExclusive(ensureSection(nextDef, "source"), "revision", "branch", branchName)
             return fromState(nextDef)
@@ -101,6 +146,7 @@ return function(context)
             util.requireString(refName, "Ref name")
 
             local nextDef = util.copyTable(def)
+            ensureNotComputed(nextDef, "ref", refName)
             ensureNotFinalized(nextDef, "ref", refName)
             setExclusive(ensureSection(nextDef, "source"), "revision", "ref", refName)
             return fromState(nextDef)
@@ -110,6 +156,7 @@ return function(context)
             util.requireZipPath(pattern, "Spoon ZIP pattern")
 
             local nextDef = util.copyTable(def)
+            ensureNotComputed(nextDef, "spoonZipPattern", pattern)
             ensureNotFinalized(nextDef, "spoonZipPattern", pattern)
             setExclusive(ensureSection(nextDef, "source"), "pattern", "spoonZipPattern", pattern)
             return fromState(nextDef)
@@ -119,6 +166,7 @@ return function(context)
             util.requireString(pattern, "Spoon folder pattern")
 
             local nextDef = util.copyTable(def)
+            ensureNotComputed(nextDef, "spoonFolderPattern", pattern)
             ensureNotFinalized(nextDef, "spoonFolderPattern", pattern)
             setExclusive(ensureSection(nextDef, "source"), "pattern", "spoonFolderPattern", pattern)
             return fromState(nextDef)
@@ -126,6 +174,7 @@ return function(context)
 
         api.spoon = function(value)
             util.requireString(value, "Spoon name")
+            ensureNotComputed(def, "spoon", value)
             requireSpoonPattern(def)
 
             local spoonName = nameResolver.infer(value, "Spoon name")
@@ -140,12 +189,14 @@ return function(context)
             util.requireString(path, "Folder path")
 
             local nextDef = util.copyTable(def)
+            ensureNotComputed(nextDef, "folder", path)
             setExclusive(ensureSection(nextDef, "target"), "selection", "folder", path)
             return fromState(nextDef)
         end
 
         api.releaseLatest = function()
             local nextDef = util.copyTable(def)
+            ensureNotComputed(nextDef, "releaseLatest")
             ensureNotFinalized(nextDef, "releaseLatest")
             requireNoRelease(nextDef, "releaseLatest")
             ensureSection(nextDef, "source").release = "latest"
@@ -156,6 +207,7 @@ return function(context)
             util.requireString(releaseName, "Release name")
 
             local nextDef = util.copyTable(def)
+            ensureNotComputed(nextDef, "release", releaseName)
             ensureNotFinalized(nextDef, "release", releaseName)
             requireNoRelease(nextDef, "release", releaseName)
             ensureSection(nextDef, "source").release = releaseName
@@ -166,12 +218,14 @@ return function(context)
             util.requireZipPath(assetName, "Release asset")
 
             local nextDef = util.copyTable(def)
+            ensureNotComputed(nextDef, "asset", assetName)
             setExclusive(ensureSection(nextDef, "target"), "selection", "asset", assetName)
             return fromState(nextDef)
         end
 
         api.withName = function(value)
             util.requireString(value, "Spoon name")
+            ensureNotComputed(def, "withName", value)
 
             local explicitName = nameResolver.infer(value, "explicit Spoon name")
             assert(explicitName, "Invalid Spoon name")
@@ -184,6 +238,7 @@ return function(context)
 
         api.use = function(useOptions)
             local nextDef = util.copyTable(def)
+            ensureNotComputed(nextDef, "use")
             nextDef.use = util.mergeTables(nextDef.use or {}, useOptions or {})
             return fromState(nextDef)
         end
@@ -192,6 +247,7 @@ return function(context)
             assert(manager._isLocalChangesBehavior(behavior), "Invalid local changes behavior: " .. tostring(behavior))
 
             local nextDef = util.copyTable(def)
+            ensureNotComputed(nextDef, "onLocalChanges", behavior)
             setExclusive(ensureSection(nextDef, "options"), "localChanges", "onLocalChanges", behavior)
             nextDef.options.onLocalChanges = behavior
             return fromState(nextDef)
@@ -203,11 +259,15 @@ return function(context)
         end
 
         api.install = function()
-            return manager._installAndRememberDefinition(def, "install")
+            local result, err, nextDef = manager._installAndRememberDefinition(def, "install")
+            def = nextDef or def
+            return result, err
         end
 
         api.update = function()
-            return manager._installAndRememberDefinition(def, "update")
+            local result, err, nextDef = manager._installAndRememberDefinition(def, "update")
+            def = nextDef or def
+            return result, err
         end
 
         return setmetatable(api, Definition)

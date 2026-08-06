@@ -117,6 +117,14 @@ local function definitionConfig(definition)
 end
 
 local function definitionInstallName(definition)
+    if definition.name then
+        return definition.name
+    end
+
+    if definition.resolved and definition.resolved.installName then
+        return definition.resolved.installName
+    end
+
     local ok, resolved = pcall(context.resolver.resolveDefinition, definition)
     if ok and resolved then
         return resolved.installName
@@ -125,9 +133,9 @@ local function definitionInstallName(definition)
     return nil
 end
 
-function obj._rememberDefinition(definition)
+function obj._rememberDefinition(definition, installName)
     local config = definitionConfig(definition)
-    local installName = definitionInstallName(config)
+    installName = installName or definitionInstallName(config)
 
     if installName then
         for index, existing in ipairs(obj.definitions) do
@@ -144,13 +152,14 @@ end
 
 function obj._installAndRememberDefinition(definition, action)
     local config = definitionConfig(definition)
-    local result, err = obj._installDefinition(config, action)
+    local result, err, normalized = obj._installDefinition(config, action)
+    config = normalized or config
 
     if result then
-        obj._rememberDefinition(config)
+        obj._rememberDefinition(config, result.name)
     end
 
-    return result, err
+    return result, err, config
 end
 
 --- SpoonManager.from.config(config) -> definition

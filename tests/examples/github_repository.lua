@@ -2,9 +2,9 @@ return function(T)
     T.test("example: github repository root", function()
         local explanation =
             T.SpoonManager.from.github("muescha/DeepFolder.spoon")
-                .explain("install")
+                .command("install").explain()
 
-        T.assertEqual(explanation.definition.source.repository, "muescha/DeepFolder.spoon")
+        T.assertEqual(explanation.source.repository, "muescha/DeepFolder.spoon")
         T.assertEqual(explanation.command.from.type, "github-repository")
         T.assertEqual(explanation.command.from.archiveUrl, "https://github.com/muescha/DeepFolder.spoon/archive/main.zip")
         T.assertEqual(explanation.command.to.name, "DeepFolder")
@@ -15,9 +15,9 @@ return function(T)
         local explanation =
             T.SpoonManager.from.github("muescha/DeepFolder.spoon")
                 .ref("v1.2.3")
-                .explain("update")
+                .command("update").explain()
 
-        T.assertEqual(explanation.definition.source.revision_ref, "v1.2.3")
+        T.assertEqual(explanation.source.revision_ref, "v1.2.3")
         T.assertEqual(explanation.command.action, "update")
         T.assertEqual(explanation.command.from.archiveUrl, "https://github.com/muescha/DeepFolder.spoon/archive/v1.2.3.zip")
         T.assertMatchesJson("examples/github_repository.lua.ref.explain.json", explanation)

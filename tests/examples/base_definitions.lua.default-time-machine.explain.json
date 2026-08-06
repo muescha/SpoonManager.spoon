@@ -11,22 +11,20 @@
       "type": "spoon"
     }
   },
-  "definition": {
-    "source": {
-      "baseUrl": "https://github.com",
-      "defaultBranch": "master",
-      "pattern_spoonZipPattern": "Spoons/{name}.spoon.zip",
-      "provider": "github",
-      "repository": "Hammerspoon/Spoons",
-      "type": "github"
-    },
-    "target": {
-      "selection_spoon": "TimeMachineProgress"
-    }
-  },
   "resolved": {
     "installName": "TimeMachineProgress",
     "sourceType": "remote-zip",
     "url": "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/TimeMachineProgress.spoon.zip"
+  },
+  "source": {
+    "baseUrl": "https://github.com",
+    "defaultBranch": "master",
+    "pattern_spoonZipPattern": "Spoons/{name}.spoon.zip",
+    "provider": "github",
+    "repository": "Hammerspoon/Spoons",
+    "type": "github"
+  },
+  "target": {
+    "selection_spoon": "TimeMachineProgress"
   }
 }

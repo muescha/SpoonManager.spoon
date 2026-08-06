@@ -2,12 +2,12 @@
 
 This note describes the intended internal model for SpoonManager.
 
-The core idea is that user-facing builder calls and manifest files should produce a simple declarative definition. The definition keeps the user-provided values as close to 1:1 as possible. SpoonManager then resolves the definition into a concrete install command as the final step.
+The core idea is that user-facing builder calls and manifest files should produce a simple declarative definition. The definition keeps the user-provided values as close to 1:1 as possible. SpoonManager then enriches the same definition step by step until it can execute an install or update command.
 
 ## Goals
 
 - Keep definitions readable and predictable.
-- Avoid storing half-resolved values in the public config.
+- Store each calculated stage once and reuse it.
 - Make `toConfig()` useful for users, agents, GUI tools, and future manifests.
 - Make it possible to reconstruct a readable builder chain from a config.
 - Keep installer execution separate from source description.
@@ -18,10 +18,21 @@ The core idea is that user-facing builder calls and manifest files should produc
 The intended lifecycle is:
 
 ```text
-definition -> resolved definition -> command -> installed record
+definition -> resolved -> command -> normalized -> install/update -> installed record
 ```
 
-`definition` is the durable input. `resolved` is an explainable derived view. `command` is the executable task. `installed` is the persistent local registry record after execution.
+`definition` is the durable input. `resolved` is the first derived view. `command` is the executable task. `normalized` is the install-ready definition with defaults merged in. `installed` is the persistent local registry record after execution.
+
+`explain()` is passive. It returns the current definition state only. It does not resolve names, build commands, or normalize options. To inspect later stages, call the stage explicitly first:
+
+```lua
+definition.explain()
+definition.resolve().explain()
+definition.command("install").explain()
+definition.normalize("install").explain()
+```
+
+After `resolve()`, `command()`, `normalize()`, `install()`, or `update()` has enriched a definition, further builder changes are rejected. Start from the base definition to create another variation.
 
 ### Definition
 
@@ -68,7 +79,7 @@ The source answers "where does the code come from?" The target section answers "
 
 ### Resolved Definition
 
-Resolution enriches a definition with derived values. These values are useful for debugging, logging, GUI previews, and command construction, but they should not replace the original declarative input.
+Resolution enriches a definition with derived values. These values are useful for debugging, logging, GUI previews, and command construction, but they do not replace the original declarative input.
 
 Example:
 
@@ -92,9 +103,9 @@ Example:
 }
 ```
 
-Resolution is where defaults are applied. For example, GitHub may default to `main` when neither `source.revision_branch` nor `source.revision_ref` is set. That default does not need to be written back into the user definition.
+Resolution is where source defaults are applied. For example, GitHub may default to `main` when neither `source.revision_branch` nor `source.revision_ref` is set. That default does not need to be written back into the source section; it appears in the resolved and command stages.
 
-The resolved table is not the source of truth, but keeping it around is useful because SpoonManager has to compute these values anyway. It can be returned by `explain(...)`, logged during installs, shown by a future GUI, and copied into install results for troubleshooting.
+The resolved table is calculated once. Later stages reuse `definition.resolved` instead of inferring names and URLs again.
 
 ### Command
 
@@ -120,17 +131,40 @@ Example:
 
 The installer should execute commands, not interpret builder history directly.
 
-The command should stay small. It should not embed the full `definition` or `resolved` view. When all views are needed together, use an explanation object:
+The command should stay small. It should not embed the full `definition` or `resolved` view. When the command is built, it is stored as `definition.command` and reused by install/update.
+
+### Normalized Definition
+
+Normalization prepares the enriched definition for execution. It keeps the declarative source and target data, but adds the final merged install options and a compact execution summary.
 
 ```lua
 {
-    definition = { ... },
+    name = "Emojis",
+    source = { ... },
+    target = { ... },
     resolved = { ... },
     command = { ... },
+    normalized = {
+        name = "Emojis",
+        action = "install",
+        options = {
+            onLocalChanges = "abort",
+        },
+        source = {
+            type = "github-folder",
+            archiveUrl = "https://github.com/Hammerspoon/Spoons/archive/master.zip",
+            folder = "Source/Emojis.spoon",
+        },
+        target = {
+            type = "spoon",
+            name = "Emojis",
+            path = "~/.hammerspoon/Spoons/Emojis.spoon",
+        },
+    },
 }
 ```
 
-This keeps executable tasks easy to read while still allowing debugging, GUI previews, and snapshot examples.
+`normalized` is useful for install results, logs, and registry entries. It is not meant to be hand-authored in `spoonify.json`; it is produced by SpoonManager.
 
 ### Installed Record
 

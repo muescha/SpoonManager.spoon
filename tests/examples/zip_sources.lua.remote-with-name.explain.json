@@ -11,18 +11,16 @@
       "type": "spoon"
     }
   },
-  "definition": {
-    "source": {
-      "type": "remote-zip",
-      "url": "https://example.com/downloads/latest.zip"
-    },
-    "target": {
-      "name_withName": "DeepFolder"
-    }
-  },
   "resolved": {
     "installName": "DeepFolder",
     "sourceType": "remote-zip",
     "url": "https://example.com/downloads/latest.zip"
+  },
+  "source": {
+    "type": "remote-zip",
+    "url": "https://example.com/downloads/latest.zip"
+  },
+  "target": {
+    "name_withName": "DeepFolder"
   }
 }

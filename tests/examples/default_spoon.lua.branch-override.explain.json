@@ -11,23 +11,21 @@
       "type": "spoon"
     }
   },
-  "definition": {
-    "source": {
-      "baseUrl": "https://github.com",
-      "defaultBranch": "master",
-      "pattern_spoonZipPattern": "Spoons/{name}.spoon.zip",
-      "provider": "github",
-      "repository": "Hammerspoon/Spoons",
-      "revision_branch": "main",
-      "type": "github"
-    },
-    "target": {
-      "selection_spoon": "Emojis"
-    }
-  },
   "resolved": {
     "installName": "Emojis",
     "sourceType": "remote-zip",
     "url": "https://github.com/Hammerspoon/Spoons/raw/main/Spoons/Emojis.spoon.zip"
+  },
+  "source": {
+    "baseUrl": "https://github.com",
+    "defaultBranch": "master",
+    "pattern_spoonZipPattern": "Spoons/{name}.spoon.zip",
+    "provider": "github",
+    "repository": "Hammerspoon/Spoons",
+    "revision_branch": "main",
+    "type": "github"
+  },
+  "target": {
+    "selection_spoon": "Emojis"
   }
 }

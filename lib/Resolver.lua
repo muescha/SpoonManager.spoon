@@ -6,6 +6,10 @@ return function(context)
     local util = context.util
 
     function Resolver.resolveDefinition(definition)
+        if definition.resolved then
+            return util.copyTable(definition.resolved)
+        end
+
         local source = definition.source or {}
         local target = definition.target or {}
         local installName = nameResolver.infer(target.name_withName, "explicit Spoon name")
@@ -59,8 +63,20 @@ return function(context)
         return resolved
     end
 
-    function Resolver.toCommand(definition, action)
-        local resolved = Resolver.resolveDefinition(definition)
+    function Resolver.withResolved(definition)
+        local def = util.copyTable(definition)
+        if not def.resolved then
+            def.resolved = Resolver.resolveDefinition(def)
+        end
+        return def
+    end
+
+    function Resolver.toCommand(definition, action, resolved)
+        if definition.command and (not action or definition.command.action == action) then
+            return util.copyTable(definition.command)
+        end
+
+        resolved = resolved or Resolver.resolveDefinition(definition)
         local command = {
             action = action or "install",
             from = {
@@ -85,12 +101,16 @@ return function(context)
         return command
     end
 
-    function Resolver.explain(definition, action)
-        return {
-            definition = util.copyTable(definition),
-            resolved = Resolver.resolveDefinition(definition),
-            command = Resolver.toCommand(definition, action),
-        }
+    function Resolver.withCommand(definition, action)
+        local def = Resolver.withResolved(definition)
+        if not def.command or (action and def.command.action ~= action) then
+            def.command = Resolver.toCommand(def, action, def.resolved)
+        end
+        return def
+    end
+
+    function Resolver.explain(definition)
+        return util.copyTable(definition)
     end
 
     return Resolver

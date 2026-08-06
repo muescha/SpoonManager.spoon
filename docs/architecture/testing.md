@@ -67,7 +67,8 @@ test("default spoon zip explanation snapshot", function()
     local explanation =
         SpoonManager.from.default
             .spoon("Emojis")
-            .explain("install")
+            .command("install")
+            .explain()
 
     assertMatchesJson("examples/default_spoon.lua.explain.json", explanation)
 end)
@@ -117,7 +118,7 @@ Golden JSON snapshots make sense for stable public or semi-public structures:
 - `definition.toConfig()`
 - resolver `resolved` output
 - resolver `command` output
-- `definition.explain()` output
+- `definition.command("install").explain()` output
 - selected `installed.json` records after normalizing dynamic values
 
 They are less useful for unstable runtime data unless the test normalizes dynamic fields first.

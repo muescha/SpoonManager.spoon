@@ -11,15 +11,13 @@
       "type": "spoon"
     }
   },
-  "definition": {
-    "source": {
-      "path": "/Users/test/Downloads/DeepFolder.spoon.zip",
-      "type": "local-zip"
-    }
-  },
   "resolved": {
     "installName": "DeepFolder",
     "localPath": "/Users/test/Downloads/DeepFolder.spoon.zip",
     "sourceType": "local-zip"
+  },
+  "source": {
+    "path": "/Users/test/Downloads/DeepFolder.spoon.zip",
+    "type": "local-zip"
   }
 }

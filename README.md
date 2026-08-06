@@ -397,10 +397,10 @@ Builder methods do not silently overwrite each other. Each group can be set once
 Internally, SpoonManager resolves a definition into an executable command at the last moment:
 
 ```text
-definition -> resolved -> command -> installed record
+definition -> resolved -> command -> normalized -> installed record
 ```
 
-`definition.toConfig()` returns only the declarative definition. Install results and `installed.json` additionally include `resolved` and `command` data for debugging and update checks.
+`definition.toConfig()` returns only the declarative definition. Install results and `installed.json` additionally include `resolved`, `command`, and `normalized` data for debugging and update checks.
 
 ### `SpoonManager.from.config(config)`
 
@@ -1202,34 +1202,66 @@ Example output:
 }
 ```
 
-### `definition.explain([action])`
+### `definition.explain()`
 
-Returns all derived views for a definition without installing anything.
+Returns the current definition state without calculating new values.
 
-Use this when you want to inspect how SpoonManager understands a builder chain:
+Use this when you want to inspect what is already stored on a definition:
 
 ```lua
-local explanation =
+local current =
     spoon.SpoonManager.from.default
         .spoon("Emojis")
-        .explain("install")
+        .explain()
 
-print(hs.inspect(explanation.definition))
-print(hs.inspect(explanation.resolved))
-print(hs.inspect(explanation.command))
+print(hs.inspect(current))
 ```
 
-Shape:
+`explain()` is intentionally passive. It does not infer names, build URLs, or create commands.
+
+To inspect later stages, request them explicitly first:
 
 ```lua
-{
-    definition = {}, -- original declarative config
-    resolved = {},   -- derived values such as installName and URL
-    command = {},    -- executable install/update command
-}
+local resolved =
+    spoon.SpoonManager.from.default
+        .spoon("Emojis")
+        .resolve()
+        .explain()
+
+local command =
+    spoon.SpoonManager.from.default
+        .spoon("Emojis")
+        .command("install")
+        .explain()
+
+local normalized =
+    spoon.SpoonManager.from.default
+        .spoon("Emojis")
+        .normalize("install")
+        .explain()
 ```
 
-`explain()` is intentionally the verbose view. `toConfig()` returns only the original definition, and the internal command contains only the executable `from` and `to` fields.
+After one of these stages has been calculated, the definition is frozen for further builder changes. Start from the base definition when you want a variation:
+
+```lua
+local base = spoon.SpoonManager.from.default
+
+local emojis =
+    base.spoon("Emojis")
+
+local windowSigils =
+    base.spoon("WindowSigils")
+```
+
+The stages are only calculated once and then reused:
+
+```text
+definition
+  -> resolved
+  -> command
+  -> normalized
+  -> install/update
+```
 
 ### `SpoonManager.add(definition[, ...])`
 

@@ -41,10 +41,12 @@ return function(context)
             checksum = localHash,
             definition = definition.definition,
             resolved = definition.resolved,
+            command = definition.command,
+            normalized = definition.normalized,
             fingerprints = {
                 localHash = localHash,
             },
-            source = definition.source,
+            source = definition.command and definition.command.from or nil,
             use = definition.use,
         }
 

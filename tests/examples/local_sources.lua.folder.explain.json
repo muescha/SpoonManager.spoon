@@ -11,15 +11,13 @@
       "type": "spoon"
     }
   },
-  "definition": {
-    "source": {
-      "path": "/Users/test/Projects/DeepFolder.spoon",
-      "type": "local-folder"
-    }
-  },
   "resolved": {
     "installName": "DeepFolder",
     "localPath": "/Users/test/Projects/DeepFolder.spoon",
     "sourceType": "local-folder"
+  },
+  "source": {
+    "path": "/Users/test/Projects/DeepFolder.spoon",
+    "type": "local-folder"
   }
 }

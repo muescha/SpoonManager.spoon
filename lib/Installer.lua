@@ -30,17 +30,30 @@ return function(context)
         return util.execute(command, logger, "Could not checksum %s", path)
     end
 
-    function Installer.normalizeDefinition(definition)
+    function Installer.normalizeDefinition(definition, action)
         local def = util.copyTable(definition)
-        local command = resolver.toCommand(definition)
-        local resolved = resolver.resolveDefinition(definition)
+        action = action or "install"
 
-        def.definition = util.copyTable(definition)
+        def = resolver.withCommand(def, action)
         def.options = util.mergeTables(manager.installOptions, def.options or {})
-        def.command = command
-        def.resolved = resolved
         def.name = def.resolved.installName
-        def.source = command.from
+        def.normalized = {
+            name = def.name,
+            action = action,
+            options = util.copyTable(def.options),
+            source = util.copyTable(def.command.from),
+            target = util.copyTable(def.command.to),
+            use = util.copyTable(def.use),
+        }
+
+        if not def.definition then
+            def.definition = util.copyTable(definition)
+            def.definition.resolved = nil
+            def.definition.command = nil
+            def.definition.normalized = nil
+            def.definition.name = nil
+        end
+
         return def
     end
 
@@ -49,7 +62,7 @@ return function(context)
             return nil, "Spoon definition must be a table"
         end
 
-        if not definition.source or not definition.source.type then
+        if not definition.command or not definition.command.from or not definition.command.from.type then
             return nil, "Spoon definition requires a source"
         end
 
@@ -57,15 +70,15 @@ return function(context)
             return nil, "Spoon definition requires a Spoon name. Add .withName(\"Name\")."
         end
 
-        if definition.source.type == "remote-zip" and not util.isZipPath(definition.source.url) then
+        if definition.command.from.type == "remote-zip" and not util.isZipPath(definition.command.from.url) then
             return nil, "Remote ZIP URL must point to a .zip file"
         end
 
-        if definition.source.type == "github-release" and not util.isZipPath(definition.source.url) then
+        if definition.command.from.type == "github-release" and not util.isZipPath(definition.command.from.url) then
             return nil, "GitHub release asset must point to a .zip file"
         end
 
-        if definition.source.type == "local-zip" and not util.isZipPath(definition.source.path) then
+        if definition.command.from.type == "local-zip" and not util.isZipPath(definition.command.from.path) then
             return nil, "Local ZIP path must point to a .zip file"
         end
 
@@ -160,7 +173,7 @@ return function(context)
             action = "install",
             name = definition.name,
             path = destination,
-            source = definition.source,
+            source = definition.command.from,
             use = definition.use,
         }
     end
@@ -193,13 +206,13 @@ return function(context)
     end
 
     function Installer.installDefinition(definition, action)
-        local def = Installer.normalizeDefinition(definition)
+        local def = Installer.normalizeDefinition(definition, action)
         local command = util.copyTable(def.command)
         command.action = action or "install"
 
         local valid, validationError = Installer.validateDefinition(def)
         if not valid then
-            return nil, validationError
+            return nil, validationError, def
         end
 
         action = action or "install"
@@ -215,9 +228,10 @@ return function(context)
                 path = paths.targetPath(def.name),
                 command = command,
                 resolved = def.resolved,
-                source = def.source,
+                normalized = def.normalized,
+                source = def.command.from,
                 use = def.use,
-            }
+            }, nil, def
         end
 
         local source = command.from
@@ -236,15 +250,16 @@ return function(context)
         elseif source.type == "github-folder" or source.type == "github-repository" then
             result, err = Installer.installFromRemoteZip(def, source.archiveUrl)
         else
-            return nil, "Unsupported source type: " .. tostring(source.type)
+            return nil, "Unsupported source type: " .. tostring(source.type), def
         end
 
         if result then
             result.action = action
             result.command = command
             result.resolved = def.resolved
+            result.normalized = def.normalized
         end
-        return result, err
+        return result, err, def
     end
 
     return Installer
