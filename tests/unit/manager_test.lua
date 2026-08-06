@@ -54,6 +54,18 @@ return function(T)
         end
     end
 
+    T.test("manager registers source providers", function()
+        local providers = T.SpoonManager.providers
+
+        T.assertEqual(providers.github.name, "github")
+        T.assertEqual(providers.remoteZip.name, "remoteZip")
+        T.assertEqual(providers.localZip.name, "localZip")
+        T.assertEqual(providers.localFolder.name, "localFolder")
+        T.assertTrue(providers.github.capabilities.release)
+        T.assertTrue(providers.remoteZip.capabilities.useFolder)
+        T.assertTrue(providers.localFolder.capabilities.path)
+    end)
+
     T.test("manager add stores definitions for later install and update", function()
         withRecordedInstaller(function(manager, calls)
             local emojis = manager.from.default.spoon("Emojis")

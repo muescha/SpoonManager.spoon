@@ -31,6 +31,7 @@ obj.license = "MIT - https://opensource.org/licenses/MIT"
 obj.logger = hs.logger.new("SpoonManager")
 
 obj.from = {}
+obj.providers = {}
 obj.definitions = {}
 
 --- SpoonManager.options
@@ -108,12 +109,19 @@ context.archive = loadLib("Archive")(context)
 context.installer = loadLib("Installer")(context)
 context.definition = loadLib("Definition")(context)
 
-local Providers = {
-    github = loadProvider("GitHub")(context),
-    remoteZip = loadProvider("RemoteZip")(context),
-    localZip = loadProvider("LocalZip")(context),
-    localFolder = loadProvider("LocalFolder")(context),
-}
+function obj.registerProvider(provider)
+    assert(type(provider) == "table", "Provider must be a table")
+    assert(type(provider.name) == "string", "Provider requires a name")
+    assert(type(provider.createSource) == "function", "Provider requires createSource")
+
+    obj.providers[provider.name] = provider
+    return provider
+end
+
+obj.registerProvider(loadProvider("GitHub")(context))
+obj.registerProvider(loadProvider("RemoteZip")(context))
+obj.registerProvider(loadProvider("LocalZip")(context))
+obj.registerProvider(loadProvider("LocalFolder")(context))
 
 function obj._installDefinition(definition, action)
     return context.installer.installDefinition(definition, action)
@@ -192,7 +200,7 @@ end
 --- Create a Spoon definition from a remote zip URL.
 function obj.from.remoteZip(url)
     return context.definition.fromState({
-        source = Providers.remoteZip.createSource(url),
+        source = obj.providers.remoteZip.createSource(url),
     })
 end
 
@@ -201,7 +209,7 @@ end
 --- Create a Spoon definition from a local zip file.
 function obj.from.localZip(path)
     return context.definition.fromState({
-        source = Providers.localZip.createSource(path),
+        source = obj.providers.localZip.createSource(path),
     })
 end
 
@@ -210,7 +218,7 @@ end
 --- Create a Spoon definition from a local folder.
 function obj.from.localFolder(path)
     return context.definition.fromState({
-        source = Providers.localFolder.createSource(path),
+        source = obj.providers.localFolder.createSource(path),
     })
 end
 
@@ -219,7 +227,7 @@ end
 --- Create a GitHub repository definition.
 function obj.from.github(repository, options)
     return context.definition.fromState({
-        source = Providers.github.createSource(repository, options),
+        source = obj.providers.github.createSource(repository, options),
     })
 end
 
