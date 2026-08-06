@@ -12,10 +12,10 @@
   },
   "pathTemplates": {
     "root": ".network-installs/{timestamp}",
-    "install": "{root}/install/{id}",
-    "explain": "{root}/install/{id}.explain.json",
-    "result": "{root}/install/{id}.result.json",
-    "log": "{root}/install/{id}.log.json"
+    "install": "{root}/test/{id}",
+    "explain": "{root}/test/{id}/{id}.explain.json",
+    "result": "{root}/test/{id}/{id}.result.json",
+    "log": "{root}/test/{id}/{id}.log.json"
   },
   "tests": [
     {
