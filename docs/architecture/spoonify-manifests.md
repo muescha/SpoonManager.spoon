@@ -4,6 +4,11 @@ This note describes the idea of `spoonify.json` as a declarative manifest format
 
 `spoonify.json` should not be a resolved install command. It should describe available Spoons and their source rules. SpoonManager can then resolve the selected entries into install or update commands locally.
 
+Manifest loading should produce the same config shape as the builder. Source
+rules use provider `source.type` values such as `github`, `remoteZip`,
+`localZip`, or `localFolder`. Manifests should not contain resolved fields such
+as `sourceKind`, or executable command fields such as `command.source.kind`.
+
 ## Why a Manifest?
 
 A manifest is useful when a repository contains multiple Spoons or when an external index wants to describe Spoons from repositories that do not maintain their own metadata.
