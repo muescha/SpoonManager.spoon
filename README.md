@@ -227,72 +227,72 @@ The inferred name is normalized by removing these suffixes:
 .spoon
 ```
 
-Suffixes are removed in order, so `name.spoon.zip` becomes `name.spoon` and then `name`.
+Suffixes are removed in order, so `WindowGrid.spoon.zip` becomes `WindowGrid.spoon` and then `WindowGrid`.
 
 Examples:
 
 | Input | Inferred Spoon name |
 |---|---|
-| `name.zip` | `name` |
-| `name.spoon.zip` | `name` |
-| `name.spoon` | `name` |
-| `folder/lastfoldername` | `lastfoldername` |
-| `folder/lastfoldername.spoon` | `lastfoldername` |
-| `user/reponame` | `reponame` |
-| `user/reponame.spoon` | `reponame` |
-| `asset("name.zip")` | `name` |
-| `asset("name.spoon.zip")` | `name` |
+| `WindowGrid.zip` | `WindowGrid` |
+| `WindowGrid.spoon.zip` | `WindowGrid` |
+| `WindowGrid.spoon` | `WindowGrid` |
+| `folder/WindowGrid` | `WindowGrid` |
+| `folder/WindowGrid.spoon` | `WindowGrid` |
+| `user/WindowTools` | `WindowTools` |
+| `user/WindowTools.spoon` | `WindowTools` |
+| `asset("WindowGrid.zip")` | `WindowGrid` |
+| `asset("WindowGrid.spoon.zip")` | `WindowGrid` |
 
 Remote ZIP URL:
 
 ```lua
-spoon.SpoonManager.from.remoteZip("https://example.com/name.spoon.zip")
+spoon.SpoonManager.from.remoteZip("https://example.com/WindowGrid.spoon.zip")
     .install()
 ```
 
 Installs as:
 
 ```text
-name
+WindowGrid
 ```
 
 Local ZIP:
 
 ```lua
-spoon.SpoonManager.from.localZip("~/Downloads/name.zip")
+spoon.SpoonManager.from.localZip("~/Downloads/WindowGrid.zip")
     .install()
 ```
 
 Installs as:
 
 ```text
-name
+WindowGrid
 ```
 
 Local folder:
 
 ```lua
-spoon.SpoonManager.from.localFolder("~/Projects/name.spoon")
+spoon.SpoonManager.from.localFolder("~/Projects/WindowGrid.spoon")
     .install()
 ```
 
 Installs as:
 
 ```text
-name
+WindowGrid
 ```
 
 GitHub repository root:
 
 ```lua
-spoon.SpoonManager.from.github("user/reponame.spoon")
+spoon.SpoonManager.from.github("user/WindowTools.spoon")
     .install()
 ```
 
 Installs as:
 
 ```text
-reponame
+WindowTools
 ```
 
 GitHub folder:
@@ -314,14 +314,14 @@ GitHub release asset:
 ```lua
 spoon.SpoonManager.from.github("user/repo")
     .releaseLatest()
-    .asset("name.spoon.zip")
+    .asset("WindowGrid.spoon.zip")
     .install()
 ```
 
 Installs as:
 
 ```text
-name
+WindowGrid
 ```
 
 Use `.withName(name)` to override the inferred name:
