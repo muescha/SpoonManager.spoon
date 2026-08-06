@@ -94,7 +94,7 @@ end
 
 local function renderTemplate(template, values)
     return (template:gsub("{([%w_]+)}", function(key)
-        if key == "installRoot" or key == "installPath" then
+        if key == "root" or key == "installPath" then
             return tostring(values[key] or "")
         end
         return safeId(values[key] or "")
@@ -135,23 +135,33 @@ local function assertSafeTestPath(path, label)
     error(label .. " must be inside /tmp or the network config directory: " .. path)
 end
 
-local function installRootForRun()
-    local installRoot = config.installRoot or "/tmp/spoonmanager-network-test"
-    assertString(installRoot, "installRoot")
-    installRoot = resolveConfiguredPath(installRoot)
-    assertSafeTestPath(installRoot, "installRoot")
-    return installRoot
+local function pathTemplateFor(test, templateName, defaultTemplate)
+    local testPathTemplates = test and test.pathTemplates or {}
+    local configPathTemplates = config.pathTemplates or {}
+    local template = testPathTemplates[templateName]
+        or configPathTemplates[templateName]
+        or defaultTemplate
+
+    assertString(template, "pathTemplates." .. templateName)
+    return template
 end
 
-local function installPathFor(test, installRoot)
-    local template = test.installPathTemplate
-        or config.installPathTemplate
-        or "{installRoot}/testinstalls/{timestamp}/{id}"
+local function rootPathForRun()
+    local template = pathTemplateFor(nil, "root", "/tmp/spoonmanager-network-test")
+    local rootPath = renderTemplate(template, {
+        timestamp = runTimestamp,
+    })
 
-    assertString(template, "installPathTemplate")
+    rootPath = resolveConfiguredPath(rootPath)
+    assertSafeTestPath(rootPath, "pathTemplates.root")
+    return rootPath
+end
+
+local function installPathFor(test, rootPath)
+    local template = pathTemplateFor(test, "install", "{root}/testinstalls/{timestamp}/{id}")
 
     local installPath = renderTemplate(template, {
-        installRoot = installRoot,
+        root = rootPath,
         id = test.id,
         sourceType = sourceLabel(test),
         name = targetLabel(test),
@@ -192,15 +202,15 @@ local function cleanPath(path)
     os.execute("/bin/rm -rf " .. shellQuote(path))
 end
 
-local function cleanInstallRootBeforeRun(installRoot)
-    if cleanupValue(nil, "allTests", "installRootBeforeAllTests", false) then
-        cleanPath(installRoot)
+local function cleanRootBeforeRun(rootPath)
+    if cleanupValue(nil, "allTests", "rootBeforeAllTests", false) then
+        cleanPath(rootPath)
     end
 end
 
-local function cleanInstallRootAfterRun(installRoot)
-    if cleanupValue(nil, "allTests", "installRootAfterAllTests", false) then
-        cleanPath(installRoot)
+local function cleanRootAfterRun(rootPath)
+    if cleanupValue(nil, "allTests", "rootAfterAllTests", false) then
+        cleanPath(rootPath)
     end
 end
 
@@ -216,17 +226,11 @@ local function cleanInstallPathAfterTest(test, installPath)
     end
 end
 
-local function artifactPathFor(test, installRoot, installPath, templateName, defaultTemplate)
-    local testPathTemplates = test.pathTemplates or {}
-    local configPathTemplates = config.pathTemplates or {}
-    local template = testPathTemplates[templateName]
-        or configPathTemplates[templateName]
-        or defaultTemplate
-
-    assertString(template, "pathTemplates." .. templateName)
+local function artifactPathFor(test, rootPath, installPath, templateName, defaultTemplate)
+    local template = pathTemplateFor(test, templateName, defaultTemplate)
 
     local artifactPath = renderTemplate(template, {
-        installRoot = installRoot,
+        root = rootPath,
         installPath = installPath,
         id = test.id,
         sourceType = sourceLabel(test),
@@ -239,7 +243,7 @@ local function artifactPathFor(test, installRoot, installPath, templateName, def
     return artifactPath
 end
 
-local function stubHammerspoon(installRoot, logs)
+local function stubHammerspoon(configRoot, logs)
     local function logMessage(level, fmt, ...)
         local message = string.format(fmt or "%s", ...)
         table.insert(logs, {
@@ -252,7 +256,7 @@ local function stubHammerspoon(installRoot, logs)
     end
 
     hs = {
-        configdir = installRoot,
+        configdir = configRoot,
         logger = {
             new = function()
                 return {
@@ -405,33 +409,33 @@ local function buildDefinition(SpoonManager, test)
     return definition
 end
 
-local function explainPathFor(test, installRoot, installPath)
+local function explainPathFor(test, rootPath, installPath)
     return artifactPathFor(
         test,
-        installRoot,
+        rootPath,
         installPath,
         "explain",
-        "tests/integration/network.test.{timestamp}.{id}.explain.json"
+        "{root}/network.test.{timestamp}.{id}.explain.json"
     )
 end
 
-local function runnerPathFor(test, installRoot, installPath)
+local function runnerPathFor(test, rootPath, installPath)
     return artifactPathFor(
         test,
-        installRoot,
+        rootPath,
         installPath,
         "result",
-        "tests/integration/network.test.{timestamp}.{id}.result.json"
+        "{root}/network.test.{timestamp}.{id}.result.json"
     )
 end
 
-local function logPathFor(test, installRoot, installPath)
+local function logPathFor(test, rootPath, installPath)
     return artifactPathFor(
         test,
-        installRoot,
+        rootPath,
         installPath,
         "log",
-        "tests/integration/network.test.{timestamp}.{id}.log.json"
+        "{root}/network.test.{timestamp}.{id}.log.json"
     )
 end
 
@@ -449,9 +453,9 @@ local enabled = 0
 local passed = 0
 local failed = 0
 local failures = {}
-local installRoot = installRootForRun()
+local rootPath = rootPathForRun()
 
-cleanInstallRootBeforeRun(installRoot)
+cleanRootBeforeRun(rootPath)
 
 for _, test in ipairs(config.tests or {}) do
     if test.enabled then
@@ -467,10 +471,10 @@ for _, test in ipairs(config.tests or {}) do
         local runnerResult
 
         local ok, err = xpcall(function()
-            installPath = installPathFor(test, installRoot)
-            explainPath = explainPathFor(test, installRoot, installPath)
-            runnerPath = runnerPathFor(test, installRoot, installPath)
-            logPath = logPathFor(test, installRoot, installPath)
+            installPath = installPathFor(test, rootPath)
+            explainPath = explainPathFor(test, rootPath, installPath)
+            runnerPath = runnerPathFor(test, rootPath, installPath)
+            logPath = logPathFor(test, rootPath, installPath)
 
             cleanInstallPathBeforeTest(test, installPath)
             ensureDir(installPath)
@@ -500,7 +504,7 @@ for _, test in ipairs(config.tests or {}) do
                 description = test.description,
                 success = true,
                 timestamp = runTimestamp,
-                installRoot = installRoot,
+                root = rootPath,
                 installPath = installPath,
                 explainPath = explainPath,
                 runnerPath = runnerPath,
@@ -539,7 +543,7 @@ for _, test in ipairs(config.tests or {}) do
                     description = test.description,
                     success = false,
                     timestamp = runTimestamp,
-                    installRoot = installRoot,
+                    root = rootPath,
                     installPath = installPath,
                     explainPath = explainPath,
                     runnerPath = runnerPath,
@@ -565,7 +569,7 @@ for _, test in ipairs(config.tests or {}) do
     end
 end
 
-cleanInstallRootAfterRun(installRoot)
+cleanRootAfterRun(rootPath)
 
 if enabled == 0 then
     print("0 network tests enabled")
