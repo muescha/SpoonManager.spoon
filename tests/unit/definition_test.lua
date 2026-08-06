@@ -203,6 +203,33 @@ return function(T)
         T.assertEqual(err, "ZIP source must point to a .zip file")
     end)
 
+    T.test("installer rejects unsupported command source kind", function()
+        local result, err =
+            T.context.installer.installDefinition({
+                name = "A",
+                config = {},
+                resolved = {
+                    installName = "A",
+                },
+                command = {
+                    action = "install",
+                    name = "A",
+                    source = {
+                        kind = "git",
+                    },
+                    target = {
+                        type = "spoon",
+                        name = "A",
+                    },
+                    options = {},
+                },
+                options = {},
+            })
+
+        T.assertFalse(result)
+        T.assertEqual(err, "Unsupported source kind: git")
+    end)
+
     T.test("resolver rejects release without zip file", function()
         T.assertError(function()
             T.SpoonManager.from.github("owner/repo")

@@ -228,7 +228,7 @@ return function(context)
         elseif source.kind == "zip" and source.url then
             result, err = Installer.installFromRemoteZip(def, source.url)
         else
-            return nil, "Unsupported source type: " .. tostring(source.kind), def
+            return nil, "Unsupported source kind: " .. tostring(source.kind), def
         end
 
         if result then
