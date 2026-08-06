@@ -63,8 +63,12 @@ return function(context)
             resolved.sourceType = source.type
             if source.type == "remote-zip" then
                 resolved.url = source.url
+                resolved.extractFolder = target.selection_folder
             elseif source.type == "local-folder" or source.type == "local-zip" then
                 resolved.localPath = util.localPath(source.path)
+                if source.type == "local-zip" then
+                    resolved.extractFolder = target.selection_folder
+                end
             end
         end
 
@@ -106,8 +110,12 @@ return function(context)
             command.from.folder = resolved.extractFolder
         elseif resolved.sourceType == "github-release" or resolved.sourceType == "remote-zip" then
             command.from.url = resolved.url
+            command.from.folder = resolved.extractFolder
         elseif resolved.sourceType == "local-folder" or resolved.sourceType == "local-zip" then
             command.from.path = resolved.localPath
+            if resolved.sourceType == "local-zip" then
+                command.from.folder = resolved.extractFolder
+            end
         end
 
         return command

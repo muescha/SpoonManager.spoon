@@ -33,6 +33,8 @@ return function(context)
 
         if source.type == "github-folder" then
             selection.path = source.folder or source.path
+        elseif source.type == "remote-zip" or source.type == "local-zip" then
+            selection.path = source.folder
         elseif source.type == "github-repository" then
             selection.path = nil
         end
