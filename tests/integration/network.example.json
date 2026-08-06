@@ -11,16 +11,16 @@
     }
   },
   "pathTemplates": {
-    "root": ".network-installs",
-    "install": "{root}/testinstalls/{timestamp}/{id}",
-    "explain": "{root}/network.test.{timestamp}.{id}.explain.json",
-    "result": "{root}/network.test.{timestamp}.{id}.result.json",
-    "log": "{root}/network.test.{timestamp}.{id}.log.json"
+    "root": ".network-installs/{timestamp}",
+    "install": "{root}/install/{id}",
+    "explain": "{root}/install/{id}.explain.json",
+    "result": "{root}/install/{id}.result.json",
+    "log": "{root}/install/{id}.log.json"
   },
   "tests": [
     {
       "id": "github-folder",
-      "enabled": false,
+      "enabled": true,
       "description": "Install a Spoon from a folder inside a GitHub repository archive.",
       "source": {
         "type": "github-folder",
@@ -39,7 +39,7 @@
     },
     {
       "id": "spoon-repo",
-      "enabled": false,
+      "enabled": true,
       "description": "Install a named Spoon from a repository using Source/{name}.spoon.",
       "source": {
         "type": "spoon-repo",
@@ -57,7 +57,7 @@
     },
     {
       "id": "spoon-repo-zip",
-      "enabled": false,
+      "enabled": true,
       "description": "Install a named Spoon from a repository using Spoons/{name}.spoon.zip.",
       "source": {
         "type": "spoon-repo-zip",
@@ -75,7 +75,7 @@
     },
     {
       "id": "github-repository",
-      "enabled": false,
+      "enabled": true,
       "description": "Install a Spoon where the GitHub repository root is the Spoon root.",
       "source": {
         "type": "github-repository",
@@ -93,7 +93,7 @@
     },
     {
       "id": "github-release",
-      "enabled": false,
+      "enabled": true,
       "description": "Install a Spoon from a GitHub release ZIP asset.",
       "source": {
         "type": "github-release",
@@ -112,7 +112,7 @@
     },
     {
       "id": "remote-zip",
-      "enabled": false,
+      "enabled": true,
       "description": "Install a Spoon from an arbitrary remote ZIP URL.",
       "source": {
         "type": "remote-zip",

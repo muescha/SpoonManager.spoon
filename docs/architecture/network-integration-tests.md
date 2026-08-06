@@ -484,23 +484,24 @@ The runner is:
 tests/integration/network.lua
 ```
 
-Suggested workflow:
+Run the checked-in example directly:
+
+```sh
+/Users/muescha/.local/share/mise/installs/lua/5.4.4/bin/lua \
+  tests/integration/network.lua \
+  tests/integration/network.example.json
+```
+
+The example intentionally contains both real Hammerspoon sources and placeholder
+sources. Placeholder sources should fail with ordered HTTP errors until they are
+replaced with real repositories or assets.
+
+Use `network.local.json` only for private or temporary test cases that should not
+be committed:
 
 ```sh
 cp tests/integration/network.example.json tests/integration/network.local.json
-```
 
-Then edit `network.local.json`, set one or more tests to:
-
-```json
-{
-  "enabled": true
-}
-```
-
-Run:
-
-```sh
 /Users/muescha/.local/share/mise/installs/lua/5.4.4/bin/lua \
   tests/integration/network.lua \
   tests/integration/network.local.json
