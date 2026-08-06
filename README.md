@@ -164,8 +164,7 @@ Install a Spoon from a folder inside a GitHub repository:
 ```lua
 spoon.SpoonManager.from.github("muescha/SpoonRepo")
     .branch("main")
-    .folder("Source/deepfolder")
-    .withName("DeepFolder")
+    .folder("Source/DeepFolder.spoon")
     .install()
 ```
 
@@ -175,7 +174,6 @@ Install from the latest GitHub release asset:
 spoon.SpoonManager.from.github("muescha/DeepFolder.spoon")
     .releaseLatest()
     .asset("DeepFolder.zip")
-    .withName("DeepFolder")
     .install()
 ```
 
@@ -198,8 +196,7 @@ local emojis =
 
 local deepFolder =
     spoon.SpoonManager.from.github("muescha/SpoonRepo")
-        .folder("Source/deepfolder")
-        .withName("DeepFolder")
+        .folder("Source/DeepFolder.spoon")
 
 spoon.SpoonManager.add(emojis, deepFolder)
 spoon.SpoonManager.install()
@@ -579,7 +576,6 @@ Example:
 
 ```lua
 spoon.SpoonManager.from.remoteZip("https://example.com/MySpoon.zip")
-    .withName("MySpoon")
     .install()
 ```
 
@@ -589,7 +585,6 @@ Example, GitHub latest release asset as a plain ZIP URL:
 spoon.SpoonManager.from.remoteZip(
     "https://github.com/muescha/MySpoon.spoon/releases/latest/download/MySpoon.zip"
 )
-    .withName("MySpoon")
     .install()
 ```
 
@@ -609,7 +604,6 @@ Example:
 
 ```lua
 spoon.SpoonManager.from.localZip("~/Downloads/MySpoon.zip")
-    .withName("MySpoon")
     .install()
 ```
 
@@ -848,7 +842,7 @@ Use `withName()` only when the inferred name is not the name you want to install
 ```lua
 spoon.SpoonManager.from.github("muescha/SpoonRepo")
     .folder("Source/deepfolder")
-    .withName("DeepFolder")
+    .withName("ManagedDeepFolder")
     .install()
 ```
 
@@ -864,7 +858,6 @@ Example:
 spoon.SpoonManager.from.github("muescha/MySpoon.spoon")
     .releaseLatest()
     .asset("MySpoon.zip")
-    .withName("MySpoon")
     .install()
 ```
 
@@ -884,7 +877,6 @@ Example:
 spoon.SpoonManager.from.github("muescha/MySpoon.spoon")
     .release("v1.2.0")
     .asset("MySpoon.zip")
-    .withName("MySpoon")
     .install()
 ```
 
@@ -910,7 +902,6 @@ Example:
 spoon.SpoonManager.from.github("muescha/MySpoon.spoon")
     .releaseLatest()
     .asset("MySpoon.zip")
-    .withName("MySpoon")
     .install()
 ```
 
@@ -918,7 +909,7 @@ spoon.SpoonManager.from.github("muescha/MySpoon.spoon")
 
 Returns a new definition with a specific installed Spoon name.
 
-This is useful when the inferred name is not the name you want. For example, a folder named `Source/deepfolder` is inferred as `deepfolder`; use `withName("DeepFolder")` if the installed Spoon should be named `DeepFolder`.
+This is useful when the inferred name is not the name you want. For example, a folder named `Source/deepfolder` is inferred as `deepfolder`; use `withName("ManagedDeepFolder")` if the installed Spoon should be named `ManagedDeepFolder`.
 
 In exported configs, this uses `target.name_withName = name`.
 
@@ -926,15 +917,15 @@ Example:
 
 ```lua
 spoon.SpoonManager.from.remoteZip("https://example.com/download.zip")
-    .withName("MySpoon")
+    .withName("ManagedDownload")
     .install()
 ```
 
-Example, repository root:
+Example, repository root with a different local name:
 
 ```lua
 spoon.SpoonManager.from.github("muescha/MySpoon.spoon")
-    .withName("MySpoon")
+    .withName("ManagedMySpoon")
     .install()
 ```
 
