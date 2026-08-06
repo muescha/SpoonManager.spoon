@@ -165,7 +165,6 @@ return function(context)
             action = "install",
             name = definition.name,
             path = destination,
-            source = definition.command.from,
             use = definition.use,
         }
     end
@@ -220,7 +219,6 @@ return function(context)
                 path = paths.targetPath(def.name),
                 command = command,
                 resolved = def.resolved,
-                source = def.command.from,
                 use = def.use,
             }, nil, def
         end

@@ -45,7 +45,6 @@ return function(context)
             fingerprints = {
                 localHash = localHash,
             },
-            source = definition.command and definition.command.from or nil,
             use = definition.use,
         }
 
