@@ -3,7 +3,7 @@
     "action": "install",
     "from": {
       "path": "/Users/test/Downloads/DeepFolder.spoon.zip",
-      "type": "local-zip"
+      "type": "localZip"
     },
     "name": "DeepFolder",
     "options": {
@@ -18,12 +18,12 @@
   "config": {
     "source": {
       "path": "~/Downloads/DeepFolder.spoon.zip",
-      "type": "local-zip"
+      "type": "localZip"
     }
   },
   "resolved": {
     "installName": "DeepFolder",
     "localPath": "/Users/test/Downloads/DeepFolder.spoon.zip",
-    "sourceType": "local-zip"
+    "sourceType": "localZip"
   }
 }

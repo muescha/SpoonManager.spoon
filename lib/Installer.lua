@@ -57,7 +57,7 @@ return function(context)
             return nil, "Spoon definition requires a Spoon name. Add .withName(\"Name\")."
         end
 
-        if definition.command.from.type == "remote-zip" and not util.isZipPath(definition.command.from.url) then
+        if definition.command.from.type == "remoteZip" and not util.isZipPath(definition.command.from.url) then
             return nil, "Remote ZIP URL must point to a .zip file"
         end
 
@@ -65,7 +65,7 @@ return function(context)
             return nil, "GitHub release asset must point to a .zip file"
         end
 
-        if definition.command.from.type == "local-zip" and not util.isZipPath(definition.command.from.path) then
+        if definition.command.from.type == "localZip" and not util.isZipPath(definition.command.from.path) then
             return nil, "Local ZIP path must point to a .zip file"
         end
 
@@ -222,13 +222,13 @@ return function(context)
         local source = command.from
         local result, err
 
-        if source.type == "local-folder" then
+        if source.type == "localFolder" then
             result, err = Installer.installFromFolder(def, source.path)
-        elseif source.type == "local-zip" then
+        elseif source.type == "localZip" then
             local tmpdir = util.trim(hs.execute("/usr/bin/mktemp -d"))
             result, err = Installer.installFromZipFile(def, source.path, tmpdir)
             util.removePath(tmpdir, logger)
-        elseif source.type == "remote-zip" then
+        elseif source.type == "remoteZip" then
             result, err = Installer.installFromRemoteZip(def, source.url)
         elseif source.type == "github-release" then
             result, err = Installer.installFromRemoteZip(def, source.url)

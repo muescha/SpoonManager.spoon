@@ -43,7 +43,7 @@ return function(context)
                 resolved.archiveUrl = github.archiveUrl(source)
             elseif target.selection_spoon and source.pattern_spoonZipPattern then
                 local path = selectedSpoonName and source.pattern_spoonZipPattern:gsub("{name}", selectedSpoonName) or nil
-                resolved.sourceType = "remote-zip"
+                resolved.sourceType = "remoteZip"
                 if path then
                     resolved.url = github.rawUrl(source, path)
                 end
@@ -56,17 +56,17 @@ return function(context)
                 resolved.sourceType = "github-repository"
                 resolved.archiveUrl = github.archiveUrl(source)
             end
-        elseif source.type == "local-folder" and target.selection_folder then
-            resolved.sourceType = "local-folder"
+        elseif source.type == "localFolder" and target.selection_folder then
+            resolved.sourceType = "localFolder"
             resolved.localPath = util.pathJoin(util.localPath(source.path), target.selection_folder)
         else
             resolved.sourceType = source.type
-            if source.type == "remote-zip" then
+            if source.type == "remoteZip" then
                 resolved.url = source.url
                 resolved.extractFolder = target.selection_folder
-            elseif source.type == "local-folder" or source.type == "local-zip" then
+            elseif source.type == "localFolder" or source.type == "localZip" then
                 resolved.localPath = util.localPath(source.path)
-                if source.type == "local-zip" then
+                if source.type == "localZip" then
                     resolved.extractFolder = target.selection_folder
                 end
             end
@@ -108,12 +108,12 @@ return function(context)
         if resolved.sourceType == "github-folder" or resolved.sourceType == "github-repository" then
             command.from.archiveUrl = resolved.archiveUrl
             command.from.folder = resolved.extractFolder
-        elseif resolved.sourceType == "github-release" or resolved.sourceType == "remote-zip" then
+        elseif resolved.sourceType == "github-release" or resolved.sourceType == "remoteZip" then
             command.from.url = resolved.url
             command.from.folder = resolved.extractFolder
-        elseif resolved.sourceType == "local-folder" or resolved.sourceType == "local-zip" then
+        elseif resolved.sourceType == "localFolder" or resolved.sourceType == "localZip" then
             command.from.path = resolved.localPath
-            if resolved.sourceType == "local-zip" then
+            if resolved.sourceType == "localZip" then
                 command.from.folder = resolved.extractFolder
             end
         end

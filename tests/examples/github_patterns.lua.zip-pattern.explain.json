@@ -2,7 +2,7 @@
   "command": {
     "action": "install",
     "from": {
-      "type": "remote-zip",
+      "type": "remoteZip",
       "url": "https://github.com/muescha/SpoonRepo/raw/main/dist/DeepFolder.spoon.zip"
     },
     "name": "DeepFolder",
@@ -30,7 +30,7 @@
   },
   "resolved": {
     "installName": "DeepFolder",
-    "sourceType": "remote-zip",
+    "sourceType": "remoteZip",
     "url": "https://github.com/muescha/SpoonRepo/raw/main/dist/DeepFolder.spoon.zip"
   }
 }

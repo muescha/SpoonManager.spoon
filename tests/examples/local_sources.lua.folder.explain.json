@@ -3,7 +3,7 @@
     "action": "install",
     "from": {
       "path": "/Users/test/Projects/DeepFolder.spoon",
-      "type": "local-folder"
+      "type": "localFolder"
     },
     "name": "DeepFolder",
     "options": {
@@ -18,12 +18,12 @@
   "config": {
     "source": {
       "path": "~/Projects/DeepFolder.spoon",
-      "type": "local-folder"
+      "type": "localFolder"
     }
   },
   "resolved": {
     "installName": "DeepFolder",
     "localPath": "/Users/test/Projects/DeepFolder.spoon",
-    "sourceType": "local-folder"
+    "sourceType": "localFolder"
   }
 }

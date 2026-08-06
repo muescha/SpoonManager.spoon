@@ -154,12 +154,12 @@
       }
     },
     {
-      "id": "remote-zip",
+      "id": "remoteZip",
       "enabled": true,
       "description": "Install a Spoon from an arbitrary remote ZIP URL.",
       "config": {
         "source": {
-          "type": "remote-zip",
+          "type": "remoteZip",
           "url": "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/AutoMuteOnSleep.spoon.zip"
         }
       },
@@ -170,12 +170,12 @@
       }
     },
     {
-      "id": "remote-zip-error",
+      "id": "remoteZip-error",
       "enabled": true,
       "description": "Verify that a missing remote ZIP returns a structured failure.",
       "config": {
         "source": {
-          "type": "remote-zip",
+          "type": "remoteZip",
           "url": "https://example.com/TestSpoon.zip"
         },
         "target": {

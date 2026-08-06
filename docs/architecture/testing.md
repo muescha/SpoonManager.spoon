@@ -91,13 +91,13 @@ The golden file is readable by itself:
   },
   "resolved": {
     "installName": "Emojis",
-    "sourceType": "remote-zip",
+    "sourceType": "remoteZip",
     "url": "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/Emojis.spoon.zip"
   },
   "command": {
     "action": "install",
     "from": {
-      "type": "remote-zip",
+      "type": "remoteZip",
       "url": "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/Emojis.spoon.zip"
     },
     "to": {
@@ -202,7 +202,7 @@ Example normalized installed snapshot:
     },
     "resolved": {
       "installName": "Emojis",
-      "sourceType": "remote-zip",
+      "sourceType": "remoteZip",
       "url": "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/Emojis.spoon.zip"
     },
     "fingerprints": {
@@ -369,7 +369,7 @@ Expected command:
 ```lua
 {
     from = {
-        type = "remote-zip",
+        type = "remoteZip",
         url = "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/Emojis.spoon.zip",
     },
     to = {
@@ -385,7 +385,7 @@ Useful cases:
 - GitHub folder -> `github-folder`
 - GitHub release latest asset -> `github-release`
 - GitHub release tag asset -> `github-release`
-- GitHub Spoon ZIP pattern -> `remote-zip`
+- GitHub Spoon ZIP pattern -> `remoteZip`
 - GitHub Spoon folder pattern -> `github-folder`
 - local folder with `folder(...)` -> joined local path
 - local ZIP -> local ZIP command

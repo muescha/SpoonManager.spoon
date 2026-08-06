@@ -24,7 +24,7 @@ return function(T)
         local explanation =
             T.SpoonManager.from.config({
                 source = {
-                    type = "remote-zip",
+                    type = "remoteZip",
                     url = "https://example.com/downloads/latest.zip",
                 },
                 target = {
@@ -32,8 +32,8 @@ return function(T)
                 },
             }).command("install").explain()
 
-        T.assertEqual(explanation.command.from.type, "remote-zip")
+        T.assertEqual(explanation.command.from.type, "remoteZip")
         T.assertEqual(explanation.command.to.name, "DeepFolder")
-        T.assertMatchesJson("examples/config_sources.lua.remote-zip-with-name.explain.json", explanation)
+        T.assertMatchesJson("examples/config_sources.lua.remoteZip-with-name.explain.json", explanation)
     end)
 end

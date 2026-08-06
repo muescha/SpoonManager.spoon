@@ -149,11 +149,11 @@ broken and the expected behavior is a structured error result.
 
 ```json
 {
-  "id": "remote-zip-error",
+  "id": "remoteZip-error",
   "enabled": true,
   "config": {
     "source": {
-      "type": "remote-zip",
+      "type": "remoteZip",
       "url": "https://example.com/TestSpoon.zip"
     },
     "target": {
@@ -283,11 +283,11 @@ Builder-to-definition equivalence is tested separately without network access in
 
 ```json
 {
-  "id": "remote-zip",
+  "id": "remoteZip",
   "enabled": true,
   "config": {
     "source": {
-      "type": "remote-zip",
+      "type": "remoteZip",
       "url": "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/AutoMuteOnSleep.spoon.zip"
     }
   },
@@ -423,7 +423,7 @@ Exact test id as a plain argument:
 /Users/muescha/.local/share/mise/installs/lua/5.4.4/bin/lua \
   tests/integration/network.lua \
   tests/integration/network.example.json \
-  remote-zip
+  remoteZip
 ```
 
 Exact test id with an explicit flag:
@@ -432,7 +432,7 @@ Exact test id with an explicit flag:
 /Users/muescha/.local/share/mise/installs/lua/5.4.4/bin/lua \
   tests/integration/network.lua \
   tests/integration/network.example.json \
-  --id remote-zip
+  --id remoteZip
 ```
 
 `--only` is accepted as an alias for `--id`:
@@ -441,7 +441,7 @@ Exact test id with an explicit flag:
 /Users/muescha/.local/share/mise/installs/lua/5.4.4/bin/lua \
   tests/integration/network.lua \
   tests/integration/network.example.json \
-  --only remote-zip
+  --only remoteZip
 ```
 
 zsh-safe prefix filter:
@@ -474,14 +474,14 @@ Quoted wildcard filter:
 In zsh, unquoted `remote-*` can be expanded by the shell before Lua sees it.
 Prefer `--prefix remote-` for prefix-style selection.
 
-Multiple filters are OR-combined. This runs `remote-zip` plus every test whose id
+Multiple filters are OR-combined. This runs `remoteZip` plus every test whose id
 starts with `github-`:
 
 ```sh
 /Users/muescha/.local/share/mise/installs/lua/5.4.4/bin/lua \
   tests/integration/network.lua \
   tests/integration/network.example.json \
-  remote-zip \
+  remoteZip \
   --prefix github-
 ```
 

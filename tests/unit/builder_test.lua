@@ -132,7 +132,7 @@ return function(T)
             T.SpoonManager.from.remoteZip("https://github.com/Hammerspoon/Spoons/raw/master/Spoons/AutoMuteOnSleep.spoon.zip"),
             {
                 source = {
-                    type = "remote-zip",
+                    type = "remoteZip",
                     url = "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/AutoMuteOnSleep.spoon.zip",
                 },
             }
@@ -146,7 +146,7 @@ return function(T)
                 .withName("TestSpoon"),
             {
                 source = {
-                    type = "remote-zip",
+                    type = "remoteZip",
                     url = "https://example.com/TestSpoon.zip",
                 },
                 target = {

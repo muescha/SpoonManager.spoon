@@ -2,7 +2,7 @@
 
 This note describes a proposed architecture for source providers, source capabilities, and the install pipeline.
 
-It is intentionally a design note first. The current implementation still uses `source.type` values such as `github-folder`, `remote-zip`, and `local-zip` in the resolved and command stages. The goal of this proposal is to remove these source-specific execution cases over time and replace them with provider-based resolution plus a small generic installer pipeline.
+It is intentionally a design note first. The current implementation still uses `source.type` values such as `github-folder`, `github-repository`, and `github-release` in the resolved and command stages. The goal of this proposal is to remove these source-specific execution cases over time and replace them with provider-based resolution plus a small generic installer pipeline.
 
 ## Problem
 

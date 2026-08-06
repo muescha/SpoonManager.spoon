@@ -2,7 +2,7 @@
   "command": {
     "action": "install",
     "from": {
-      "type": "remote-zip",
+      "type": "remoteZip",
       "url": "https://github.com/Hammerspoon/Spoons/raw/main/Spoons/Emojis.spoon.zip"
     },
     "name": "Emojis",
@@ -31,7 +31,7 @@
   },
   "resolved": {
     "installName": "Emojis",
-    "sourceType": "remote-zip",
+    "sourceType": "remoteZip",
     "url": "https://github.com/Hammerspoon/Spoons/raw/main/Spoons/Emojis.spoon.zip"
   }
 }

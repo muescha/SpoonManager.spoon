@@ -109,7 +109,7 @@ end
 
 return function(T)
     T.test("local zip folder selection installs the selected Spoon folder", function()
-        local tmpRoot = "/tmp/spoonmanager-local-zip-folder-test"
+        local tmpRoot = "/tmp/spoonmanager-localZip-folder-test"
         local configdir = tmpRoot .. "/hammerspoon"
         local originalHs = hs
 

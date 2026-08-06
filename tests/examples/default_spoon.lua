@@ -11,7 +11,7 @@ return function(T)
         T.assertEqual(explanation.config.source.pattern_spoonZipPattern, "Spoons/{name}.spoon.zip")
         T.assertEqual(explanation.config.target.selection_spoon, "Emojis")
         T.assertEqual(explanation.resolved.installName, "Emojis")
-        T.assertEqual(explanation.command.from.type, "remote-zip")
+        T.assertEqual(explanation.command.from.type, "remoteZip")
         T.assertMatchesJson("examples/default_spoon.lua.explain.json", explanation)
     end)
 

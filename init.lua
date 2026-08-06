@@ -184,7 +184,7 @@ function obj.from.remoteZip(url)
 
     return context.definition.fromState({
         source = {
-            type = "remote-zip",
+            type = "remoteZip",
             url = url,
         },
     })
@@ -198,7 +198,7 @@ function obj.from.localZip(path)
 
     return context.definition.fromState({
         source = {
-            type = "local-zip",
+            type = "localZip",
             path = path,
         },
     })
@@ -212,7 +212,7 @@ function obj.from.localFolder(path)
 
     return context.definition.fromState({
         source = {
-            type = "local-folder",
+            type = "localFolder",
             path = path,
         },
     })

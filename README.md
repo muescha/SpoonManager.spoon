@@ -541,7 +541,7 @@ Creates a builder from a remote ZIP URL.
 
 Use this when you already know the exact ZIP URL. The ZIP may contain a `.spoon` folder, a single root folder with `init.lua`, or `init.lua` directly at the ZIP root.
 
-In exported configs, this uses `source.type = "remote-zip"`.
+In exported configs, this uses `source.type = "remoteZip"`.
 
 The URL must point to a `.zip` file. Other archive formats are rejected.
 
@@ -569,7 +569,7 @@ Creates a builder from a local ZIP file.
 
 `path` may use `~` when Hammerspoon can resolve it with `hs.fs.pathToAbsolute()`.
 
-In exported configs, this uses `source.type = "local-zip"`.
+In exported configs, this uses `source.type = "localZip"`.
 
 The path must point to a `.zip` file. Other archive formats are rejected.
 
@@ -1228,7 +1228,7 @@ The resolved stage contains derived values such as:
 
 ```text
 resolved.installName    = final Spoon name after inference or withName(...)
-resolved.sourceType     = executable source kind, for example remote-zip or github-folder
+resolved.sourceType     = executable source kind, for example remoteZip or github-folder
 resolved.url            = direct ZIP URL, when the source resolves to a ZIP
 resolved.archiveUrl     = repository archive URL, when a folder/repository is installed
 resolved.extractFolder  = folder to extract from an archive
@@ -1251,7 +1251,7 @@ Example output:
 ```lua
 {
     installName = "Emojis",
-    sourceType = "remote-zip",
+    sourceType = "remoteZip",
     url = "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/Emojis.spoon.zip",
 }
 ```

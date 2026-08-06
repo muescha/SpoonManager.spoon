@@ -413,7 +413,7 @@ SpoonManager.from.localFolder("~/Projects/SpoonRepo")
 ```lua
 {
     source = {
-        type = "local-folder",
+        type = "localFolder",
         path = "/Users/example/Projects/SpoonRepo",
     },
     target = {
