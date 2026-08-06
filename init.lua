@@ -84,6 +84,10 @@ local function loadLib(name)
     return dofile(spoonPath .. "/lib/" .. name .. ".lua")
 end
 
+local function loadProvider(name)
+    return dofile(spoonPath .. "/lib/providers/" .. name .. ".lua")
+end
+
 local Util = loadLib("Util")
 local GitHub = loadLib("GitHub")
 
@@ -103,6 +107,13 @@ context.resolver = loadLib("Resolver")(context)
 context.archive = loadLib("Archive")(context)
 context.installer = loadLib("Installer")(context)
 context.definition = loadLib("Definition")(context)
+
+local Providers = {
+    github = loadProvider("GitHub")(context),
+    remoteZip = loadProvider("RemoteZip")(context),
+    localZip = loadProvider("LocalZip")(context),
+    localFolder = loadProvider("LocalFolder")(context),
+}
 
 function obj._installDefinition(definition, action)
     return context.installer.installDefinition(definition, action)
@@ -180,13 +191,8 @@ end
 --- Function
 --- Create a Spoon definition from a remote zip URL.
 function obj.from.remoteZip(url)
-    Util.requireZipPath(url, "Remote ZIP URL")
-
     return context.definition.fromState({
-        source = {
-            type = "remoteZip",
-            url = url,
-        },
+        source = Providers.remoteZip.createSource(url),
     })
 end
 
@@ -194,13 +200,8 @@ end
 --- Function
 --- Create a Spoon definition from a local zip file.
 function obj.from.localZip(path)
-    Util.requireZipPath(path, "Local ZIP path")
-
     return context.definition.fromState({
-        source = {
-            type = "localZip",
-            path = path,
-        },
+        source = Providers.localZip.createSource(path),
     })
 end
 
@@ -208,13 +209,8 @@ end
 --- Function
 --- Create a Spoon definition from a local folder.
 function obj.from.localFolder(path)
-    Util.requireString(path, "Local folder path")
-
     return context.definition.fromState({
-        source = {
-            type = "localFolder",
-            path = path,
-        },
+        source = Providers.localFolder.createSource(path),
     })
 end
 
@@ -222,41 +218,8 @@ end
 --- Function
 --- Create a GitHub repository definition.
 function obj.from.github(repository, options)
-    Util.requireString(repository, "GitHub repository")
-
-    options = options or {}
-    if options.branch then
-        Util.requireString(options.branch, "GitHub branch")
-    end
-    if options.ref then
-        Util.requireString(options.ref, "GitHub ref")
-    end
-    if options.baseUrl then
-        Util.requireString(options.baseUrl, "GitHub base URL")
-    end
-    if options.defaultBranch then
-        Util.requireString(options.defaultBranch, "GitHub default branch")
-    end
-
-    local source = {
-        type = "github",
-        provider = "github",
-        repository = repository,
-        baseUrl = options.baseUrl or "https://github.com",
-    }
-
-    if options.defaultBranch then
-        source.defaultBranch = options.defaultBranch
-    end
-
-    if options.ref then
-        source.revision_ref = options.ref
-    elseif options.branch then
-        source.revision_branch = options.branch
-    end
-
     return context.definition.fromState({
-        source = source,
+        source = Providers.github.createSource(repository, options),
     })
 end
 
