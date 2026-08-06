@@ -1,5 +1,6 @@
 .idea/
 tests/integration/network.local.json
+tests/integration/.network-installs/
 tests/integration/network.test.*.explain.json
 tests/integration/network.test.*.result.json
 tests/integration/network.test.*.log.json

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "installRoot": "/tmp/spoonmanager-network-test",
+  "installRoot": ".network-installs",
   "installPathTemplate": "{installRoot}/testinstalls/{timestamp}/{id}",
   "cleanup": {
     "allTests": {
@@ -13,9 +13,9 @@
     }
   },
   "pathTemplates": {
-    "explain": "tests/integration/network.test.{timestamp}.{id}.explain.json",
-    "result": "tests/integration/network.test.{timestamp}.{id}.result.json",
-    "log": "tests/integration/network.test.{timestamp}.{id}.log.json"
+    "explain": "network.test.{timestamp}.{id}.explain.json",
+    "result": "network.test.{timestamp}.{id}.result.json",
+    "log": "network.test.{timestamp}.{id}.log.json"
   },
   "tests": [
     {

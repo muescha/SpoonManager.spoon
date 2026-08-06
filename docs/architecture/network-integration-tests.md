@@ -30,7 +30,7 @@ release assets, and remote ZIP URLs that are stable enough for end-to-end testin
 ```json
 {
   "version": 1,
-  "installRoot": "/tmp/spoonmanager-network-test",
+  "installRoot": ".network-installs",
   "installPathTemplate": "{installRoot}/testinstalls/{timestamp}/{id}",
   "cleanup": {
     "allTests": {
@@ -43,9 +43,9 @@ release assets, and remote ZIP URLs that are stable enough for end-to-end testin
     }
   },
   "pathTemplates": {
-    "explain": "tests/integration/network.test.{timestamp}.{id}.explain.json",
-    "result": "tests/integration/network.test.{timestamp}.{id}.result.json",
-    "log": "tests/integration/network.test.{timestamp}.{id}.log.json"
+    "explain": "network.test.{timestamp}.{id}.explain.json",
+    "result": "network.test.{timestamp}.{id}.result.json",
+    "log": "network.test.{timestamp}.{id}.log.json"
   },
   "tests": []
 }
@@ -57,13 +57,32 @@ release assets, and remote ZIP URLs that are stable enough for end-to-end testin
 /tmp/spoonmanager-network-test
 ```
 
+Absolute paths are used as-is. Relative paths are resolved relative to the
+directory that contains the network JSON config. For
+`tests/integration/network.local.json`, this means:
+
+```json
+{
+  "installRoot": ".network-installs",
+  "pathTemplates": {
+    "result": "network.test.{timestamp}.{id}.result.json"
+  }
+}
+```
+
+resolves below:
+
+```text
+tests/integration/.network-installs
+tests/integration/network.test.{timestamp}.{id}.result.json
+```
+
 `installPathTemplate` becomes the fake Hammerspoon config directory template for
 each network test. The runner expands placeholders before each test and loads
 SpoonManager with that test-specific `hs.configdir`.
 
 `pathTemplates.explain` controls the exact JSON snapshot path written for each
-network test. It describes the planned SpoonManager command. Relative paths are
-resolved from the repository root.
+network test. It describes the planned SpoonManager command.
 
 `pathTemplates.result` controls the exact JSON path for the test-run result. It
 records whether the test passed, which source and target were used, where the
@@ -87,7 +106,7 @@ Supported placeholders:
 With the example template, installed Spoons land below:
 
 ```text
-/tmp/spoonmanager-network-test/testinstalls/{timestamp}/{id}/Spoons/{name}.spoon
+tests/integration/.network-installs/testinstalls/{timestamp}/{id}/Spoons/{name}.spoon
 ```
 
 `timestamp` is generated once per runner invocation in a path-friendly UTC form:
@@ -123,8 +142,9 @@ Each test may override `installPathTemplate`, `pathTemplates.*`, and
 `cleanup.test.*` if a specific case should use a different location or cleanup
 behavior.
 
-For safety, the runner only accepts install roots below `/tmp/` whose path contains
-`spoonmanager`.
+For safety, the runner only accepts install roots below `/tmp/` or inside the
+network config directory. It rejects paths containing `..` and refuses to use the
+config directory itself as `installRoot`.
 
 Each enabled test writes three JSON artifacts:
 

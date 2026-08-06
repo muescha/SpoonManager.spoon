@@ -10,17 +10,33 @@ end
 local json = dofile(repoRoot .. "/tests/helpers/json.lua")
 local config = assert(json.read(configPath))
 
-local function shellQuote(value)
-    return "'" .. tostring(value):gsub("'", "'\\''") .. "'"
-end
-
 local function pathJoin(...)
     local path = table.concat({ ... }, "/")
     return path:gsub("/+", "/")
 end
 
+local function isAbsolutePath(path)
+    return type(path) == "string" and path:sub(1, 1) == "/"
+end
+
+local absoluteConfigPath = isAbsolutePath(configPath) and configPath or pathJoin(repoRoot, configPath)
+
+local function shellQuote(value)
+    return "'" .. tostring(value):gsub("'", "'\\''") .. "'"
+end
+
 local function parentDir(path)
     return path:match("^(.*)/[^/]*$") or "."
+end
+
+local configDir = parentDir(absoluteConfigPath)
+
+local function resolveConfiguredPath(path)
+    if isAbsolutePath(path) then
+        return path
+    end
+
+    return pathJoin(configDir, path)
 end
 
 local function ensureDir(path)
@@ -96,14 +112,33 @@ local function targetLabel(test)
 end
 
 local function assertSafeTestPath(path, label)
-    if path:sub(1, 5) ~= "/tmp/" or not path:match("spoonmanager") then
-        error(label .. " must be a /tmp path containing 'spoonmanager': " .. path)
+    if not isAbsolutePath(path) then
+        error(label .. " must resolve to an absolute path: " .. tostring(path))
     end
+
+    if path:match("(^|/)%.%.(/|$)") then
+        error(label .. " must not contain '..': " .. path)
+    end
+
+    if path == configDir then
+        error(label .. " must not be the network config directory itself: " .. path)
+    end
+
+    if path:sub(1, 5) == "/tmp/" then
+        return
+    end
+
+    if path:sub(1, #configDir + 1) == configDir .. "/" then
+        return
+    end
+
+    error(label .. " must be inside /tmp or the network config directory: " .. path)
 end
 
 local function installRootForRun()
     local installRoot = config.installRoot or "/tmp/spoonmanager-network-test"
     assertString(installRoot, "installRoot")
+    installRoot = resolveConfiguredPath(installRoot)
     assertSafeTestPath(installRoot, "installRoot")
     return installRoot
 end
@@ -123,6 +158,7 @@ local function installPathFor(test, installRoot)
         timestamp = runTimestamp,
     })
 
+    installPath = resolveConfiguredPath(installPath)
     assertSafeTestPath(installPath, "installPath")
 
     return installPath
@@ -198,9 +234,7 @@ local function artifactPathFor(test, installRoot, installPath, templateName, def
         timestamp = runTimestamp,
     })
 
-    if artifactPath:sub(1, 1) ~= "/" then
-        artifactPath = pathJoin(repoRoot, artifactPath)
-    end
+    artifactPath = resolveConfiguredPath(artifactPath)
     ensureDir(parentDir(artifactPath))
     return artifactPath
 end
