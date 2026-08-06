@@ -392,7 +392,37 @@ The public definition table keeps user-provided values close to the builder call
 
 Builder arguments that describe names, paths, refs, URLs, patterns, releases, or assets must be strings. Passing a table, number, or another builder object raises an error instead of being converted with `tostring()`.
 
-Builder methods do not silently overwrite each other. Each group can be set once per definition: revision (`branch`/`ref`), Spoon pattern, selection (`spoon`/`folder`/`asset`), release, target name (`withName`), and local-change behavior. If you need another Spoon from the same repository, keep the base definition and call the method there again.
+Builder methods do not silently overwrite each other. Each group can be set once per definition: revision (`branch`/`ref`), Spoon pattern, selection (`spoon`/`folder`/`asset`), release, target name (`withName`), and local-change behavior.
+
+If you need another Spoon from the same repository, keep the broad base definition and create each selected Spoon from that base:
+
+```lua
+local official =
+    spoon.SpoonManager.from.spoonRepo("Hammerspoon/Spoons", {
+        branch = "master",
+    })
+
+local emojis =
+    official
+        .spoon("Emojis")
+
+local windowSigils =
+    official
+        .spoon("WindowSigils")
+```
+
+Do not try to change the selected Spoon on an already selected definition:
+
+```lua
+local emojis =
+    official
+        .spoon("Emojis")
+
+-- Error: selection_spoon('Emojis') already selected.
+local windowSigils =
+    emojis
+        .spoon("WindowSigils")
+```
 
 Internally, SpoonManager resolves a definition into an executable command at the last moment:
 
