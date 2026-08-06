@@ -32,7 +32,7 @@
   "resolved": {
     "extractFolder": "Source/DeepFolder.spoon",
     "installName": "DeepFolder",
-    "sourceType": "zip",
+    "sourceKind": "zip",
     "url": "https://github.com/muescha/SpoonRepo/archive/main.zip"
   }
 }

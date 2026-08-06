@@ -1228,7 +1228,7 @@ The resolved stage contains derived values such as:
 
 ```text
 resolved.installName    = final Spoon name after inference or withName(...)
-resolved.sourceType     = executable source kind, either zip or folder
+resolved.sourceKind     = executable source kind, either zip or folder
 resolved.url            = direct ZIP URL, when the source resolves to a ZIP
 resolved.extractFolder  = folder to extract from an archive
 ```
@@ -1250,7 +1250,7 @@ Example output:
 ```lua
 {
     installName = "Emojis",
-    sourceType = "zip",
+    sourceKind = "zip",
     url = "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/Emojis.spoon.zip",
 }
 ```

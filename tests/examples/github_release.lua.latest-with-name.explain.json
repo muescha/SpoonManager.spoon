@@ -32,7 +32,7 @@
     "asset": "latest.zip",
     "installName": "DeepFolder",
     "release": "latest",
-    "sourceType": "zip",
+    "sourceKind": "zip",
     "url": "https://github.com/muescha/DeepFolder.spoon/releases/latest/download/latest.zip"
   }
 }

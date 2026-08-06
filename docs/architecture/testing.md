@@ -91,7 +91,7 @@ The golden file is readable by itself:
   },
   "resolved": {
     "installName": "Emojis",
-    "sourceType": "zip",
+    "sourceKind": "zip",
     "url": "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/Emojis.spoon.zip"
   },
   "command": {
@@ -202,7 +202,7 @@ Example normalized installed snapshot:
     },
     "resolved": {
       "installName": "Emojis",
-      "sourceType": "zip",
+      "sourceKind": "zip",
       "url": "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/Emojis.spoon.zip"
     },
     "fingerprints": {

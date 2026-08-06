@@ -24,7 +24,7 @@ return function(context)
         local extract = config.extract or {}
 
         return {
-            sourceType = "zip",
+            sourceKind = "zip",
             localPath = util.localPath(source.file),
             extractFolder = extract.folder,
         }

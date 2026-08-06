@@ -57,7 +57,7 @@ return function(context)
             action = action or "install",
             name = resolved.installName,
             from = {
-                kind = resolved.sourceType,
+                kind = resolved.sourceKind,
             },
             to = {
                 type = "spoon",
@@ -68,11 +68,11 @@ return function(context)
             use = util.copyTable(config.use),
         }
 
-        if resolved.sourceType == "zip" then
+        if resolved.sourceKind == "zip" then
             command.from.url = resolved.url
             command.from.path = resolved.localPath
             command.from.folder = resolved.extractFolder
-        elseif resolved.sourceType == "folder" then
+        elseif resolved.sourceKind == "folder" then
             command.from.path = resolved.localPath
         end
 

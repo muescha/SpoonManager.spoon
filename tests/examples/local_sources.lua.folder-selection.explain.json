@@ -25,6 +25,6 @@
   "resolved": {
     "installName": "DeepFolder",
     "localPath": "/Users/test/Projects/SpoonRepo/Source/DeepFolder.spoon",
-    "sourceType": "folder"
+    "sourceKind": "folder"
   }
 }

@@ -72,7 +72,7 @@ return function(context)
         end
 
         if source.zipFile and (source.release_release or source.release_releaseLatest) then
-            resolved.sourceType = "zip"
+            resolved.sourceKind = "zip"
             resolved.asset = source.zipFile
             resolved.release = release
             resolved.url = github.releaseAssetUrl({
@@ -87,26 +87,26 @@ return function(context)
             if source.path then
                 path = util.pathJoin(source.path, source.zipFile)
             end
-            resolved.sourceType = "zip"
+            resolved.sourceKind = "zip"
             resolved.url = github.rawUrl(source, path)
             resolved.extractFolder = extract.folder
         elseif source.path then
-            resolved.sourceType = "zip"
+            resolved.sourceKind = "zip"
             resolved.extractFolder = source.path
             resolved.url = github.archiveUrl(source)
         elseif target.selection_spoon and source.pattern_spoonZipPattern then
             local path = selectedSpoonName and source.pattern_spoonZipPattern:gsub("{name}", selectedSpoonName) or nil
-            resolved.sourceType = "zip"
+            resolved.sourceKind = "zip"
             if path then
                 resolved.url = github.rawUrl(source, path)
             end
         elseif target.selection_spoon and source.pattern_spoonFolderPattern then
             local path = selectedSpoonName and source.pattern_spoonFolderPattern:gsub("{name}", selectedSpoonName) or nil
-            resolved.sourceType = "zip"
+            resolved.sourceKind = "zip"
             resolved.extractFolder = path
             resolved.url = github.archiveUrl(source)
         else
-            resolved.sourceType = "zip"
+            resolved.sourceKind = "zip"
             resolved.url = github.archiveUrl(source)
         end
 

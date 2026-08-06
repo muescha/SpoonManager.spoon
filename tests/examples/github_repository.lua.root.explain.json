@@ -25,7 +25,7 @@
   },
   "resolved": {
     "installName": "DeepFolder",
-    "sourceType": "zip",
+    "sourceKind": "zip",
     "url": "https://github.com/muescha/DeepFolder.spoon/archive/main.zip"
   }
 }

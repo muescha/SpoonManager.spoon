@@ -113,7 +113,7 @@ Example:
         },
     },
     resolved = {
-        sourceType = "zip",
+        sourceKind = "zip",
         url = "https://github.com/Hammerspoon/Spoons/archive/master.zip",
         extractFolder = "Source/Emojis.spoon",
         installName = "Emojis",
@@ -182,7 +182,7 @@ Example:
         },
     },
     resolved = {
-        sourceType = "zip",
+        sourceKind = "zip",
         url = "https://github.com/Hammerspoon/Spoons/archive/master.zip",
         extractFolder = "Source/Emojis.spoon",
         installName = "Emojis",

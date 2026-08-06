@@ -30,7 +30,7 @@
   },
   "resolved": {
     "installName": "Emojis",
-    "sourceType": "zip",
+    "sourceKind": "zip",
     "url": "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/Emojis.spoon.zip"
   }
 }

@@ -27,6 +27,6 @@
   "resolved": {
     "installName": "DeepFolder",
     "localPath": "/Users/test/Projects/experimental",
-    "sourceType": "folder"
+    "sourceKind": "folder"
   }
 }
