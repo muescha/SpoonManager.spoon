@@ -2,7 +2,7 @@
   "version": 1,
   "cleanup": {
     "allTests": {
-      "rootBeforeAllTests": false,
+      "rootBeforeAllTests": true,
       "rootAfterAllTests": false
     },
     "test": {
@@ -11,11 +11,11 @@
     }
   },
   "pathTemplates": {
-    "root": ".network-installs/{timestamp}",
-    "install": "{root}/test/{id}",
-    "explain": "{root}/test/{id}/{id}.explain.json",
-    "result": "{root}/test/{id}/{id}.result.json",
-    "log": "{root}/test/{id}/{id}.log.json"
+    "root": ".network-installs",
+    "install": "{root}/{timestamp}/test/{id}",
+    "explain": "{root}/{timestamp}/test/{id}/{id}.explain.json",
+    "result": "{root}/{timestamp}/test/{id}/{id}.result.json",
+    "log": "{root}/{timestamp}/test/{id}/{id}.log.json"
   },
   "tests": [
     {
