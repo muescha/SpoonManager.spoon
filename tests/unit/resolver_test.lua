@@ -42,9 +42,11 @@ return function(T)
 
     T.test("archive selection accepts command folder field", function()
         local selection = T.context.archive.prepareZipSelection({
-            source = {
-                type = "github-folder",
-                folder = "Source/A.spoon",
+            command = {
+                from = {
+                    type = "github-folder",
+                    folder = "Source/A.spoon",
+                },
             },
         })
 

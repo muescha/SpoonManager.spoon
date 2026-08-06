@@ -28,7 +28,7 @@ return function(context)
     end
 
     function Archive.prepareZipSelection(definition)
-        local source = definition.source
+        local source = definition.command and definition.command.from or {}
         local selection = {}
 
         if source.type == "github-folder" then
