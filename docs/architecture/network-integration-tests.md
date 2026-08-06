@@ -418,13 +418,31 @@ cp tests/integration/network.example.json tests/integration/network.local.json
 
 You can run only selected tests by passing filters after the config path.
 
-Exact test id:
+Exact test id as a plain argument:
 
 ```sh
 /Users/muescha/.local/share/mise/installs/lua/5.4.4/bin/lua \
   tests/integration/network.lua \
   tests/integration/network.example.json \
   remote-zip
+```
+
+Exact test id with an explicit flag:
+
+```sh
+/Users/muescha/.local/share/mise/installs/lua/5.4.4/bin/lua \
+  tests/integration/network.lua \
+  tests/integration/network.example.json \
+  --id remote-zip
+```
+
+`--only` is accepted as an alias for `--id`:
+
+```sh
+/Users/muescha/.local/share/mise/installs/lua/5.4.4/bin/lua \
+  tests/integration/network.lua \
+  tests/integration/network.example.json \
+  --only remote-zip
 ```
 
 zsh-safe prefix filter:
@@ -434,6 +452,15 @@ zsh-safe prefix filter:
   tests/integration/network.lua \
   tests/integration/network.example.json \
   --prefix remote-
+```
+
+The `--key=value` form is also supported:
+
+```sh
+/Users/muescha/.local/share/mise/installs/lua/5.4.4/bin/lua \
+  tests/integration/network.lua \
+  tests/integration/network.example.json \
+  --prefix=remote-
 ```
 
 Quoted wildcard filter:
@@ -447,6 +474,17 @@ Quoted wildcard filter:
 
 In zsh, unquoted `remote-*` can be expanded by the shell before Lua sees it.
 Prefer `--prefix remote-` for prefix-style selection.
+
+Multiple filters are OR-combined. This runs `remote-zip` plus every test whose id
+starts with `github-`:
+
+```sh
+/Users/muescha/.local/share/mise/installs/lua/5.4.4/bin/lua \
+  tests/integration/network.lua \
+  tests/integration/network.example.json \
+  remote-zip \
+  --prefix github-
+```
 
 The runner:
 
