@@ -32,7 +32,7 @@ release assets, and remote ZIP URLs that are stable enough for end-to-end testin
   "version": 1,
   "cleanup": {
     "allTests": {
-      "rootBeforeAllTests": false,
+      "rootBeforeAllTests": true,
       "rootAfterAllTests": false
     },
     "test": {
@@ -42,10 +42,10 @@ release assets, and remote ZIP URLs that are stable enough for end-to-end testin
   },
   "pathTemplates": {
     "root": ".network-installs",
-    "install": "{root}/testinstalls/{timestamp}/{id}",
-    "explain": "{root}/network.test.{timestamp}.{id}.explain.json",
-    "result": "{root}/network.test.{timestamp}.{id}.result.json",
-    "log": "{root}/network.test.{timestamp}.{id}.log.json"
+    "install": "{root}/{timestamp}/test/{id}",
+    "explain": "{root}/{timestamp}/test/{id}/{id}.explain.json",
+    "result": "{root}/{timestamp}/test/{id}/{id}.result.json",
+    "log": "{root}/{timestamp}/test/{id}/{id}.log.json"
   },
   "tests": []
 }
@@ -66,7 +66,7 @@ directory that contains the network JSON config. For
 {
   "pathTemplates": {
     "root": ".network-installs",
-    "result": "{root}/network.test.{timestamp}.{id}.result.json"
+    "result": "{root}/{timestamp}/test/{id}/{id}.result.json"
   }
 }
 ```
@@ -75,7 +75,7 @@ resolves below:
 
 ```text
 tests/integration/.network-installs
-tests/integration/.network-installs/network.test.{timestamp}.{id}.result.json
+tests/integration/.network-installs/{timestamp}/test/{id}/{id}.result.json
 ```
 
 `pathTemplates.install` becomes the fake Hammerspoon config directory template
@@ -106,10 +106,10 @@ Supported placeholders:
 With the example template, installed Spoons land below:
 
 ```text
-tests/integration/.network-installs/testinstalls/{timestamp}/{id}/Spoons/{name}.spoon
+tests/integration/.network-installs/{timestamp}/test/{id}/Spoons/{name}.spoon
 ```
 
-`timestamp` is generated once per runner invocation in a path-friendly UTC form:
+`timestamp` is generated once per runner invocation in local system time:
 
 ```text
 YYYY-MM-DD-HH-MM-SS
@@ -142,6 +142,33 @@ Each test may override `pathTemplates.install`, `pathTemplates.explain`,
 `pathTemplates.result`, `pathTemplates.log`, and `cleanup.test.*` if a specific
 case should use a different location or cleanup behavior.
 
+## Expected Failures
+
+Use `expect.failure.messageContains` when a network source is intentionally
+broken and the expected behavior is a structured error result.
+
+```json
+{
+  "id": "remote-zip-error",
+  "enabled": true,
+  "source": {
+    "type": "remote-zip",
+    "url": "https://example.com/TestSpoon.zip"
+  },
+  "target": {
+    "name": "TestSpoon"
+  },
+  "expect": {
+    "failure": {
+      "messageContains": "HTTP status 404"
+    }
+  }
+}
+```
+
+Expected failures count as passed tests when the error text contains the configured
+string. The result artifact records this under `checks.expectedFailure`.
+
 For safety, the runner only accepts install roots below `/tmp/` or inside the
 network config directory. It rejects paths containing `..` and refuses to use the
 config directory itself as `pathTemplates.root`.
@@ -149,9 +176,9 @@ config directory itself as `pathTemplates.root`.
 Each enabled test writes three JSON artifacts:
 
 ```text
-tests/integration/.network-installs/network.test.{timestamp}.{test-id}.explain.json
-tests/integration/.network-installs/network.test.{timestamp}.{test-id}.result.json
-tests/integration/.network-installs/network.test.{timestamp}.{test-id}.log.json
+tests/integration/.network-installs/{timestamp}/test/{test-id}/{test-id}.explain.json
+tests/integration/.network-installs/{timestamp}/test/{test-id}/{test-id}.result.json
+tests/integration/.network-installs/{timestamp}/test/{test-id}/{test-id}.log.json
 ```
 
 These files are run artifacts and are ignored by git.

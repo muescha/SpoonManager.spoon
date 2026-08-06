@@ -499,6 +499,28 @@ local function errorBlock(message, trace)
     }
 end
 
+local function expectedFailure(test)
+    local expect = test.expect or {}
+    if type(expect.failure) == "table" then
+        return expect.failure
+    end
+    return nil
+end
+
+local function failureMatches(expectation, trace)
+    if not expectation then
+        return false
+    end
+
+    local messageContains = expectation.messageContains
+    if messageContains ~= nil then
+        assertString(messageContains, "expect.failure.messageContains")
+        return tostring(trace or ""):find(messageContains, 1, true) ~= nil
+    end
+
+    return true
+end
+
 local enabled = 0
 local passed = 0
 local failed = 0
@@ -581,6 +603,13 @@ for _, test in ipairs(config.tests or {}) do
                     reason = skipped.reason,
                 },
             }
+            if expectedFailure(test) then
+                runnerResult.checks.expectedFailure = {
+                    success = false,
+                    error = errorBlock("expected failure but install succeeded"),
+                }
+                error("expected failure but install succeeded")
+            end
             runnerResult.success = true
         end, debug.traceback)
 
@@ -596,15 +625,23 @@ for _, test in ipairs(config.tests or {}) do
             print("ok (" .. installPath .. ")")
             cleanInstallPathAfterTest(test, installPath)
         else
-            failed = failed + 1
             local failureMessage = tostring(err):match("^[^\n]+") or tostring(err)
-            table.insert(failures, {
-                id = test.id,
-                message = failureMessage,
-            })
+            local expected = expectedFailure(test)
+            local matchedExpectedFailure = expected and failureMatches(expected, err)
 
-            print("failed")
-            print(err)
+            if matchedExpectedFailure then
+                passed = passed + 1
+                print("ok (expected failure)")
+            else
+                failed = failed + 1
+                table.insert(failures, {
+                    id = test.id,
+                    message = failureMessage,
+                })
+                print("failed")
+                print(err)
+            end
+
             if runnerPath then
                 runnerResult = runnerResult or buildRunnerResult(test, {
                     root = rootPath,
@@ -613,14 +650,23 @@ for _, test in ipairs(config.tests or {}) do
                     result = runnerPath,
                     log = logPath,
                 })
-                runnerResult.success = false
-                runnerResult.error = errorBlock(failureMessage, err)
+                if matchedExpectedFailure then
+                    runnerResult.success = true
+                    runnerResult.checks.expectedFailure = {
+                        success = true,
+                        messageContains = expected.messageContains,
+                    }
+                    runnerResult.error = nil
+                else
+                    runnerResult.success = false
+                    runnerResult.error = errorBlock(failureMessage, err)
+                end
                 json.write(runnerPath, runnerResult)
             end
             if logPath then
                 json.write(logPath, {
                     id = test.id,
-                    success = false,
+                    success = matchedExpectedFailure or false,
                     timestamp = runTimestamp,
                     error = err,
                     logs = logs,
