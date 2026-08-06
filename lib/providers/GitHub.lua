@@ -58,5 +58,60 @@ return function(context)
         return source
     end
 
+    function GitHub.resolve(config, options)
+        local github = context.github
+        local source = config.source or {}
+        local extract = config.extract or {}
+        local target = config.target or {}
+        local selectedSpoonName = options.selectedSpoonName
+        local release = source.release_release or (source.release_releaseLatest and "latest") or "latest"
+        local resolved = {}
+
+        if (source.release_release or source.release_releaseLatest) and not source.zipFile then
+            error("GitHub release sources require .zipFile(...).", 2)
+        end
+
+        if source.zipFile and (source.release_release or source.release_releaseLatest) then
+            resolved.sourceType = "github-release"
+            resolved.asset = source.zipFile
+            resolved.release = release
+            resolved.url = github.releaseAssetUrl({
+                baseUrl = source.baseUrl,
+                repository = source.repository,
+                release = release,
+                asset = source.zipFile,
+            })
+            resolved.extractFolder = extract.folder
+        elseif source.zipFile then
+            local path = source.zipFile
+            if source.path then
+                path = util.pathJoin(source.path, source.zipFile)
+            end
+            resolved.sourceType = "remoteZip"
+            resolved.url = github.rawUrl(source, path)
+            resolved.extractFolder = extract.folder
+        elseif source.path then
+            resolved.sourceType = "github-folder"
+            resolved.extractFolder = source.path
+            resolved.archiveUrl = github.archiveUrl(source)
+        elseif target.selection_spoon and source.pattern_spoonZipPattern then
+            local path = selectedSpoonName and source.pattern_spoonZipPattern:gsub("{name}", selectedSpoonName) or nil
+            resolved.sourceType = "remoteZip"
+            if path then
+                resolved.url = github.rawUrl(source, path)
+            end
+        elseif target.selection_spoon and source.pattern_spoonFolderPattern then
+            local path = selectedSpoonName and source.pattern_spoonFolderPattern:gsub("{name}", selectedSpoonName) or nil
+            resolved.sourceType = "github-folder"
+            resolved.extractFolder = path
+            resolved.archiveUrl = github.archiveUrl(source)
+        else
+            resolved.sourceType = "github-repository"
+            resolved.archiveUrl = github.archiveUrl(source)
+        end
+
+        return resolved
+    end
+
     return GitHub
 end

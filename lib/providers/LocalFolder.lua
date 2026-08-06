@@ -21,5 +21,35 @@ return function(context)
         }
     end
 
+    function LocalFolder.resolve(config)
+        local source = config.source or {}
+        local extract = config.extract or {}
+
+        if source.zipFile then
+            local path = source.zipFile
+            if source.path then
+                path = util.pathJoin(source.path, source.zipFile)
+            end
+
+            return {
+                sourceType = "localZip",
+                localPath = util.pathJoin(util.localPath(source.root), path),
+                extractFolder = extract.folder,
+            }
+        end
+
+        if source.path then
+            return {
+                sourceType = LocalFolder.name,
+                localPath = util.pathJoin(util.localPath(source.root), source.path),
+            }
+        end
+
+        return {
+            sourceType = LocalFolder.name,
+            localPath = util.localPath(source.root),
+        }
+    end
+
     return LocalFolder
 end

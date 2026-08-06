@@ -19,5 +19,16 @@ return function(context)
         }
     end
 
+    function RemoteZip.resolve(config)
+        local source = config.source or {}
+        local extract = config.extract or {}
+
+        return {
+            sourceType = RemoteZip.name,
+            url = source.url,
+            extractFolder = extract.folder,
+        }
+    end
+
     return RemoteZip
 end

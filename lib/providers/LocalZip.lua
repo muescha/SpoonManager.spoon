@@ -19,5 +19,16 @@ return function(context)
         }
     end
 
+    function LocalZip.resolve(config)
+        local source = config.source or {}
+        local extract = config.extract or {}
+
+        return {
+            sourceType = LocalZip.name,
+            localPath = util.localPath(source.file),
+            extractFolder = extract.folder,
+        }
+    end
+
     return LocalZip
 end
