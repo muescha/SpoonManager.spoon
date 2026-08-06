@@ -64,6 +64,8 @@ return function(T)
         T.assertTrue(providers.github.capabilities.release)
         T.assertTrue(providers.remoteZip.capabilities.useFolder)
         T.assertTrue(providers.localFolder.capabilities.path)
+        T.assertEqual(type(T.SpoonManager.from.github), "function")
+        T.assertEqual(type(T.SpoonManager.from.remoteZip), "function")
     end)
 
     T.test("manager add stores definitions for later install and update", function()

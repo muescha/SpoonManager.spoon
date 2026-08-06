@@ -115,6 +115,15 @@ function obj.registerProvider(provider)
     assert(type(provider.createSource) == "function", "Provider requires createSource")
 
     obj.providers[provider.name] = provider
+
+    local factoryName = provider.factoryName or provider.name
+    assert(type(factoryName) == "string", "Provider factory name must be a string")
+    obj.from[factoryName] = function(...)
+        return context.definition.fromState({
+            source = provider.createSource(...),
+        })
+    end
+
     return provider
 end
 
@@ -193,42 +202,6 @@ end
 --- Create a Spoon definition from a plain Lua table.
 function obj.from.config(config)
     return context.definition.fromState(config)
-end
-
---- SpoonManager.from.remoteZip(url) -> definition
---- Function
---- Create a Spoon definition from a remote zip URL.
-function obj.from.remoteZip(url)
-    return context.definition.fromState({
-        source = obj.providers.remoteZip.createSource(url),
-    })
-end
-
---- SpoonManager.from.localZip(path) -> definition
---- Function
---- Create a Spoon definition from a local zip file.
-function obj.from.localZip(path)
-    return context.definition.fromState({
-        source = obj.providers.localZip.createSource(path),
-    })
-end
-
---- SpoonManager.from.localFolder(path) -> definition
---- Function
---- Create a Spoon definition from a local folder.
-function obj.from.localFolder(path)
-    return context.definition.fromState({
-        source = obj.providers.localFolder.createSource(path),
-    })
-end
-
---- SpoonManager.from.github(repository[, options]) -> definition
---- Function
---- Create a GitHub repository definition.
-function obj.from.github(repository, options)
-    return context.definition.fromState({
-        source = obj.providers.github.createSource(repository, options),
-    })
 end
 
 --- SpoonManager.from.spoonRepo(repository[, options]) -> definition
