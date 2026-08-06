@@ -4,7 +4,8 @@ return function(T)
             T.SpoonManager.from.github("muescha/MySpoon.spoon")
                 .toConfig()
 
-        local command = T.context.resolver.toCommand(definition, "install")
+        local resolved = T.context.resolver.resolveFromDefinition(definition)
+        local command = T.context.resolver.commandFromResolved(definition, "install", resolved)
 
         T.assertEqual(command.from.type, "github-repository")
         T.assertEqual(command.from.archiveUrl, "https://github.com/muescha/MySpoon.spoon/archive/main.zip")
@@ -19,7 +20,8 @@ return function(T)
                 .spoon("A")
                 .toConfig()
 
-        local command = T.context.resolver.toCommand(definition, "update")
+        local resolved = T.context.resolver.resolveFromDefinition(definition)
+        local command = T.context.resolver.commandFromResolved(definition, "update", resolved)
 
         T.assertEqual(command.action, "update")
         T.assertEqual(command.from.type, "github-folder")
@@ -33,7 +35,8 @@ return function(T)
                 .folder("Source/A.spoon")
                 .toConfig()
 
-        local command = T.context.resolver.toCommand(definition, "install")
+        local resolved = T.context.resolver.resolveFromDefinition(definition)
+        local command = T.context.resolver.commandFromResolved(definition, "install", resolved)
 
         T.assertEqual(command.from.type, "local-folder")
         T.assertEqual(command.from.path, "/Users/test/Projects/SpoonRepo/Source/A.spoon")

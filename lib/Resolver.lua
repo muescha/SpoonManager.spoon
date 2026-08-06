@@ -77,7 +77,7 @@ return function(context)
         return def
     end
 
-    function Resolver.toCommand(definition, action, resolved)
+    function Resolver.commandFromResolved(definition, action, resolved)
         if definition.command and (not action or definition.command.action == action) then
             return util.copyTable(definition.command)
         end
@@ -126,7 +126,7 @@ return function(context)
             return def
         end
 
-        def.command = Resolver.toCommand(def, action, def.resolved)
+        def.command = Resolver.commandFromResolved(def, action, def.resolved)
         return def
     end
 
