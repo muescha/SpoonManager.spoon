@@ -286,7 +286,7 @@ With a local rename:
 ```lua
 SpoonManager.from.spoonify("https://spoonify.sh/manifests/useful-spoon.json")
     .spoon("UsefulSpoon")
-    .withName("MyUsefulSpoon")
+    .to("MyUsefulSpoon")
     .install()
 ```
 
@@ -350,4 +350,4 @@ The manager resolves definitions locally:
 definition -> resolved definition -> command -> execute
 ```
 
-This keeps manifests small and portable. Local values such as the final install path, `hs.configdir`, user-level `withName(...)`, and local-change behavior should be resolved by SpoonManager, not hard-coded into the manifest.
+This keeps manifests small and portable. Local values such as the final install path, `hs.configdir`, user-level `to(...)`, and local-change behavior should be resolved by SpoonManager, not hard-coded into the manifest.

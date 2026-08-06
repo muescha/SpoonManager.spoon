@@ -25,7 +25,7 @@
       "zipFile": "latest.zip"
     },
     "target": {
-      "name_withName": "DeepFolder"
+      "name": "DeepFolder"
     }
   },
   "resolved": {

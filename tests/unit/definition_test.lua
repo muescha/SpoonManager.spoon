@@ -22,16 +22,16 @@ return function(T)
         local definition = T.SpoonManager.from.github("owner/repo")
             .spoonZipPattern("dist/{name}.spoon.zip")
             .spoon("A.spoon")
-            .withName("B.spoon")
+            .to("B.spoon")
 
         local plain = definition.explain()
         T.assertEqual(plain.config.target.selection_spoon, "A.spoon")
-        T.assertEqual(plain.config.target.name_withName, "B.spoon")
+        T.assertEqual(plain.config.target.name, "B.spoon")
         T.assertFalse(plain.resolved)
 
         local commanded = definition.command("install").explain()
         T.assertEqual(commanded.config.target.selection_spoon, "A.spoon")
-        T.assertEqual(commanded.config.target.name_withName, "B.spoon")
+        T.assertEqual(commanded.config.target.name, "B.spoon")
         T.assertEqual(commanded.resolved.installName, "B")
         T.assertEqual(commanded.command.name, "B")
         T.assertEqual(commanded.command.source.url, "https://github.com/owner/repo/raw/main/dist/A.spoon.zip")
@@ -51,8 +51,8 @@ return function(T)
             T.SpoonManager.from.github("owner/repo")
                 .path("Source/A.spoon")
                 .command("install")
-                .withName("B")
-        end, "definition already has command values; cannot call %.withName%('B'%)")
+                .to("B")
+        end, "definition already has command values; cannot call %.to%('B'%)")
     end)
 
     T.test("definition rejects rebuilding command with another action", function()
@@ -123,9 +123,9 @@ return function(T)
     T.test("definition rejects duplicate explicit name", function()
         T.assertError(function()
             T.SpoonManager.from.github("owner/repo")
-                .withName("A")
-                .withName("B")
-        end, "%.withName%('A'%) already set; cannot call %.withName%('B'%)")
+                .to("A")
+                .to("B")
+        end, "%.to%('A'%) already set; cannot call %.to%('B'%)")
     end)
 
     T.test("definition rejects unsupported source capabilities", function()
@@ -155,6 +155,7 @@ return function(T)
 
         T.assertEqual(definition.folder, nil)
         T.assertEqual(definition.asset, nil)
+        T.assertEqual(definition.withName, nil)
     end)
 
     T.test("definition rejects non string arguments", function()
@@ -173,7 +174,7 @@ return function(T)
 
         T.assertError(function()
             T.SpoonManager.from.github("owner/repo")
-                .withName(123)
+                .to(123)
         end, "Spoon name must be a string")
     end)
 
@@ -195,7 +196,7 @@ return function(T)
                     zipFile = "A.tar.gz",
                 },
                 target = {
-                    name_withName = "A",
+                    name = "A",
                 },
             }).install()
 

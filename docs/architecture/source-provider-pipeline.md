@@ -113,7 +113,7 @@ The target describes the installed Spoon name and destination.
 .to("WidgetKit")
 ```
 
-`to()` is the proposed clearer replacement for `withName()`. It means "install as this Spoon name". If omitted, the name is inferred from `useFolder`, `zipFile`, `path`, or the origin.
+`to()` is the proposed clearer replacement for `to()`. It means "install as this Spoon name". If omitted, the name is inferred from `useFolder`, `zipFile`, `path`, or the origin.
 
 ## Proposed Builder API
 
@@ -648,7 +648,7 @@ asset(...)  -> zipFile(...)
 
 Because there are no external users yet, aliases do not need to remain. `folder(...)` should be removed instead of kept as a legacy alias.
 
-Keep `withName(...)` for the install-name override during the provider migration. Revisit the name after the provider model is implemented and the examples are updated.
+Use `to(...)` for the install-name override.
 
 7. Move provider-specific resolution from `Resolver.lua` into provider `resolve()` methods.
 
@@ -671,5 +671,5 @@ folder
 - `spoon()` remains pattern-only sugar. It should require `spoonZipPattern()` or `spoonFolderPattern()`.
 - `spoonify.json` may provide source patterns and Spoon names. Loading such a manifest should produce the same normal pattern-based config that the builder would create manually. It should not introduce a second meaning for `spoon()`.
 - `folder()` should be replaced by `path()` and `useFolder()`. Do not keep `folder()` as a legacy alias.
-- `withName()` remains the install-name override for now. Reconsider naming only after the provider implementation is in place.
+- `to()` is the install-name override.
 - Provider registration stays internal for version 1. `init.lua` can still use internal provider registration to build `SpoonManager.providers` and generate `SpoonManager.from.*`.

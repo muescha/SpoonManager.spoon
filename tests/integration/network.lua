@@ -194,7 +194,7 @@ local function targetLabel(test)
     local source = config.source or {}
     local extract = config.extract or {}
     local target = config.target or {}
-    return target.name_withName
+    return target.name
         or target.selection_spoon
         or extract.folder
         or source.zipFile

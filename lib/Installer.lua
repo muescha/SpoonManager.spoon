@@ -54,7 +54,7 @@ return function(context)
         end
 
         if not definition.name then
-            return nil, "Spoon definition requires a Spoon name. Add .withName(\"Name\")."
+            return nil, "Spoon definition requires a Spoon name. Add .to(\"Name\")."
         end
 
         if definition.command.source.kind == "zip" then

@@ -276,7 +276,7 @@ Examples:
 SpoonManager.from.github("owner/repo")
     .branch("main")
     .path("Source/A.spoon")
-    .withName("BetterA")
+    .to("BetterA")
     .toConfig()
 ```
 
@@ -291,7 +291,7 @@ Expected:
         path = "Source/A.spoon",
     },
     target = {
-        name_withName = "BetterA",
+        name = "BetterA",
     },
 }
 ```
@@ -323,7 +323,7 @@ user/reponame                -> reponame
 user/reponame.spoon          -> reponame
 ```
 
-These tests also double as documentation for users who omit `withName(...)`.
+These tests also double as documentation for users who omit `to(...)`.
 
 ### Exclusive Builder Groups
 
@@ -350,7 +350,7 @@ More cases:
 - `spoonZipPattern(...)` then `spoonFolderPattern(...)`
 - `spoon(...)` then `path(...)`
 - `path(...)` then `path(...)`
-- `withName(...)` then `withName(...)`
+- `to(...)` then `to(...)`
 - source-changing method after final selection, for example `spoon("A").branch("main")`
 
 ### Resolver Commands
@@ -435,7 +435,7 @@ Useful cases:
 - remote ZIP URL must end in `.zip`
 - local ZIP path must end in `.zip`
 - release asset must end in `.zip`
-- definition without an inferable name asks for `withName("Name")`
+- definition without an inferable name asks for `to("Name")`
 - unsupported source types fail clearly
 
 ## Example Tests As Documentation

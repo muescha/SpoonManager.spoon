@@ -26,7 +26,7 @@ return function(T)
                     url = "https://example.com/downloads/latest.zip",
                 },
                 target = {
-                    name_withName = "DeepFolder",
+                    name = "DeepFolder",
                 },
             }).command("install").explain()
 

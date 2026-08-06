@@ -18,7 +18,7 @@ return function(T)
                 branch = "master",
             })
                 .path("Source/WindowSigils.spoon")
-                .withName("WindowSigils"),
+                .to("WindowSigils"),
             {
                 source = {
                     type = "github",
@@ -29,7 +29,7 @@ return function(T)
                     path = "Source/WindowSigils.spoon",
                 },
                 target = {
-                    name_withName = "WindowSigils",
+                    name = "WindowSigils",
                 },
             }
         )
@@ -87,7 +87,7 @@ return function(T)
             T.SpoonManager.from.github("owner/TestSpoon.spoon", {
                 branch = "main",
             })
-                .withName("TestSpoon"),
+                .to("TestSpoon"),
             {
                 source = {
                     type = "github",
@@ -97,7 +97,7 @@ return function(T)
                     revision_branch = "main",
                 },
                 target = {
-                    name_withName = "TestSpoon",
+                    name = "TestSpoon",
                 },
             }
         )
@@ -109,7 +109,7 @@ return function(T)
             T.SpoonManager.from.github("owner/TestSpoon.spoon")
                 .releaseLatest()
                 .zipFile("TestSpoon.zip")
-                .withName("TestSpoon"),
+                .to("TestSpoon"),
             {
                 source = {
                     type = "github",
@@ -120,7 +120,7 @@ return function(T)
                     zipFile = "TestSpoon.zip",
                 },
                 target = {
-                    name_withName = "TestSpoon",
+                    name = "TestSpoon",
                 },
             }
         )
@@ -143,14 +143,14 @@ return function(T)
         assertBuilderConfig(
             "named remote zip builder config",
             T.SpoonManager.from.remoteZip("https://example.com/TestSpoon.zip")
-                .withName("TestSpoon"),
+                .to("TestSpoon"),
             {
                 source = {
                     type = "remoteZip",
                     url = "https://example.com/TestSpoon.zip",
                 },
                 target = {
-                    name_withName = "TestSpoon",
+                    name = "TestSpoon",
                 },
             }
         )
