@@ -1,15 +1,15 @@
 {
   "command": {
     "action": "install",
-    "from": {
-      "kind": "zip",
-      "url": "https://github.com/Hammerspoon/Spoons/raw/main/Spoons/Emojis.spoon.zip"
-    },
     "name": "Emojis",
     "options": {
       "onLocalChanges": "abort"
     },
-    "to": {
+    "source": {
+      "kind": "zip",
+      "url": "https://github.com/Hammerspoon/Spoons/raw/main/Spoons/Emojis.spoon.zip"
+    },
+    "target": {
       "name": "Emojis",
       "path": "/tmp/hammerspoon-test/Spoons/Emojis.spoon",
       "type": "spoon"

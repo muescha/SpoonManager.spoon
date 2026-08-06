@@ -1,15 +1,15 @@
 {
   "command": {
     "action": "install",
-    "from": {
-      "kind": "zip",
-      "url": "https://github.com/muescha/SpoonRepo/raw/main/Spoons/DeepFolder.spoon.zip"
-    },
     "name": "DeepFolder",
     "options": {
       "onLocalChanges": "abort"
     },
-    "to": {
+    "source": {
+      "kind": "zip",
+      "url": "https://github.com/muescha/SpoonRepo/raw/main/Spoons/DeepFolder.spoon.zip"
+    },
+    "target": {
       "name": "DeepFolder",
       "path": "/tmp/hammerspoon-test/Spoons/DeepFolder.spoon",
       "type": "spoon"

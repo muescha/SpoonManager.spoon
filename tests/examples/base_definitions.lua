@@ -7,7 +7,7 @@ return function(T)
 
         T.assertEqual(explanation.config.target.selection_spoon, "Emojis")
         T.assertEqual(explanation.config.source.defaultBranch, "master")
-        T.assertEqual(explanation.command.from.url, "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/Emojis.spoon.zip")
+        T.assertEqual(explanation.command.source.url, "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/Emojis.spoon.zip")
         T.assertMatchesJson("examples/base_definitions.lua.default-emojis.explain.json", explanation)
     end)
 
@@ -19,7 +19,7 @@ return function(T)
 
         T.assertEqual(explanation.config.target.selection_spoon, "TimeMachineProgress")
         T.assertEqual(explanation.config.source.defaultBranch, "master")
-        T.assertEqual(explanation.command.from.url, "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/TimeMachineProgress.spoon.zip")
+        T.assertEqual(explanation.command.source.url, "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/TimeMachineProgress.spoon.zip")
         T.assertMatchesJson("examples/base_definitions.lua.default-time-machine.explain.json", explanation)
     end)
 
@@ -31,7 +31,7 @@ return function(T)
             .command("install").explain()
 
         T.assertEqual(explanation.config.source.release_releaseLatest, true)
-        T.assertEqual(explanation.command.from.url, "https://github.com/muescha/DeepFolder.spoon/releases/latest/download/DeepFolder.zip")
+        T.assertEqual(explanation.command.source.url, "https://github.com/muescha/DeepFolder.spoon/releases/latest/download/DeepFolder.zip")
         T.assertMatchesJson("examples/base_definitions.lua.release-latest.explain.json", explanation)
     end)
 
@@ -43,7 +43,7 @@ return function(T)
             .command("install").explain()
 
         T.assertEqual(explanation.config.source.release_release, "v1.2.3")
-        T.assertEqual(explanation.command.from.url, "https://github.com/muescha/DeepFolder.spoon/releases/download/v1.2.3/DeepFolder.zip")
+        T.assertEqual(explanation.command.source.url, "https://github.com/muescha/DeepFolder.spoon/releases/download/v1.2.3/DeepFolder.zip")
         T.assertMatchesJson("examples/base_definitions.lua.release-tag.explain.json", explanation)
     end)
 end

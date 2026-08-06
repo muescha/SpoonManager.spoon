@@ -49,7 +49,7 @@ return function(context)
             return nil, "Spoon definition must be a table"
         end
 
-        if not definition.command or not definition.command.from or not definition.command.from.kind then
+        if not definition.command or not definition.command.source or not definition.command.source.kind then
             return nil, "Spoon definition requires a source"
         end
 
@@ -57,8 +57,8 @@ return function(context)
             return nil, "Spoon definition requires a Spoon name. Add .withName(\"Name\")."
         end
 
-        if definition.command.from.kind == "zip" then
-            local zipSource = definition.command.from.url or definition.command.from.path
+        if definition.command.source.kind == "zip" then
+            local zipSource = definition.command.source.url or definition.command.source.path
             if not util.isZipPath(zipSource) then
                 return nil, "ZIP source must point to a .zip file"
             end
@@ -161,7 +161,7 @@ return function(context)
 
     function Installer.installFromZipFile(definition, zipFile, tmpdir)
         local sourceFolder, err = archive.extractZipToSpoon(zipFile, {
-            folder = definition.command.from.folder,
+            folder = definition.command.source.folder,
         }, tmpdir)
         if not sourceFolder then
             return nil, err
@@ -216,7 +216,7 @@ return function(context)
             }, nil, def
         end
 
-        local source = command.from
+        local source = command.source
         local result, err
 
         if source.kind == "folder" then

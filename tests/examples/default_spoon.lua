@@ -11,7 +11,7 @@ return function(T)
         T.assertEqual(explanation.config.source.pattern_spoonZipPattern, "Spoons/{name}.spoon.zip")
         T.assertEqual(explanation.config.target.selection_spoon, "Emojis")
         T.assertEqual(explanation.resolved.installName, "Emojis")
-        T.assertEqual(explanation.command.from.kind, "zip")
+        T.assertEqual(explanation.command.source.kind, "zip")
         T.assertMatchesJson("examples/default_spoon.lua.explain.json", explanation)
     end)
 
@@ -24,7 +24,7 @@ return function(T)
 
         T.assertEqual(explanation.config.source.defaultBranch, "master")
         T.assertEqual(explanation.config.source.revision_branch, "main")
-        T.assertEqual(explanation.command.from.url, "https://github.com/Hammerspoon/Spoons/raw/main/Spoons/Emojis.spoon.zip")
+        T.assertEqual(explanation.command.source.url, "https://github.com/Hammerspoon/Spoons/raw/main/Spoons/Emojis.spoon.zip")
         T.assertMatchesJson("examples/default_spoon.lua.branch-override.explain.json", explanation)
     end)
 end

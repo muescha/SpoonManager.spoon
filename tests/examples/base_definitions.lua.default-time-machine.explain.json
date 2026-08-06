@@ -1,15 +1,15 @@
 {
   "command": {
     "action": "install",
-    "from": {
-      "kind": "zip",
-      "url": "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/TimeMachineProgress.spoon.zip"
-    },
     "name": "TimeMachineProgress",
     "options": {
       "onLocalChanges": "abort"
     },
-    "to": {
+    "source": {
+      "kind": "zip",
+      "url": "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/TimeMachineProgress.spoon.zip"
+    },
+    "target": {
       "name": "TimeMachineProgress",
       "path": "/tmp/hammerspoon-test/Spoons/TimeMachineProgress.spoon",
       "type": "spoon"

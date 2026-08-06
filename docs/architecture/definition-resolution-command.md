@@ -135,12 +135,12 @@ Example:
 {
     action = "install",
     name = "Emojis",
-    from = {
+    source = {
         type = "zip",
         url = "https://github.com/Hammerspoon/Spoons/archive/master.zip",
         folder = "Source/Emojis.spoon",
     },
-    to = {
+    target = {
         type = "spoon",
         name = "Emojis",
         path = "~/.hammerspoon/Spoons/Emojis.spoon",
@@ -359,12 +359,12 @@ Resolved command:
 ```lua
 {
     action = "install",
-    from = {
+    source = {
         type = "zip",
         url = "https://github.com/Hammerspoon/Spoons/archive/master.zip",
         folder = "Source/Emojis.spoon",
     },
-    to = {
+    target = {
         type = "spoon",
         name = "Emojis",
     },

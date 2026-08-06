@@ -1,15 +1,15 @@
 {
   "command": {
     "action": "install",
-    "from": {
-      "kind": "zip",
-      "url": "https://github.com/muescha/DeepFolder.spoon/releases/download/v1.2.3/latest.zip"
-    },
     "name": "DeepFolder",
     "options": {
       "onLocalChanges": "abort"
     },
-    "to": {
+    "source": {
+      "kind": "zip",
+      "url": "https://github.com/muescha/DeepFolder.spoon/releases/download/v1.2.3/latest.zip"
+    },
+    "target": {
       "name": "DeepFolder",
       "path": "/tmp/hammerspoon-test/Spoons/DeepFolder.spoon",
       "type": "spoon"

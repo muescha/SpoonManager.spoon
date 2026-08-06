@@ -10,9 +10,9 @@ return function(T)
         local resolved = T.context.resolver.resolveFromDefinition(definition)
         local command = T.context.resolver.commandFromResolved(definition, "install", resolved)
 
-        T.assertEqual(command.from.kind, "zip")
-        T.assertEqual(command.from.url, "https://github.com/muescha/MySpoon.spoon/archive/main.zip")
-        T.assertEqual(command.to.name, "MySpoon")
+        T.assertEqual(command.source.kind, "zip")
+        T.assertEqual(command.source.url, "https://github.com/muescha/MySpoon.spoon/archive/main.zip")
+        T.assertEqual(command.target.name, "MySpoon")
     end)
 
     T.test("resolver maps github folder pattern", function()
@@ -30,9 +30,9 @@ return function(T)
         local command = T.context.resolver.commandFromResolved(definition, "update", resolved)
 
         T.assertEqual(command.action, "update")
-        T.assertEqual(command.from.kind, "zip")
-        T.assertEqual(command.from.folder, "Source/A.spoon")
-        T.assertEqual(command.to.name, "A")
+        T.assertEqual(command.source.kind, "zip")
+        T.assertEqual(command.source.folder, "Source/A.spoon")
+        T.assertEqual(command.target.name, "A")
     end)
 
     T.test("resolver maps local folder selection", function()
@@ -47,9 +47,9 @@ return function(T)
         local resolved = T.context.resolver.resolveFromDefinition(definition)
         local command = T.context.resolver.commandFromResolved(definition, "install", resolved)
 
-        T.assertEqual(command.from.kind, "folder")
-        T.assertEqual(command.from.path, "/Users/test/Projects/SpoonRepo/Source/A.spoon")
-        T.assertEqual(command.to.name, "A")
+        T.assertEqual(command.source.kind, "folder")
+        T.assertEqual(command.source.path, "/Users/test/Projects/SpoonRepo/Source/A.spoon")
+        T.assertEqual(command.target.name, "A")
     end)
 
 end

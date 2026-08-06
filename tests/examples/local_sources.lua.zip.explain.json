@@ -1,15 +1,15 @@
 {
   "command": {
     "action": "install",
-    "from": {
-      "kind": "zip",
-      "path": "/Users/test/Downloads/DeepFolder.spoon.zip"
-    },
     "name": "DeepFolder",
     "options": {
       "onLocalChanges": "abort"
     },
-    "to": {
+    "source": {
+      "kind": "zip",
+      "path": "/Users/test/Downloads/DeepFolder.spoon.zip"
+    },
+    "target": {
       "name": "DeepFolder",
       "path": "/tmp/hammerspoon-test/Spoons/DeepFolder.spoon",
       "type": "spoon"

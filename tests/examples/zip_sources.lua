@@ -5,9 +5,9 @@ return function(T)
                 .command("install").explain()
 
         T.assertEqual(explanation.config.source.type, "remoteZip")
-        T.assertEqual(explanation.command.from.kind, "zip")
-        T.assertEqual(explanation.command.from.url, "https://example.com/downloads/DeepFolder.spoon.zip")
-        T.assertEqual(explanation.command.to.name, "DeepFolder")
+        T.assertEqual(explanation.command.source.kind, "zip")
+        T.assertEqual(explanation.command.source.url, "https://example.com/downloads/DeepFolder.spoon.zip")
+        T.assertEqual(explanation.command.target.name, "DeepFolder")
         T.assertMatchesJson("examples/zip_sources.lua.remote.explain.json", explanation)
     end)
 
@@ -18,8 +18,8 @@ return function(T)
                 .command("install").explain()
 
         T.assertEqual(explanation.config.target.name_withName, "DeepFolder")
-        T.assertEqual(explanation.command.from.url, "https://example.com/downloads/latest.zip")
-        T.assertEqual(explanation.command.to.name, "DeepFolder")
+        T.assertEqual(explanation.command.source.url, "https://example.com/downloads/latest.zip")
+        T.assertEqual(explanation.command.target.name, "DeepFolder")
         T.assertMatchesJson("examples/zip_sources.lua.remote-with-name.explain.json", explanation)
     end)
 end

@@ -12,9 +12,9 @@ return function(T)
                 },
             }).command("install").explain()
 
-        T.assertEqual(explanation.command.from.kind, "zip")
-        T.assertEqual(explanation.command.from.folder, "Source/DeepFolder.spoon")
-        T.assertEqual(explanation.command.to.name, "DeepFolder")
+        T.assertEqual(explanation.command.source.kind, "zip")
+        T.assertEqual(explanation.command.source.folder, "Source/DeepFolder.spoon")
+        T.assertEqual(explanation.command.target.name, "DeepFolder")
         T.assertMatchesJson("examples/config_sources.lua.github-folder.explain.json", explanation)
     end)
 
@@ -30,8 +30,8 @@ return function(T)
                 },
             }).command("install").explain()
 
-        T.assertEqual(explanation.command.from.kind, "zip")
-        T.assertEqual(explanation.command.to.name, "DeepFolder")
+        T.assertEqual(explanation.command.source.kind, "zip")
+        T.assertEqual(explanation.command.target.name, "DeepFolder")
         T.assertMatchesJson("examples/config_sources.lua.remoteZip-with-name.explain.json", explanation)
     end)
 end

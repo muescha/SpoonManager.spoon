@@ -56,10 +56,10 @@ return function(context)
         local command = {
             action = action or "install",
             name = resolved.installName,
-            from = {
+            source = {
                 kind = resolved.sourceKind,
             },
-            to = {
+            target = {
                 type = "spoon",
                 name = resolved.installName,
                 path = resolved.installName and paths.targetPath(resolved.installName) or nil,
@@ -69,11 +69,11 @@ return function(context)
         }
 
         if resolved.sourceKind == "zip" then
-            command.from.url = resolved.url
-            command.from.path = resolved.localPath
-            command.from.folder = resolved.extractFolder
+            command.source.url = resolved.url
+            command.source.path = resolved.localPath
+            command.source.folder = resolved.extractFolder
         elseif resolved.sourceKind == "folder" then
-            command.from.path = resolved.localPath
+            command.source.path = resolved.localPath
         end
 
         return command

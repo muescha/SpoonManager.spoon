@@ -8,9 +8,9 @@ return function(T)
 
         T.assertEqual(explanation.config.source.release_releaseLatest, true)
         T.assertEqual(explanation.config.source.zipFile, "DeepFolder.zip")
-        T.assertEqual(explanation.command.from.kind, "zip")
-        T.assertEqual(explanation.command.from.url, "https://github.com/muescha/DeepFolder.spoon/releases/latest/download/DeepFolder.zip")
-        T.assertEqual(explanation.command.to.name, "DeepFolder")
+        T.assertEqual(explanation.command.source.kind, "zip")
+        T.assertEqual(explanation.command.source.url, "https://github.com/muescha/DeepFolder.spoon/releases/latest/download/DeepFolder.zip")
+        T.assertEqual(explanation.command.target.name, "DeepFolder")
         T.assertMatchesJson("examples/github_release.lua.latest.explain.json", explanation)
     end)
 
@@ -23,8 +23,8 @@ return function(T)
                 .command("install").explain()
 
         T.assertEqual(explanation.config.target.name_withName, "DeepFolder")
-        T.assertEqual(explanation.command.from.url, "https://github.com/muescha/DeepFolder.spoon/releases/latest/download/latest.zip")
-        T.assertEqual(explanation.command.to.name, "DeepFolder")
+        T.assertEqual(explanation.command.source.url, "https://github.com/muescha/DeepFolder.spoon/releases/latest/download/latest.zip")
+        T.assertEqual(explanation.command.target.name, "DeepFolder")
         T.assertMatchesJson("examples/github_release.lua.latest-with-name.explain.json", explanation)
     end)
 
@@ -36,7 +36,7 @@ return function(T)
                 .command("install").explain()
 
         T.assertEqual(explanation.config.source.release_release, "v1.2.3")
-        T.assertEqual(explanation.command.from.url, "https://github.com/muescha/DeepFolder.spoon/releases/download/v1.2.3/DeepFolder.zip")
+        T.assertEqual(explanation.command.source.url, "https://github.com/muescha/DeepFolder.spoon/releases/download/v1.2.3/DeepFolder.zip")
         T.assertMatchesJson("examples/github_release.lua.tag.explain.json", explanation)
     end)
 
@@ -50,8 +50,8 @@ return function(T)
 
         T.assertEqual(explanation.config.source.release_release, "v1.2.3")
         T.assertEqual(explanation.config.target.name_withName, "DeepFolder")
-        T.assertEqual(explanation.command.from.url, "https://github.com/muescha/DeepFolder.spoon/releases/download/v1.2.3/latest.zip")
-        T.assertEqual(explanation.command.to.name, "DeepFolder")
+        T.assertEqual(explanation.command.source.url, "https://github.com/muescha/DeepFolder.spoon/releases/download/v1.2.3/latest.zip")
+        T.assertEqual(explanation.command.target.name, "DeepFolder")
         T.assertMatchesJson("examples/github_release.lua.tag-with-name.explain.json", explanation)
     end)
 end
