@@ -648,13 +648,7 @@ asset(...)  -> zipFile(...)
 
 Because there are no external users yet, aliases do not need to remain. `folder(...)` should be removed instead of kept as a legacy alias.
 
-The install-name method still needs a final name. Previous discussion preferred `withName()` over `to()` because `to()` is too terse. Candidates include:
-
-```text
-withName(...)
-withSpoonName(...)
-asSpoonName(...)
-```
+Keep `withName(...)` for the install-name override during the provider migration. Revisit the name after the provider model is implemented and the examples are updated.
 
 7. Move provider-specific resolution from `Resolver.lua` into provider `resolve()` methods.
 
@@ -669,10 +663,13 @@ folder
 
 10. Update examples, snapshots, README, and network test configs.
 
+11. Housekeeping: update `docs/architecture/spoonify-manifests.md` after the provider model settles. That document still uses older terms such as `folder(...)`, `withName(...)`, `remote-zip`, `local-folder`, `selection_folder`, and `selection_asset`. Do not update it too early while the provider terminology is still being implemented.
+
 ## Decisions
 
 - `path()` and `release()`/`releaseLatest()` are mutually exclusive. Put them in the same exclusive source group so `setExclusive()` can reject mixed usage.
 - `spoon()` remains pattern-only sugar. It should require `spoonZipPattern()` or `spoonFolderPattern()`.
 - `spoonify.json` may provide source patterns and Spoon names. Loading such a manifest should produce the same normal pattern-based config that the builder would create manually. It should not introduce a second meaning for `spoon()`.
 - `folder()` should be replaced by `path()` and `useFolder()`. Do not keep `folder()` as a legacy alias.
+- `withName()` remains the install-name override for now. Reconsider naming only after the provider implementation is in place.
 - Provider registration stays internal for version 1. `init.lua` can still use internal provider registration to build `SpoonManager.providers` and generate `SpoonManager.from.*`.
