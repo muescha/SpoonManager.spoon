@@ -254,7 +254,7 @@ local function installPathFor(test, rootPath)
     local installPath = renderTemplate(template, {
         root = rootPath,
         id = test.id,
-        sourceType = sourceLabel(test),
+        sourceLabel = sourceLabel(test),
         name = targetLabel(test),
         timestamp = runTimestamp,
     })
@@ -323,7 +323,7 @@ local function artifactPathFor(test, rootPath, installPath, templateName, defaul
     local artifactPath = renderTemplate(template, {
         root = rootPath,
         id = test.id,
-        sourceType = sourceLabel(test),
+        sourceLabel = sourceLabel(test),
         name = targetLabel(test),
         timestamp = runTimestamp,
     })

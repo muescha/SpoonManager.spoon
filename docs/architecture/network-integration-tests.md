@@ -98,7 +98,7 @@ Supported placeholders:
 ```text
 {root}
 {id}
-{sourceType}
+{sourceLabel}
 {name}
 {timestamp}
 ```
