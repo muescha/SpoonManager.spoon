@@ -108,6 +108,8 @@ return function(context)
         error(".spoon() requires .spoonZipPattern(...) or .spoonFolderPattern(...) on this source.", 3)
     end
 
+    local createBuilder
+
     local function createDefinition(input)
         local def
 
@@ -120,7 +122,10 @@ return function(context)
         end
 
         def.state = computeState(def)
+        return createBuilder(def)
+    end
 
+    function createBuilder(def)
         local api = {}
 
         api.toConfig = function()
