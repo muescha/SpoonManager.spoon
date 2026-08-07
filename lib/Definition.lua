@@ -108,8 +108,6 @@ return function(context)
         error(".spoon() requires .spoonZipPattern(...) or .spoonFolderPattern(...) on this source.", 3)
     end
 
-    local createDefinition
-
     local function createBuilder(def)
         local api = {}
 
@@ -141,7 +139,7 @@ return function(context)
             requireCapability(nextDef, "branch", "branch", branchName)
             ensureNotFinalized(nextDef, "branch", branchName)
             setExclusive(ensureSection(nextDef.config, "source"), "revision", "branch", branchName)
-            return createDefinition(nextDef)
+            return createBuilder(nextDef)
         end
 
         api.ref = function(refName)
@@ -152,7 +150,7 @@ return function(context)
             requireCapability(nextDef, "ref", "ref", refName)
             ensureNotFinalized(nextDef, "ref", refName)
             setExclusive(ensureSection(nextDef.config, "source"), "revision", "ref", refName)
-            return createDefinition(nextDef)
+            return createBuilder(nextDef)
         end
 
         api.spoonZipPattern = function(pattern)
@@ -163,7 +161,7 @@ return function(context)
             requireCapability(nextDef, "spoonZipPattern", "spoonZipPattern", pattern)
             ensureNotFinalized(nextDef, "spoonZipPattern", pattern)
             setExclusive(ensureSection(nextDef.config, "source"), "pattern", "spoonZipPattern", pattern)
-            return createDefinition(nextDef)
+            return createBuilder(nextDef)
         end
 
         api.spoonFolderPattern = function(pattern)
@@ -174,7 +172,7 @@ return function(context)
             requireCapability(nextDef, "spoonFolderPattern", "spoonFolderPattern", pattern)
             ensureNotFinalized(nextDef, "spoonFolderPattern", pattern)
             setExclusive(ensureSection(nextDef.config, "source"), "pattern", "spoonFolderPattern", pattern)
-            return createDefinition(nextDef)
+            return createBuilder(nextDef)
         end
 
         api.spoon = function(value)
@@ -184,7 +182,7 @@ return function(context)
 
             local nextDef = util.copyTable(def)
             setExclusive(ensureSection(nextDef.config, "target"), "selection", "spoon", value)
-            return createDefinition(nextDef)
+            return createBuilder(nextDef)
         end
 
         api.path = function(path)
@@ -223,7 +221,7 @@ return function(context)
             end
 
             source.path = path
-            return createDefinition(nextDef)
+            return createBuilder(nextDef)
         end
 
         api.useFolder = function(path)
@@ -243,7 +241,7 @@ return function(context)
             end
 
             extract.folder = path
-            return createDefinition(nextDef)
+            return createBuilder(nextDef)
         end
 
         api.releaseLatest = function()
@@ -259,7 +257,7 @@ return function(context)
             end
             ensureNotFinalized(nextDef, "releaseLatest")
             setExclusive(ensureSection(nextDef.config, "source"), "release", "releaseLatest", true)
-            return createDefinition(nextDef)
+            return createBuilder(nextDef)
         end
 
         api.release = function(releaseName)
@@ -277,7 +275,7 @@ return function(context)
             end
             ensureNotFinalized(nextDef, "release", releaseName)
             setExclusive(ensureSection(nextDef.config, "source"), "release", "release", releaseName)
-            return createDefinition(nextDef)
+            return createBuilder(nextDef)
         end
 
         api.zipFile = function(fileName)
@@ -297,7 +295,7 @@ return function(context)
             end
 
             source.zipFile = fileName
-            return createDefinition(nextDef)
+            return createBuilder(nextDef)
         end
 
         api.withName = function(value)
@@ -306,14 +304,14 @@ return function(context)
 
             local nextDef = util.copyTable(def)
             setExclusive(ensureSection(nextDef.config, "target"), "name", "withName", value)
-            return createDefinition(nextDef)
+            return createBuilder(nextDef)
         end
 
         api.use = function(useOptions)
             local nextDef = util.copyTable(def)
             ensureState(nextDef, "config", "use")
             nextDef.config.use = util.mergeTables(nextDef.config.use or {}, useOptions or {})
-            return createDefinition(nextDef)
+            return createBuilder(nextDef)
         end
 
         api.onLocalChanges = function(behavior)
@@ -323,7 +321,7 @@ return function(context)
             ensureState(nextDef, "config", "onLocalChanges", behavior)
             setExclusive(ensureSection(nextDef.config, "options"), "localChanges", "onLocalChanges", behavior)
             nextDef.config.options.onLocalChanges = behavior
-            return createDefinition(nextDef)
+            return createBuilder(nextDef)
         end
 
         api.add = function()
@@ -354,7 +352,7 @@ return function(context)
         return setmetatable(api, Definition)
     end
 
-    function createDefinition(input)
+    local function createDefinition(input)
         local def
 
         if input and input.config then
