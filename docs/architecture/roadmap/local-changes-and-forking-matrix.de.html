@@ -1,0 +1,315 @@
+<style>
+  :root {
+    --bg: #eef1f2; --surface: #ffffff; --surface-2: #f4f6f7; --band: #e4e9ea;
+    --border: #d6dde0; --text: #16232a; --muted: #5d6c73; --faint: #89969c;
+    --accent: #1c8577; --accent-2: #14655a; --accent-soft: #d4ebe6;
+    --good: #2f9563; --good-soft: #d6efe1; --warn: #b47a1e; --warn-soft: #f3e6cb;
+    --slate: #5f7079; --slate-soft: #e0e6e8; --no: #ab534d; --no-soft: #eeddda;
+    --shadow: 0 1px 2px rgba(20,40,45,.05), 0 3px 10px rgba(20,40,45,.05);
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, "Cascadia Code", monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0e1518; --surface: #161f23; --surface-2: #1b262b; --band: #1e2a30;
+      --border: #2a373d; --text: #e6eef0; --muted: #93a4ab; --faint: #6b7c83;
+      --accent: #52bcae; --accent-2: #6fcabd; --accent-soft: #14332e;
+      --good: #46b47c; --good-soft: #133026; --warn: #d69f4a; --warn-soft: #33290f;
+      --slate: #8ba0a9; --slate-soft: #222f34; --no: #cf7a72; --no-soft: #331d1a;
+      --shadow: 0 1px 2px rgba(0,0,0,.25), 0 3px 12px rgba(0,0,0,.3);
+    }
+  }
+  :root[data-theme="light"] {
+    --bg: #eef1f2; --surface: #ffffff; --surface-2: #f4f6f7; --band: #e4e9ea;
+    --border: #d6dde0; --text: #16232a; --muted: #5d6c73; --faint: #89969c;
+    --accent: #1c8577; --accent-2: #14655a; --accent-soft: #d4ebe6;
+    --good: #2f9563; --good-soft: #d6efe1; --warn: #b47a1e; --warn-soft: #f3e6cb;
+    --slate: #5f7079; --slate-soft: #e0e6e8; --no: #ab534d; --no-soft: #eeddda;
+    --shadow: 0 1px 2px rgba(20,40,45,.05), 0 3px 10px rgba(20,40,45,.05);
+  }
+  :root[data-theme="dark"] {
+    --bg: #0e1518; --surface: #161f23; --surface-2: #1b262b; --band: #1e2a30;
+    --border: #2a373d; --text: #e6eef0; --muted: #93a4ab; --faint: #6b7c83;
+    --accent: #52bcae; --accent-2: #6fcabd; --accent-soft: #14332e;
+    --good: #46b47c; --good-soft: #133026; --warn: #d69f4a; --warn-soft: #33290f;
+    --slate: #8ba0a9; --slate-soft: #222f34; --no: #cf7a72; --no-soft: #331d1a;
+    --shadow: 0 1px 2px rgba(0,0,0,.25), 0 3px 12px rgba(0,0,0,.3);
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  code { font-family: var(--font-mono), monospace; font-size: .9em; }
+  .wrap {
+    font-family: var(--font-sans), sans-serif; color: var(--text); background: var(--bg);
+    line-height: 1.5; padding: clamp(1.1rem, 3vw, 2.6rem);
+    max-width: 1040px; margin: 0 auto; -webkit-font-smoothing: antialiased;
+  }
+  header.top { margin-bottom: 1.4rem; }
+  .eyebrow { font-family: var(--font-mono), monospace; font-size: .72rem; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); margin: 0 0 .5rem; }
+  h1 { font-size: clamp(1.5rem, 3.4vw, 2.1rem); line-height: 1.1; letter-spacing: -.02em; margin: 0 0 .5rem; text-wrap: balance; font-weight: 660; }
+  .lede { color: var(--muted); max-width: 62ch; margin: 0; font-size: 1.0rem; }
+
+  .intro {
+    background: var(--surface-2); border: 1px solid var(--border); border-radius: 11px;
+    padding: .95rem 1.05rem; margin-top: 1.2rem; font-size: .9rem; color: var(--muted);
+  }
+  .intro p { margin: 0 0 .55rem; }
+  .intro strong { color: var(--text); }
+  .intro ol { margin: .15rem 0 0; padding-left: 1.3rem; display: flex; flex-direction: column; gap: .22rem; }
+  .intro code { color: var(--accent); }
+
+  .tally { display: flex; flex-wrap: wrap; gap: .5rem; margin: 1.1rem 0 .2rem; }
+  .tally .t { font-size: .82rem; font-weight: 600; padding: .3rem .6rem; border-radius: 7px; display: inline-flex; align-items: baseline; gap: .4rem; border: 1px solid var(--border); background: var(--surface); }
+  .tally .t b { font-family: var(--font-mono), monospace; font-variant-numeric: tabular-nums; }
+  .tally .t.j { color: var(--good); border-color: color-mix(in srgb, var(--good) 40%, var(--border)); }
+  .tally .t.l { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 40%, var(--border)); }
+  .tally .t.o { color: var(--slate); }
+  .tally .t.n { color: var(--no); border-color: color-mix(in srgb, var(--no) 40%, var(--border)); }
+
+  .legend { display: flex; flex-wrap: wrap; gap: .5rem 1.1rem; align-items: center; margin-top: 1rem; padding: .7rem .85rem; background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; font-size: .8rem; color: var(--muted); }
+  .legend .grp { display: inline-flex; align-items: center; gap: .45rem; }
+  .legend .lab { font-family: var(--font-mono), monospace; font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); }
+
+  section.grp-sec { margin-top: 1.8rem; }
+  .band { display: flex; align-items: baseline; gap: .7rem; padding: 0 .2rem .55rem; border-bottom: 2px solid var(--accent); margin-bottom: .9rem; }
+  .band h2 { font-size: 1.06rem; margin: 0; font-weight: 640; letter-spacing: -.01em; }
+
+  .rows { display: flex; flex-direction: column; gap: .55rem; }
+  .idea { display: grid; grid-template-columns: 2.4rem minmax(0,1fr) auto; align-items: center; gap: .5rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 11px; padding: .8rem .95rem; box-shadow: var(--shadow); }
+  .idea[data-fund] { border-left: 3px solid var(--accent); }
+  .idx { font-family: var(--font-mono), monospace; font-variant-numeric: tabular-nums; font-weight: 700; font-size: .95rem; color: var(--faint); align-self: start; padding-top: .12rem; }
+  .ibody h4 { margin: 0 0 .18rem; font-size: 1.0rem; font-weight: 620; letter-spacing: -.01em; display: flex; flex-wrap: wrap; align-items: baseline; gap: .5rem; }
+  .kw { font-family: var(--font-mono), monospace; font-size: .7rem; color: var(--accent); background: var(--accent-soft); padding: .12rem .4rem; border-radius: 5px; font-weight: 600; }
+  .fundtag { font-family: var(--font-mono), monospace; font-size: .62rem; letter-spacing: .08em; text-transform: uppercase; color: var(--accent-2); border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--border)); padding: .08rem .34rem; border-radius: 5px; }
+  .ibody p { margin: 0; color: var(--muted); font-size: .9rem; max-width: 62ch; }
+
+  .imeta { display: flex; align-items: center; gap: 1.05rem; justify-self: end; }
+  .metric { display: flex; flex-direction: column; align-items: center; gap: .22rem; min-width: 3.1rem; }
+  .metric .ml { font-family: var(--font-mono), monospace; font-size: .6rem; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); }
+  .eff { font-family: var(--font-mono), monospace; font-weight: 700; font-size: .82rem; width: 1.55rem; height: 1.55rem; border-radius: 6px; display: grid; place-items: center; }
+  .eff-s { color: var(--good); background: var(--good-soft); }
+  .eff-m { color: var(--warn); background: var(--warn-soft); }
+  .eff-l { color: var(--no); background: var(--no-soft); }
+  .dots { display: inline-flex; gap: .2rem; height: 1.55rem; align-items: center; }
+  .dots i { width: .5rem; height: .5rem; border-radius: 50%; background: var(--border); display: block; }
+  .dots i.on { background: var(--accent); }
+
+  .verdict { font-size: .78rem; font-weight: 650; padding: .32rem .62rem; border-radius: 999px; white-space: nowrap; min-width: 4.4rem; text-align: center; }
+  .v-yes { color: var(--good); background: var(--good-soft); }
+  .v-late { color: var(--warn); background: var(--warn-soft); }
+  .v-opt { color: var(--slate); background: var(--slate-soft); }
+  .v-no { color: var(--no); background: var(--no-soft); }
+
+  section.dropped .idea { opacity: .72; }
+  section.dropped .idea h4 { text-decoration: line-through; text-decoration-color: var(--faint); }
+
+  footer.foot { margin-top: 2.2rem; padding-top: 1rem; border-top: 1px solid var(--border); color: var(--faint); font-size: .8rem; }
+  footer.foot code { color: var(--muted); }
+
+  @media (max-width: 680px) {
+    .idea { grid-template-columns: 2rem 1fr; }
+    .imeta { grid-column: 1 / -1; justify-self: start; gap: 1.3rem; width: 100%; border-top: 1px dashed var(--border); margin-top: .15rem; padding-top: .6rem; }
+    .metric { align-items: flex-start; }
+  }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <p class="eyebrow">SpoonManager · Planung · Block D</p>
+    <h1>Lokale Änderungen &amp; Fork — Entscheidungsmatrix</h1>
+    <p class="lede">Fokussierte Priorisierung für den Fall, dass der Nutzer einen installierten Spoon verändert hat: lokale Änderungen erkennen, beim Update diffen und Edits in einen eigenen Fork überführen.</p>
+
+    <div class="intro">
+      <p><strong>Kern-Erkenntnis:</strong> Das ist ein 3-Wege-Diff — <code>baseline</code> (was installiert wurde) vs. <code>local</code> (jetzt auf der Platte) vs. <code>upstream</code> (neueste Version). Baseline→local sind die Änderungen des Nutzers, baseline→upstream ist das Update. Alles hängt daran, eine Baseline herzustellen.</p>
+      <p><strong>Baseline-Quellen, nach Verlässlichkeit sortiert:</strong></p>
+      <ol>
+        <li>Pristine aus bekannter Quelle neu laden (der Adopt-Flow) — authoritativ.</li>
+        <li>Die eigene git-Historie des Nutzers, falls <code>~/.hammerspoon</code> getrackt ist — stark, opportunistisch.</li>
+        <li>Upstream-Revision per Install-Datum + Best-Content-Match rekonstruieren — mittel.</li>
+      </ol>
+    </div>
+
+    <div class="tally">
+      <span class="t"><b>9</b> Ideen aktiv</span>
+      <span class="t j"><b>5</b> Ja</span>
+      <span class="t l"><b>3</b> Später</span>
+      <span class="t o"><b>1</b> Optional</span>
+      <span class="t n"><b>2</b> Verworfen</span>
+    </div>
+
+    <div class="legend">
+      <span class="grp"><span class="lab">Aufwand</span> <span class="eff eff-s">S</span> klein · <span class="eff eff-m">M</span> mittel · <span class="eff eff-l">L</span> groß</span>
+      <span class="grp"><span class="lab">Nutzen</span> <span class="dots"><i class="on"></i><i></i><i></i></span> niedrig → <span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i></span> hoch</span>
+      <span class="grp"><span class="lab">Fundament</span> zuerst bauen</span>
+    </div>
+  </header>
+
+  <section class="grp-sec">
+    <div class="band"><h2>Erkennen, diffen &amp; übernehmen</h2></div>
+    <div class="rows">
+
+      <article class="idea" data-fund>
+        <div class="idx">17</div>
+        <div class="ibody">
+          <h4>Backup + Fresh-Diff <span class="kw">Sicher &amp; simpel</span> <span class="fundtag">Fundament</span></h4>
+          <p>Vor jedem Update sichern, dann gegen Frisch-Install diffen. Pragmatischer Default — zuerst bauen.</p>
+        </div>
+        <div class="imeta">
+          <div class="metric"><span class="ml">Aufw</span><span class="eff eff-s">S</span></div>
+          <div class="metric"><span class="ml">Nutzen</span><span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i></span></div>
+          <span class="verdict v-yes">Ja</span>
+        </div>
+      </article>
+
+      <article class="idea" data-fund>
+        <div class="idx">18</div>
+        <div class="ibody">
+          <h4>Fingerprint <span class="kw">Baseline @ Install</span> <span class="fundtag">Fundament</span></h4>
+          <p>Hash je Datei + <code>sourceRevision</code> speichern → „lokal verändert: ja/nein". Basis für den 3-Wege-Diff.</p>
+        </div>
+        <div class="imeta">
+          <div class="metric"><span class="ml">Aufw</span><span class="eff eff-s">S</span></div>
+          <div class="metric"><span class="ml">Nutzen</span><span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i></span></div>
+          <span class="verdict v-yes">Ja</span>
+        </div>
+      </article>
+
+      <article class="idea">
+        <div class="idx">19</div>
+        <div class="ibody">
+          <h4>Adopt-Flow <span class="kw">Nachträglich übernehmen</span></h4>
+          <p>Bei manuell installierten Spoons: Quelle nennen → Baseline anlegen + Erst-Diff. Löst das Kernproblem.</p>
+        </div>
+        <div class="imeta">
+          <div class="metric"><span class="ml">Aufw</span><span class="eff eff-m">M</span></div>
+          <div class="metric"><span class="ml">Nutzen</span><span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i></span></div>
+          <span class="verdict v-yes">Ja</span>
+        </div>
+      </article>
+
+      <article class="idea">
+        <div class="idx">20</div>
+        <div class="ibody">
+          <h4>3-Wege-Diff <span class="kw">Edit vs. Update</span></h4>
+          <p>Baseline / Local / Upstream trennen → „meine Änderung" vs. „Update" vs. „Konflikt".</p>
+        </div>
+        <div class="imeta">
+          <div class="metric"><span class="ml">Aufw</span><span class="eff eff-m">M</span></div>
+          <div class="metric"><span class="ml">Nutzen</span><span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i></span></div>
+          <span class="verdict v-yes">Ja</span>
+        </div>
+      </article>
+
+      <article class="idea">
+        <div class="idx">21</div>
+        <div class="ibody">
+          <h4>Änderungs-Schutz <span class="kw">Bewusst überspringen</span></h4>
+          <p>Update zeigt Diff statt blind zu skippen — der Nutzer entscheidet informiert.</p>
+        </div>
+        <div class="imeta">
+          <div class="metric"><span class="ml">Aufw</span><span class="eff eff-s">S</span></div>
+          <div class="metric"><span class="ml">Nutzen</span><span class="dots"><i class="on"></i><i class="on"></i><i></i></span></div>
+          <span class="verdict v-yes">Ja</span>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <section class="grp-sec">
+    <div class="band"><h2>Baseline-Quellen &amp; Fork</h2></div>
+    <div class="rows">
+
+      <article class="idea">
+        <div class="idx">22</div>
+        <div class="ibody">
+          <h4>User-Git-History <span class="kw">Config in git</span></h4>
+          <p>Falls <code>~/.hammerspoon</code> git-getrackt ist: vorhandene Historie als starke Baseline nutzen.</p>
+        </div>
+        <div class="imeta">
+          <div class="metric"><span class="ml">Aufw</span><span class="eff eff-m">M</span></div>
+          <div class="metric"><span class="ml">Nutzen</span><span class="dots"><i class="on"></i><i class="on"></i><i></i></span></div>
+          <span class="verdict v-opt">Optional</span>
+        </div>
+      </article>
+
+      <article class="idea">
+        <div class="idx">23</div>
+        <div class="ibody">
+          <h4>History-Rekonstruktion <span class="kw">Stand zum Datum</span></h4>
+          <p>Upstream-Revision per Install-Datum + Best-Content-Match finden. Robust, aber Kür.</p>
+        </div>
+        <div class="imeta">
+          <div class="metric"><span class="ml">Aufw</span><span class="eff eff-l">L</span></div>
+          <div class="metric"><span class="ml">Nutzen</span><span class="dots"><i class="on"></i><i class="on"></i><i></i></span></div>
+          <span class="verdict v-late">Später</span>
+        </div>
+      </article>
+
+      <article class="idea">
+        <div class="idx">24</div>
+        <div class="ibody">
+          <h4>Git-Backing <span class="kw">git unter der Haube</span></h4>
+          <p>Spoon als git-Repo, pristine als erster Commit → diff/merge/Konflikte gratis. Schwerer — abwägen.</p>
+        </div>
+        <div class="imeta">
+          <div class="metric"><span class="ml">Aufw</span><span class="eff eff-l">L</span></div>
+          <div class="metric"><span class="ml">Nutzen</span><span class="dots"><i class="on"></i><i class="on"></i><i></i></span></div>
+          <span class="verdict v-late">Später</span>
+        </div>
+      </article>
+
+      <article class="idea">
+        <div class="idx">25</div>
+        <div class="ibody">
+          <h4>Fork-Helfer <span class="kw">Eigener Spoon</span></h4>
+          <p>Edits als Commits, Quelle auf Fork umbiegen. Rename <code>Tool→MeinTool</code> nur best-effort + Push-Befehl generieren.</p>
+        </div>
+        <div class="imeta">
+          <div class="metric"><span class="ml">Aufw</span><span class="eff eff-m">M</span></div>
+          <div class="metric"><span class="ml">Nutzen</span><span class="dots"><i class="on"></i><i class="on"></i><i></i></span></div>
+          <span class="verdict v-late">Später</span>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <section class="grp-sec dropped">
+    <div class="band" style="border-color: var(--no);"><h2 style="color: var(--no);">Verworfen / außerhalb Scope</h2></div>
+    <div class="rows">
+
+      <article class="idea">
+        <div class="idx">26</div>
+        <div class="ibody">
+          <h4>Auto-GitHub-Push <span class="kw">Repo + Push automatisch</span></h4>
+          <p>Zieht Token-/Auth-Verwaltung &amp; nach-außen-Aktionen rein. Stattdessen: fertigen Befehl generieren, Nutzer pusht selbst.</p>
+        </div>
+        <div class="imeta">
+          <div class="metric"><span class="ml">Aufw</span><span class="eff eff-l">L</span></div>
+          <div class="metric"><span class="ml">Nutzen</span><span class="dots"><i class="on"></i><i></i><i></i></span></div>
+          <span class="verdict v-no">Nein</span>
+        </div>
+      </article>
+
+      <article class="idea">
+        <div class="idx">27</div>
+        <div class="ibody">
+          <h4>Blind-Detect <span class="kw">ohne Baseline &amp; Quelle</span></h4>
+          <p>Änderungen ohne jeden Vergleichspunkt erkennen — logisch unmöglich. Immer über Adopt (19) lösen.</p>
+        </div>
+        <div class="imeta">
+          <div class="metric"><span class="ml">Aufw</span><span class="eff eff-l">—</span></div>
+          <div class="metric"><span class="ml">Nutzen</span><span class="dots"><i></i><i></i><i></i></span></div>
+          <span class="verdict v-no">Nein</span>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p><strong>Erste Welle:</strong> zuerst 17 und 18 bauen (Backup-Sicherheit + Fingerprint-Baseline), dann der Trenn-Kern 19–21. Punkte 22–25 sind die nächste Stufe.</p>
+    <p>Volles Detail: <code>docs/architecture/planned/local-changes-and-forking.md</code>. Planungs-/Zukunftsstand — noch nichts implementiert.</p>
+  </footer>
+</div>

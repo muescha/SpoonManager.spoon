@@ -1,0 +1,306 @@
+<style>
+  :root {
+    --bg: #eef1f2; --surface: #ffffff; --border: #d6dde0;
+    --text: #16232a; --muted: #5d6c73; --faint: #89969c;
+    --accent: #1c8577; --accent-soft: #d4ebe6;
+    --warn: #b47a1e; --warn-soft: #f6ecd6;
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, "Cascadia Code", monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #0e1518; --surface: #161f23; --border: #2a373d; --text: #e6eef0; --muted: #93a4ab; --faint: #6b7c83; --accent: #52bcae; --accent-soft: #14332e; --warn: #d69f4a; --warn-soft: #33290f; }
+  }
+  :root[data-theme="light"] { --bg: #eef1f2; --surface: #ffffff; --border: #d6dde0; --text: #16232a; --muted: #5d6c73; --faint: #89969c; --accent: #1c8577; --accent-soft: #d4ebe6; --warn: #b47a1e; --warn-soft: #f6ecd6; }
+  :root[data-theme="dark"] { --bg: #0e1518; --surface: #161f23; --border: #2a373d; --text: #e6eef0; --muted: #93a4ab; --faint: #6b7c83; --accent: #52bcae; --accent-soft: #14332e; --warn: #d69f4a; --warn-soft: #33290f; }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  code { font-family: var(--font-mono), monospace; font-size: .88em; }
+  .wrap { font-family: var(--font-sans), sans-serif; color: var(--text); background: var(--bg); line-height: 1.55; padding: clamp(1.1rem, 3vw, 2.6rem); max-width: 1000px; margin: 0 auto; -webkit-font-smoothing: antialiased; }
+
+  .eyebrow { font-family: var(--font-mono), monospace; font-size: .72rem; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); margin: 0 0 .5rem; }
+  h1 { font-size: clamp(1.5rem, 3.4vw, 2.1rem); line-height: 1.1; letter-spacing: -.02em; margin: 0 0 .5rem; text-wrap: balance; font-weight: 660; }
+  .lede { color: var(--muted); max-width: 66ch; margin: 0 0 .4rem; font-size: 1.0rem; }
+
+  h2 { font-size: 1.14rem; margin: 2.1rem 0 .3rem; font-weight: 640; letter-spacing: -.01em; }
+  .sub { color: var(--muted); font-size: .9rem; margin: 0 0 .9rem; max-width: 66ch; }
+
+  .card { background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem; overflow-x: auto; box-shadow: 0 1px 2px rgba(20,40,45,.05), 0 3px 12px rgba(20,40,45,.06); }
+  .card .mermaid { display: flex; justify-content: center; min-width: 560px; }
+
+  details.src { margin: .55rem 0 0; border: 1px solid var(--border); border-radius: 9px; background: var(--surface); }
+  details.src > summary { cursor: pointer; padding: .45rem .8rem; font-family: var(--font-mono), monospace; font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); list-style: none; }
+  details.src > summary::-webkit-details-marker { display: none; }
+  details.src > summary::before { content: "▸  "; color: var(--faint); }
+  details.src[open] > summary::before { content: "▾  "; }
+  details.src pre { margin: 0; padding: .75rem .9rem; border-top: 1px solid var(--border); background: var(--bg); overflow-x: auto; font-family: var(--font-mono), monospace; font-size: .76rem; line-height: 1.5; color: var(--text); white-space: pre; border-radius: 0 0 9px 9px; }
+
+  .note { display: flex; gap: .6rem; align-items: flex-start; background: var(--warn-soft); border: 1px solid color-mix(in srgb, var(--warn) 35%, var(--border)); border-radius: 10px; padding: .75rem .9rem; margin: 1rem 0 0; font-size: .87rem; color: var(--text); }
+  .note b { color: var(--warn); }
+
+  footer { margin-top: 2.2rem; padding-top: 1rem; border-top: 1px solid var(--border); color: var(--faint); font-size: .8rem; }
+</style>
+
+<div class="wrap">
+  <p class="eyebrow">SpoonManager · Pipeline</p>
+  <h1>Pipeline &amp; Flows — Visualized</h1>
+  <p class="lede">Five views of how a Spoon travels through SpoonManager — the same flow drawn as a flowchart, a Sankey, grouped lanes, a state machine, and a sequence. Each diagram shows its Mermaid source below it.</p>
+
+  <h2>1 · The canonical pipeline</h2>
+  <p class="sub">The documented lifecycle: builder calls or a manifest produce a declarative <code>config</code>, enriched stage by stage until it executes and writes an installed record.</p>
+  <div class="card">
+    <pre class="mermaid">
+flowchart LR
+  B["Builder calls · from.github(...)"] --> C
+  M["Manifest · spoonify.json"] --> C
+  C["config"] --> R["resolved · sourceKind, url, name"]
+  R --> K["command · executable task"]
+  K --> A{"action"}
+  A --> I["install"]
+  A --> U["update"]
+  I --> REC[("installed record")]
+  U --> REC
+    </pre>
+  </div>
+  <details class="src"><summary>Mermaid source</summary><pre>flowchart LR
+  B["Builder calls · from.github(...)"] --> C
+  M["Manifest · spoonify.json"] --> C
+  C["config"] --> R["resolved · sourceKind, url, name"]
+  R --> K["command · executable task"]
+  K --> A{"action"}
+  A --> I["install"]
+  A --> U["update"]
+  I --> REC[("installed record")]
+  U --> REC</pre></details>
+
+  <h2>2 · Flows as a Sankey</h2>
+  <p class="sub">The same journey, showing where things branch: many source types funnel into one <code>config</code>, resolution splits into ZIP vs. folder, and the action splits into install/update with their outcomes (including <code>skipped</code> when local changes are protected).</p>
+  <div class="card">
+    <pre class="mermaid">
+sankey-beta
+
+from.github,config,6
+from.gitlab,config,1
+from.forgejo,config,1
+from.remoteZip,config,2
+from.localZip,config,1
+from.localFolder,config,1
+manifest,config,2
+config,resolved,14
+resolved,ZIP source,10
+resolved,folder source,4
+ZIP source,command,10
+folder source,command,4
+command,install,9
+command,update,5
+install,installed new,7
+install,skipped exists,2
+update,updated,3
+update,skipped local changes,1
+update,failed,1
+installed new,registry,7
+updated,registry,3
+    </pre>
+  </div>
+  <details class="src"><summary>Mermaid source</summary><pre>sankey-beta
+
+from.github,config,6
+from.gitlab,config,1
+from.forgejo,config,1
+from.remoteZip,config,2
+from.localZip,config,1
+from.localFolder,config,1
+manifest,config,2
+config,resolved,14
+resolved,ZIP source,10
+resolved,folder source,4
+ZIP source,command,10
+folder source,command,4
+command,install,9
+command,update,5
+install,installed new,7
+install,skipped exists,2
+update,updated,3
+update,skipped local changes,1
+update,failed,1
+installed new,registry,7
+updated,registry,3</pre></details>
+  <div class="note">
+    <b>⚠︎</b>
+    <div>The Sankey widths are <b>schematic, not measured</b> — they illustrate the branching structure, not real installation volumes. Also, <code>sankey-beta</code> is newer: it may not render in GitHub Markdown depending on GitHub's Mermaid version. Diagram 3 is the safe alternative there.</div>
+  </div>
+
+  <h2>3 · Grouped flow (lanes)</h2>
+  <p class="sub">The same flow as boxes, grouped into <b>Sources → Pipeline → Outcomes</b>, with outcomes colour-coded (green ok, amber skipped, red failed). The best readable "map", and it renders everywhere including GitHub.</p>
+  <div class="card">
+    <pre class="mermaid">
+flowchart TB
+  subgraph Sources
+    direction TB
+    G["from.github"]
+    GL["from.gitlab"]
+    FJ["from.forgejo"]
+    RZ["from.remoteZip"]
+    LZ["from.localZip"]
+    LF["from.localFolder"]
+    MAN["manifest"]
+  end
+  Sources --> C["config"]
+  C --> R["resolved"]
+  R -->|zip| K["command"]
+  R -->|folder| K
+  K --> A{"action"}
+  A -->|install| IN["installed · new"]
+  A -->|install| SE["skipped · exists"]
+  A -->|update| UP["updated"]
+  A -->|update| SL["skipped · local changes"]
+  A -->|update| FA["failed"]
+  IN --> REC[("registry")]
+  UP --> REC
+  classDef ok fill:#d4ebe6,stroke:#1c8577,color:#16232a;
+  classDef warn fill:#f6ecd6,stroke:#b47a1e,color:#16232a;
+  classDef bad fill:#f0dcda,stroke:#ab534d,color:#16232a;
+  class IN,UP ok;
+  class SE,SL warn;
+  class FA bad;
+    </pre>
+  </div>
+  <details class="src"><summary>Mermaid source</summary><pre>flowchart TB
+  subgraph Sources
+    direction TB
+    G["from.github"]
+    GL["from.gitlab"]
+    FJ["from.forgejo"]
+    RZ["from.remoteZip"]
+    LZ["from.localZip"]
+    LF["from.localFolder"]
+    MAN["manifest"]
+  end
+  Sources --> C["config"]
+  C --> R["resolved"]
+  R -->|zip| K["command"]
+  R -->|folder| K
+  K --> A{"action"}
+  A -->|install| IN["installed · new"]
+  A -->|install| SE["skipped · exists"]
+  A -->|update| UP["updated"]
+  A -->|update| SL["skipped · local changes"]
+  A -->|update| FA["failed"]
+  IN --> REC[("registry")]
+  UP --> REC
+  classDef ok fill:#d4ebe6,stroke:#1c8577,color:#16232a;
+  classDef warn fill:#f6ecd6,stroke:#b47a1e,color:#16232a;
+  classDef bad fill:#f0dcda,stroke:#ab534d,color:#16232a;
+  class IN,UP ok;
+  class SE,SL warn;
+  class FA bad;</pre></details>
+
+  <h2>4 · Lifecycle (state diagram)</h2>
+  <p class="sub">The pipeline as a state machine — best for answering "what state can a Spoon end up in?" It makes the terminal outcomes explicit.</p>
+  <div class="card">
+    <pre class="mermaid">
+stateDiagram-v2
+  [*] --> config
+  config --> resolved: resolve()
+  resolved --> command: command()
+  command --> Installing: install()
+  command --> Updating: update()
+  Installing --> Installed: success
+  Installing --> SkippedExists: already present
+  Updating --> Updated: success
+  Updating --> SkippedLocalChanges: onLocalChanges = abort
+  Updating --> Failed: error
+  Installed --> [*]
+  Updated --> [*]
+  SkippedExists --> [*]
+  SkippedLocalChanges --> [*]
+  Failed --> [*]
+    </pre>
+  </div>
+  <details class="src"><summary>Mermaid source</summary><pre>stateDiagram-v2
+  [*] --> config
+  config --> resolved: resolve()
+  resolved --> command: command()
+  command --> Installing: install()
+  command --> Updating: update()
+  Installing --> Installed: success
+  Installing --> SkippedExists: already present
+  Updating --> Updated: success
+  Updating --> SkippedLocalChanges: onLocalChanges = abort
+  Updating --> Failed: error
+  Installed --> [*]
+  Updated --> [*]
+  SkippedExists --> [*]
+  SkippedLocalChanges --> [*]
+  Failed --> [*]</pre></details>
+
+  <h2>5 · Component interaction (sequence)</h2>
+  <p class="sub">The same journey as a conversation between components over time — best for showing <b>who does what</b>, and where the local-changes decision branches.</p>
+  <div class="card">
+    <pre class="mermaid">
+sequenceDiagram
+  autonumber
+  participant U as User / Manifest
+  participant B as Builder
+  participant Rz as Resolver
+  participant Cmd as Command
+  participant Ins as Installer
+  participant Reg as Registry
+  U->>B: from.github(...).spoon(...)
+  B->>B: build config
+  B->>Rz: resolve()
+  Rz-->>B: resolved (sourceKind, url, name)
+  B->>Cmd: command("install" / "update")
+  Cmd-->>B: executable task
+  B->>Ins: execute
+  alt local changes and onLocalChanges = abort
+    Ins-->>B: skipped (protect local changes)
+  else success
+    Ins->>Reg: write installed record
+    Reg-->>Ins: ok
+    Ins-->>B: success
+  end
+    </pre>
+  </div>
+  <details class="src"><summary>Mermaid source</summary><pre>sequenceDiagram
+  autonumber
+  participant U as User / Manifest
+  participant B as Builder
+  participant Rz as Resolver
+  participant Cmd as Command
+  participant Ins as Installer
+  participant Reg as Registry
+  U->>B: from.github(...).spoon(...)
+  B->>B: build config
+  B->>Rz: resolve()
+  Rz-->>B: resolved (sourceKind, url, name)
+  B->>Cmd: command("install" / "update")
+  Cmd-->>B: executable task
+  B->>Ins: execute
+  alt local changes and onLocalChanges = abort
+    Ins-->>B: skipped (protect local changes)
+  else success
+    Ins->>Reg: write installed record
+    Reg-->>Ins: ok
+    Ins-->>B: success
+  end</pre></details>
+
+  <div class="note" style="background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 35%, var(--border));">
+    <b style="color: var(--accent);">✔</b>
+    <div><b>Which form for the docs?</b> Keep the <b>grouped flow (3)</b> as the primary map and the <b>state diagram (4)</b> for the outcomes — both render everywhere, including GitHub Markdown. The <b>Sankey (2)</b> is the eye-catcher but earns its keep only once real counts exist; the <b>sequence (5)</b> suits a "how it works internally" page.</div>
+  </div>
+
+  <footer>
+    Grounded in <code>docs/architecture/completed/definition-resolution-command.md</code> and <code>completed/source-provider-pipeline.md</code>. Saved to the repo as <code>docs/architecture/reference/pipeline.md</code> and <code>pipeline.html</code>.
+  </footer>
+</div>
+
+<!-- Mermaid loader for standalone viewing (GitHub Pages / htmlpreview / local file).
+     Under the Artifact host this CDN is blocked by CSP, but the host renders
+     Mermaid natively, so the diagrams still show. -->
+<script type="module">
+  try {
+    const { default: mermaid } = await import("https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs");
+    mermaid.initialize({ startOnLoad: true });
+  } catch (e) { /* CDN blocked (e.g. Artifact CSP); native renderer handles it */ }
+</script>

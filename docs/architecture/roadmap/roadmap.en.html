@@ -1,0 +1,635 @@
+<style>
+  :root {
+    --bg: #eef1f2;
+    --surface: #ffffff;
+    --surface-2: #f4f6f7;
+    --band: #e4e9ea;
+    --border: #d6dde0;
+    --text: #16232a;
+    --muted: #5d6c73;
+    --faint: #89969c;
+    --accent: #1c8577;
+    --accent-2: #14655a;
+    --accent-soft: #d4ebe6;
+    --good: #2f9563;
+    --good-soft: #d6efe1;
+    --warn: #b47a1e;
+    --warn-soft: #f3e6cb;
+    --slate: #5f7079;
+    --slate-soft: #e0e6e8;
+    --no: #ab534d;
+    --no-soft: #eeddda;
+    --shadow: 0 1px 2px rgba(20,40,45,.05), 0 3px 10px rgba(20,40,45,.05);
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, "Cascadia Code", monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0e1518;
+      --surface: #161f23;
+      --surface-2: #1b262b;
+      --band: #1e2a30;
+      --border: #2a373d;
+      --text: #e6eef0;
+      --muted: #93a4ab;
+      --faint: #6b7c83;
+      --accent: #52bcae;
+      --accent-2: #6fcabd;
+      --accent-soft: #14332e;
+      --good: #46b47c;
+      --good-soft: #133026;
+      --warn: #d69f4a;
+      --warn-soft: #33290f;
+      --slate: #8ba0a9;
+      --slate-soft: #222f34;
+      --no: #cf7a72;
+      --no-soft: #331d1a;
+      --shadow: 0 1px 2px rgba(0,0,0,.25), 0 3px 12px rgba(0,0,0,.3);
+    }
+  }
+  :root[data-theme="light"] {
+    --bg: #eef1f2; --surface: #ffffff; --surface-2: #f4f6f7; --band: #e4e9ea;
+    --border: #d6dde0; --text: #16232a; --muted: #5d6c73; --faint: #89969c;
+    --accent: #1c8577; --accent-2: #14655a; --accent-soft: #d4ebe6;
+    --good: #2f9563; --good-soft: #d6efe1; --warn: #b47a1e; --warn-soft: #f3e6cb;
+    --slate: #5f7079; --slate-soft: #e0e6e8; --no: #ab534d; --no-soft: #eeddda;
+    --shadow: 0 1px 2px rgba(20,40,45,.05), 0 3px 10px rgba(20,40,45,.05);
+  }
+  :root[data-theme="dark"] {
+    --bg: #0e1518; --surface: #161f23; --surface-2: #1b262b; --band: #1e2a30;
+    --border: #2a373d; --text: #e6eef0; --muted: #93a4ab; --faint: #6b7c83;
+    --accent: #52bcae; --accent-2: #6fcabd; --accent-soft: #14332e;
+    --good: #46b47c; --good-soft: #133026; --warn: #d69f4a; --warn-soft: #33290f;
+    --slate: #8ba0a9; --slate-soft: #222f34; --no: #cf7a72; --no-soft: #331d1a;
+    --shadow: 0 1px 2px rgba(0,0,0,.25), 0 3px 12px rgba(0,0,0,.3);
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  code { font-family: var(--font-mono), monospace; font-size: .9em; }
+  .wrap {
+    font-family: var(--font-sans), sans-serif;
+    color: var(--text);
+    background: var(--bg);
+    line-height: 1.5;
+    padding: clamp(1.1rem, 3vw, 2.6rem);
+    max-width: 1040px;
+    margin: 0 auto;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  header.top { margin-bottom: 1.6rem; }
+  .eyebrow {
+    font-family: var(--font-mono), monospace;
+    font-size: .72rem;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 .5rem;
+  }
+  h1 {
+    font-size: clamp(1.55rem, 3.6vw, 2.25rem);
+    line-height: 1.1;
+    letter-spacing: -.02em;
+    margin: 0 0 .5rem;
+    text-wrap: balance;
+    font-weight: 660;
+  }
+  .lede { color: var(--muted); max-width: 62ch; margin: 0; font-size: 1.02rem; }
+
+  .tally {
+    display: flex; flex-wrap: wrap; gap: .5rem;
+    margin: 1.2rem 0 .2rem;
+  }
+  .tally .t {
+    font-size: .82rem; font-weight: 600;
+    padding: .3rem .6rem; border-radius: 7px;
+    display: inline-flex; align-items: baseline; gap: .4rem;
+    border: 1px solid var(--border); background: var(--surface);
+  }
+  .tally .t b { font-family: var(--font-mono), monospace; font-variant-numeric: tabular-nums; }
+  .tally .t.j { color: var(--good); border-color: color-mix(in srgb, var(--good) 40%, var(--border)); }
+  .tally .t.l { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 40%, var(--border)); }
+  .tally .t.o { color: var(--slate); }
+  .tally .t.n { color: var(--no); border-color: color-mix(in srgb, var(--no) 40%, var(--border)); }
+
+  .legend {
+    display: flex; flex-wrap: wrap; gap: .5rem 1.1rem;
+    align-items: center;
+    margin-top: 1rem; padding: .7rem .85rem;
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: 10px; font-size: .8rem; color: var(--muted);
+  }
+  .legend .grp { display: inline-flex; align-items: center; gap: .45rem; }
+  .legend .lab { font-family: var(--font-mono), monospace; font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); }
+
+  section.grp-sec { margin-top: 2rem; }
+  .band {
+    display: flex; align-items: baseline; gap: .7rem;
+    padding: 0 .2rem .55rem;
+    border-bottom: 2px solid var(--accent);
+    margin-bottom: .9rem;
+  }
+  .band .gid { font-family: var(--font-mono), monospace; color: var(--accent); font-weight: 700; font-size: .95rem; }
+  .band h2 { font-size: 1.06rem; margin: 0; font-weight: 640; letter-spacing: -.01em; }
+  .band .gnote { color: var(--faint); font-size: .82rem; margin-left: auto; }
+
+  .rows { display: flex; flex-direction: column; gap: .55rem; }
+
+  .idea {
+    display: grid;
+    grid-template-columns: 2.4rem minmax(0,1fr) auto;
+    align-items: center;
+    gap: .5rem 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    padding: .8rem .95rem;
+    box-shadow: var(--shadow);
+  }
+  .idea[data-fund] { border-left: 3px solid var(--accent); }
+  .idx {
+    font-family: var(--font-mono), monospace;
+    font-variant-numeric: tabular-nums;
+    font-weight: 700; font-size: .95rem;
+    color: var(--faint);
+    align-self: start; padding-top: .12rem;
+  }
+  .ibody h4 {
+    margin: 0 0 .18rem; font-size: 1.0rem; font-weight: 620;
+    letter-spacing: -.01em; display: flex; flex-wrap: wrap; align-items: baseline; gap: .5rem;
+  }
+  .kw {
+    font-family: var(--font-mono), monospace;
+    font-size: .7rem; color: var(--accent);
+    background: var(--accent-soft);
+    padding: .12rem .4rem; border-radius: 5px;
+    font-weight: 600; letter-spacing: .01em;
+  }
+  .fundtag {
+    font-family: var(--font-mono), monospace; font-size: .62rem; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--accent-2);
+    border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--border));
+    padding: .08rem .34rem; border-radius: 5px;
+  }
+  .ibody p { margin: 0; color: var(--muted); font-size: .9rem; max-width: 60ch; }
+
+  .imeta {
+    display: flex; align-items: center; gap: 1.05rem;
+    justify-self: end;
+  }
+  .metric { display: flex; flex-direction: column; align-items: center; gap: .22rem; min-width: 3.1rem; }
+  .metric .ml { font-family: var(--font-mono), monospace; font-size: .6rem; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); }
+  .eff {
+    font-family: var(--font-mono), monospace; font-weight: 700; font-size: .82rem;
+    width: 1.55rem; height: 1.55rem; border-radius: 6px;
+    display: grid; place-items: center;
+  }
+  .eff-s { color: var(--good); background: var(--good-soft); }
+  .eff-m { color: var(--warn); background: var(--warn-soft); }
+  .eff-l { color: var(--no); background: var(--no-soft); }
+  .dots { display: inline-flex; gap: .2rem; height: 1.55rem; align-items: center; }
+  .dots i { width: .5rem; height: .5rem; border-radius: 50%; background: var(--border); display: block; }
+  .dots i.on { background: var(--accent); }
+
+  .verdict {
+    font-size: .78rem; font-weight: 650;
+    padding: .32rem .62rem; border-radius: 999px;
+    white-space: nowrap; min-width: 4.4rem; text-align: center;
+  }
+  .v-yes { color: var(--good); background: var(--good-soft); }
+  .v-late { color: var(--warn); background: var(--warn-soft); }
+  .v-opt { color: var(--slate); background: var(--slate-soft); }
+  .v-no { color: var(--no); background: var(--no-soft); }
+
+  section.dropped .idea { opacity: .72; }
+  section.dropped .idea h4 { text-decoration: line-through; text-decoration-color: var(--faint); }
+
+  footer.foot { margin-top: 2.4rem; padding-top: 1rem; border-top: 1px solid var(--border); color: var(--faint); font-size: .8rem; }
+  footer.foot code { font-family: var(--font-mono), monospace; color: var(--muted); }
+
+  @media (max-width: 680px) {
+    .idea { grid-template-columns: 2rem 1fr; }
+    .imeta { grid-column: 1 / -1; justify-self: start; gap: 1.3rem; border-top: 1px dashed var(--border); width: 100%; margin-top: .15rem; padding-top: .6rem; }
+    .metric { align-items: flex-start; }
+    .band .gnote { display: none; }
+  }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <p class="eyebrow">SpoonManager · Planning</p>
+    <h1>Ideas Overview &amp; Prioritization</h1>
+    <p class="lede">Every possibility gathered in the session — numbered, with an effort and benefit estimate and a call on whether it is worth building. Four topic blocks plus what was dropped.</p>
+
+    <div class="tally">
+      <span class="t"><b>25</b> ideas active</span>
+      <span class="t j"><b>17</b> Yes</span>
+      <span class="t l"><b>6</b> Later</span>
+      <span class="t o"><b>2</b> Optional</span>
+      <span class="t n"><b>2</b> Dropped</span>
+    </div>
+
+    <div class="legend">
+      <span class="grp"><span class="lab">Effort</span> <span class="eff eff-s">S</span> small · <span class="eff eff-m">M</span> medium · <span class="eff eff-l">L</span> large</span>
+      <span class="grp"><span class="lab">Benefit</span> <span class="dots"><i class="on"></i><i></i><i></i></span> low → <span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i></span> high</span>
+      <span class="grp"><span class="lab">Foundation</span> the base that unlocks the rest</span>
+    </div>
+  </header>
+
+  <!-- GROUP A -->
+  <section class="grp-sec">
+    <div class="band"><span class="gid">A</span><h2>Structure &amp; Hosting</h2><span class="gnote">repository-structure-and-hosting.md</span></div>
+    <div class="rows">
+
+      <article class="idea" data-fund>
+        <div class="idx">01</div>
+        <div class="ibody">
+          <h4>Repo Split <span class="kw">Two Repos</span> <span class="fundtag">Foundation</span></h4>
+          <p>Tool (<code>spoonmanager</code>) and community catalog (<code>spoonify</code>) kept separate — PR streams never collide.</p>
+        </div>
+        <div class="imeta">
+          <div class="metric"><span class="ml">Eff</span><span class="eff eff-s">S</span></div>
+          <div class="metric"><span class="ml">Ben</span><span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i></span></div>
+          <span class="verdict v-yes">Yes</span>
+        </div>
+      </article>
+
+      <article class="idea" data-fund>
+        <div class="idx">02</div>
+        <div class="ibody">
+          <h4>Structure Rework <span class="kw">Monorepo</span> <span class="fundtag">Foundation</span></h4>
+          <p><code>Source/SpoonManager.spoon</code>, <code>Spoons/*.zip</code>, release ZIP for bootstrap. Mirrors Hammerspoon/Spoons.</p>
+        </div>
+        <div class="imeta">
+          <div class="metric"><span class="ml">Eff</span><span class="eff eff-m">M</span></div>
+          <div class="metric"><span class="ml">Ben</span><span class="dots"><i class="on"></i><i class="on"></i><i></i></span></div>
+          <span class="verdict v-yes">Yes</span>
+        </div>
+      </article>
+
+      <article class="idea" data-fund>
+        <div class="idx">03</div>
+        <div class="ibody">
+          <h4>Root Manifest <span class="kw">Auto-Discovery</span> <span class="fundtag">Foundation</span></h4>
+          <p><code>spoonify.json</code> at the repo root as a fixed location — like <code>package.json</code>.</p>
+        </div>
+        <div class="imeta">
+          <div class="metric"><span class="ml">Eff</span><span class="eff eff-s">S</span></div>
+          <div class="metric"><span class="ml">Ben</span><span class="dots"><i class="on"></i><i class="on"></i><i></i></span></div>
+          <span class="verdict v-yes">Yes</span>
+        </div>
+      </article>
+
+      <article class="idea" data-fund>
+        <div class="idx">04</div>
+        <div class="ibody">
+          <h4>Pages Hosting <span class="kw">GitHub Pages</span> <span class="fundtag">Foundation</span></h4>
+          <p>Deploy <code>website/</code> via Actions — free, no domain needed.</p>
+        </div>
+        <div class="imeta">
+          <div class="metric"><span class="ml">Eff</span><span class="eff eff-s">S</span></div>
+          <div class="metric"><span class="ml">Ben</span><span class="dots"><i class="on"></i><i class="on"></i><i></i></span></div>
+          <span class="verdict v-yes">Yes</span>
+        </div>
+      </article>
+
+      <article class="idea">
+        <div class="idx">05</div>
+        <div class="ibody">
+          <h4>Custom Domain <span class="kw">.de domain</span></h4>
+          <p>~€3.71/year, CNAME to Pages. Nice, but not needed — addable anytime.</p>
+        </div>
+        <div class="imeta">
+          <div class="metric"><span class="ml">Eff</span><span class="eff eff-s">S</span></div>
+          <div class="metric"><span class="ml">Ben</span><span class="dots"><i class="on"></i><i></i><i></i></span></div>
+          <span class="verdict v-opt">Optional</span>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- GROUP B -->
+  <section class="grp-sec">
+    <div class="band"><span class="gid">B</span><h2>Discovery &amp; Distribution</h2><span class="gnote">discovery-website-and-gui.md</span></div>
+    <div class="rows">
+
+      <article class="idea">
+        <div class="idx">06</div>
+        <div class="ibody">
+          <h4>Catalog Repo <span class="kw">spoonify index</span></h4>
+          <p>Central index of many manifests, curated via pull requests.</p>
+        </div>
+        <div class="imeta">
+          <div class="metric"><span class="ml">Eff</span><span class="eff eff-m">M</span></div>
+          <div class="metric"><span class="ml">Ben</span><span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i></span></div>
+          <span class="verdict v-yes">Yes</span>
+        </div>
+      </article>
+
+      <article class="idea">
+        <div class="idx">07</div>
+        <div class="ibody">
+          <h4>Schema Validation <span class="kw">CI gate</span></h4>
+          <p>JSON schema + Action checks every PR: valid, allowed sources only, no local paths.</p>
+        </div>
+        <div class="imeta">
+          <div class="metric"><span class="ml">Eff</span><span class="eff eff-m">M</span></div>
+          <div class="metric"><span class="ml">Ben</span><span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i></span></div>
+          <span class="verdict v-yes">Yes</span>
+        </div>
+      </article>
+
+      <article class="idea">
+        <div class="idx">08</div>
+        <div class="ibody">
+          <h4>Search Website <span class="kw">brew.sh style</span></h4>
+          <p>Static page + JSON feed, client-side search (Fuse.js). No backend, no running cost.</p>
+        </div>
+        <div class="imeta">
+          <div class="metric"><span class="ml">Eff</span><span class="eff eff-m">M</span></div>
+          <div class="metric"><span class="ml">Ben</span><span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i></span></div>
+          <span class="verdict v-yes">Yes</span>
+        </div>
+      </article>
+
+      <article class="idea">
+        <div class="idx">09</div>
+        <div class="ibody">
+          <h4>Copy Snippets <span class="kw">JSON / Lua</span></h4>
+          <p>Copy config JSON or builder Lua per result — generated from the schema (no drift).</p>
+        </div>
+        <div class="imeta">
+          <div class="metric"><span class="ml">Eff</span><span class="eff eff-s">S</span></div>
+          <div class="metric"><span class="ml">Ben</span><span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i></span></div>
+          <span class="verdict v-yes">Yes</span>
+        </div>
+      </article>
+
+      <article class="idea">
+        <div class="idx">10</div>
+        <div class="ibody">
+          <h4>One-Click Import <span class="kw">hammerspoon://</span></h4>
+          <p>URL scheme via <code>hs.urlevent</code> → one-click install. Confirmation dialog mandatory (RCE risk).</p>
+        </div>
+        <div class="imeta">
+          <div class="metric"><span class="ml">Eff</span><span class="eff eff-m">M</span></div>
+          <div class="metric"><span class="ml">Ben</span><span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i></span></div>
+          <span class="verdict v-yes">Yes</span>
+        </div>
+      </article>
+
+      <article class="idea">
+        <div class="idx">11</div>
+        <div class="ibody">
+          <h4>In-App GUI <span class="kw">chooser / webview</span></h4>
+          <p>Search &amp; install right inside Hammerspoon. Richer, but a bigger piece of work.</p>
+        </div>
+        <div class="imeta">
+          <div class="metric"><span class="ml">Eff</span><span class="eff eff-l">L</span></div>
+          <div class="metric"><span class="ml">Ben</span><span class="dots"><i class="on"></i><i class="on"></i><i></i></span></div>
+          <span class="verdict v-late">Later</span>
+        </div>
+      </article>
+
+      <article class="idea">
+        <div class="idx">12</div>
+        <div class="ibody">
+          <h4>Webview Reuse <span class="kw">Page = GUI</span></h4>
+          <p>Load the hosted website in <code>hs.webview</code> → don't build the UI twice. Install via URL scheme.</p>
+        </div>
+        <div class="imeta">
+          <div class="metric"><span class="ml">Eff</span><span class="eff eff-s">S</span></div>
+          <div class="metric"><span class="ml">Ben</span><span class="dots"><i class="on"></i><i class="on"></i><i></i></span></div>
+          <span class="verdict v-yes">Yes</span>
+        </div>
+      </article>
+
+      <article class="idea">
+        <div class="idx">13</div>
+        <div class="ibody">
+          <h4>No-init.lua Install <span class="kw">GUI without code</span></h4>
+          <p>Load installed Spoons from the registry on startup — the user never touches <code>init.lua</code>.</p>
+        </div>
+        <div class="imeta">
+          <div class="metric"><span class="ml">Eff</span><span class="eff eff-m">M</span></div>
+          <div class="metric"><span class="ml">Ben</span><span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i></span></div>
+          <span class="verdict v-yes">Yes</span>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- GROUP C -->
+  <section class="grp-sec">
+    <div class="band"><span class="gid">C</span><h2>State &amp; Registry</h2><span class="gnote">registry-history-status.md</span></div>
+    <div class="rows">
+
+      <article class="idea" data-fund>
+        <div class="idx">14</div>
+        <div class="ibody">
+          <h4>Installed Registry <span class="kw">What's installed</span> <span class="fundtag">Foundation</span></h4>
+          <p>Persistent "last successful state" — the base for diff, GUI, status and no-init.lua.</p>
+        </div>
+        <div class="imeta">
+          <div class="metric"><span class="ml">Eff</span><span class="eff eff-m">M</span></div>
+          <div class="metric"><span class="ml">Ben</span><span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i></span></div>
+          <span class="verdict v-yes">Yes</span>
+        </div>
+      </article>
+
+      <article class="idea">
+        <div class="idx">15</div>
+        <div class="ibody">
+          <h4>History Log <span class="kw">Attempts</span></h4>
+          <p>Log attempts/failures separately from installed state — for a timeline &amp; troubleshooting.</p>
+        </div>
+        <div class="imeta">
+          <div class="metric"><span class="ml">Eff</span><span class="eff eff-m">M</span></div>
+          <div class="metric"><span class="ml">Ben</span><span class="dots"><i class="on"></i><i class="on"></i><i></i></span></div>
+          <span class="verdict v-late">Later</span>
+        </div>
+      </article>
+
+      <article class="idea">
+        <div class="idx">16</div>
+        <div class="ibody">
+          <h4>Status View <span class="kw">Status object</span></h4>
+          <p>Derived view (installed / loaded / localChanges / updateAvailable) — a view, not the source of truth.</p>
+        </div>
+        <div class="imeta">
+          <div class="metric"><span class="ml">Eff</span><span class="eff eff-s">S</span></div>
+          <div class="metric"><span class="ml">Ben</span><span class="dots"><i class="on"></i><i class="on"></i><i></i></span></div>
+          <span class="verdict v-late">Later</span>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- GROUP D -->
+  <section class="grp-sec">
+    <div class="band"><span class="gid">D</span><h2>Local Changes &amp; Forking</h2><span class="gnote">local-changes-and-forking.md</span></div>
+    <div class="rows">
+
+      <article class="idea" data-fund>
+        <div class="idx">17</div>
+        <div class="ibody">
+          <h4>Backup + Fresh Diff <span class="kw">Safe &amp; simple</span> <span class="fundtag">Foundation</span></h4>
+          <p>Back up before every update, then diff against a fresh install. Pragmatic default — build first.</p>
+        </div>
+        <div class="imeta">
+          <div class="metric"><span class="ml">Eff</span><span class="eff eff-s">S</span></div>
+          <div class="metric"><span class="ml">Ben</span><span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i></span></div>
+          <span class="verdict v-yes">Yes</span>
+        </div>
+      </article>
+
+      <article class="idea" data-fund>
+        <div class="idx">18</div>
+        <div class="ibody">
+          <h4>Fingerprint <span class="kw">Baseline @ install</span> <span class="fundtag">Foundation</span></h4>
+          <p>Store per-file hash + <code>sourceRevision</code> → "locally modified: yes/no". Base for the 3-way diff.</p>
+        </div>
+        <div class="imeta">
+          <div class="metric"><span class="ml">Eff</span><span class="eff eff-s">S</span></div>
+          <div class="metric"><span class="ml">Ben</span><span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i></span></div>
+          <span class="verdict v-yes">Yes</span>
+        </div>
+      </article>
+
+      <article class="idea">
+        <div class="idx">19</div>
+        <div class="ibody">
+          <h4>Adopt Flow <span class="kw">Adopt existing</span></h4>
+          <p>For manually installed Spoons: name the source → create a baseline + first diff. Solves the core problem.</p>
+        </div>
+        <div class="imeta">
+          <div class="metric"><span class="ml">Eff</span><span class="eff eff-m">M</span></div>
+          <div class="metric"><span class="ml">Ben</span><span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i></span></div>
+          <span class="verdict v-yes">Yes</span>
+        </div>
+      </article>
+
+      <article class="idea">
+        <div class="idx">20</div>
+        <div class="ibody">
+          <h4>3-Way Diff <span class="kw">Edit vs. update</span></h4>
+          <p>Separate baseline / local / upstream → "my change" vs. "update" vs. "conflict".</p>
+        </div>
+        <div class="imeta">
+          <div class="metric"><span class="ml">Eff</span><span class="eff eff-m">M</span></div>
+          <div class="metric"><span class="ml">Ben</span><span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i></span></div>
+          <span class="verdict v-yes">Yes</span>
+        </div>
+      </article>
+
+      <article class="idea">
+        <div class="idx">21</div>
+        <div class="ibody">
+          <h4>Change Protection <span class="kw">Skip on purpose</span></h4>
+          <p>An update shows a diff instead of skipping blindly — the user decides, informed.</p>
+        </div>
+        <div class="imeta">
+          <div class="metric"><span class="ml">Eff</span><span class="eff eff-s">S</span></div>
+          <div class="metric"><span class="ml">Ben</span><span class="dots"><i class="on"></i><i class="on"></i><i></i></span></div>
+          <span class="verdict v-yes">Yes</span>
+        </div>
+      </article>
+
+      <article class="idea">
+        <div class="idx">22</div>
+        <div class="ibody">
+          <h4>User Git History <span class="kw">Config in git</span></h4>
+          <p>If <code>~/.hammerspoon</code> is git-tracked: use the existing history as a strong baseline.</p>
+        </div>
+        <div class="imeta">
+          <div class="metric"><span class="ml">Eff</span><span class="eff eff-m">M</span></div>
+          <div class="metric"><span class="ml">Ben</span><span class="dots"><i class="on"></i><i class="on"></i><i></i></span></div>
+          <span class="verdict v-opt">Optional</span>
+        </div>
+      </article>
+
+      <article class="idea">
+        <div class="idx">23</div>
+        <div class="ibody">
+          <h4>History Reconstruction <span class="kw">State at date</span></h4>
+          <p>Find the upstream revision by install date + best content match. Robust, but a stretch goal.</p>
+        </div>
+        <div class="imeta">
+          <div class="metric"><span class="ml">Eff</span><span class="eff eff-l">L</span></div>
+          <div class="metric"><span class="ml">Ben</span><span class="dots"><i class="on"></i><i class="on"></i><i></i></span></div>
+          <span class="verdict v-late">Later</span>
+        </div>
+      </article>
+
+      <article class="idea">
+        <div class="idx">24</div>
+        <div class="ibody">
+          <h4>Git Backing <span class="kw">git under the hood</span></h4>
+          <p>Spoon as a git repo, pristine as the first commit → diff/merge/conflicts for free. Heavier — weigh it.</p>
+        </div>
+        <div class="imeta">
+          <div class="metric"><span class="ml">Eff</span><span class="eff eff-l">L</span></div>
+          <div class="metric"><span class="ml">Ben</span><span class="dots"><i class="on"></i><i class="on"></i><i></i></span></div>
+          <span class="verdict v-late">Later</span>
+        </div>
+      </article>
+
+      <article class="idea">
+        <div class="idx">25</div>
+        <div class="ibody">
+          <h4>Fork Helper <span class="kw">Own Spoon</span></h4>
+          <p>Edits as commits, repoint source to a fork. Rename <code>Tool→MyTool</code> best-effort only + generate the push command.</p>
+        </div>
+        <div class="imeta">
+          <div class="metric"><span class="ml">Eff</span><span class="eff eff-m">M</span></div>
+          <div class="metric"><span class="ml">Ben</span><span class="dots"><i class="on"></i><i class="on"></i><i></i></span></div>
+          <span class="verdict v-late">Later</span>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- DROPPED -->
+  <section class="grp-sec dropped">
+    <div class="band" style="border-color: var(--no);"><span class="gid" style="color: var(--no);">×</span><h2>Dropped / out of scope</h2></div>
+    <div class="rows">
+
+      <article class="idea">
+        <div class="idx">26</div>
+        <div class="ibody">
+          <h4>Auto GitHub Push <span class="kw">auto repo + push</span></h4>
+          <p>Pulls token/auth management &amp; outward actions in. Instead: generate the ready command, the user pushes themselves.</p>
+        </div>
+        <div class="imeta">
+          <div class="metric"><span class="ml">Eff</span><span class="eff eff-l">L</span></div>
+          <div class="metric"><span class="ml">Ben</span><span class="dots"><i class="on"></i><i></i><i></i></span></div>
+          <span class="verdict v-no">No</span>
+        </div>
+      </article>
+
+      <article class="idea">
+        <div class="idx">27</div>
+        <div class="ibody">
+          <h4>Blind Detect <span class="kw">no baseline &amp; source</span></h4>
+          <p>Detect changes with no comparison point — logically impossible. Always solve via Adopt (19).</p>
+        </div>
+        <div class="imeta">
+          <div class="metric"><span class="ml">Eff</span><span class="eff eff-l">—</span></div>
+          <div class="metric"><span class="ml">Ben</span><span class="dots"><i></i><i></i><i></i></span></div>
+          <span class="verdict v-no">No</span>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p><strong>Recommended first wave:</strong> the <span style="color:var(--accent)">Foundation</span> ideas (01–04, 14, 17, 18) unlock almost everything else. Then the discovery core (06–10) and the local-changes core (19–21).</p>
+    <p>Source: planned architecture docs under <code>docs/architecture/planned/</code>. Everything here is planned/future — nothing implemented yet.</p>
+  </footer>
+</div>
