@@ -108,24 +108,9 @@ return function(context)
         error(".spoon() requires .spoonZipPattern(...) or .spoonFolderPattern(...) on this source.", 3)
     end
 
-    local createBuilder
+    local createDefinition
 
-    local function createDefinition(input)
-        local def
-
-        if input and input.config then
-            def = util.copyTable(input)
-        else
-            def = {
-                config = util.copyTable(input or {}),
-            }
-        end
-
-        def.state = computeState(def)
-        return createBuilder(def)
-    end
-
-    function createBuilder(def)
+    local function createBuilder(def)
         local api = {}
 
         api.toConfig = function()
@@ -367,6 +352,21 @@ return function(context)
         end
 
         return setmetatable(api, Definition)
+    end
+
+    function createDefinition(input)
+        local def
+
+        if input and input.config then
+            def = util.copyTable(input)
+        else
+            def = {
+                config = util.copyTable(input or {}),
+            }
+        end
+
+        def.state = computeState(def)
+        return createBuilder(def)
     end
 
     return {
