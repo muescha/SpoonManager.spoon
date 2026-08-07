@@ -12,7 +12,7 @@ Examples:
 
 ```lua
 SpoonManager.from.remoteZip("https://example.com/A.zip")
-    .asset("B.zip")
+    .zipFile("B.zip")
 ```
 
 ```lua
@@ -32,7 +32,7 @@ The deeper issue is that the current model uses one broad `selection_*` group fo
 
 - selecting a Spoon by name from a pattern
 - selecting a folder inside a repository
-- selecting a release asset
+- selecting a release ZIP
 - selecting a folder inside an archive
 
 Those concepts happen at different stages. Treating them as one group creates ambiguity and forces the resolver and archive code to branch on many source-specific types.
@@ -606,12 +606,12 @@ These are the known cases where the earlier implementation could store builder v
 | --- | --- | --- |
 | `remoteZip(...).folder(...)` | Folder was not passed to ZIP extraction. | `folder()` is replaced by `useFolder()`. `remoteZip` has `useFolder` capability, so the folder becomes `extract.folder`. |
 | `localZip(...).folder(...)` | Same as remote ZIP. | `localZip` has `useFolder` capability, so `useFolder()` becomes `extract.folder`. |
-| `remoteZip(...).asset("A.zip")` | Asset is stored but cannot affect a fixed remote ZIP URL. | `asset()` is replaced by `zipFile()`. `remoteZip` does not have `zipFile` capability, so the builder rejects it. |
-| `localZip(...).asset("A.zip")` | Same as remote ZIP. | `localZip` does not have `zipFile` capability, so the builder rejects it. |
+| `remoteZip(...).zipFile("A.zip")` | A second ZIP file cannot affect a fixed remote ZIP URL. | `remoteZip` does not have `zipFile` capability, so the builder rejects it. |
+| `localZip(...).zipFile("A.zip")` | Same as remote ZIP. | `localZip` does not have `zipFile` capability, so the builder rejects it. |
 | `localZip(...).branch("main")` | Branch is stored but only GitHub can use it. | `localZip` does not have `branch` capability, so the builder rejects it. |
 | `remoteZip(...).branch("main")` | Same as local ZIP. | `remoteZip` does not have `branch` capability, so the builder rejects it. |
 | `localFolder(...).branch("main")` | Branch is stored but local folders have no revision. | `localFolder` does not have `branch` capability, so the builder rejects it. |
-| `github(...).release("v1").install()` | Release is stored, but no release asset was selected. | `release()` is allowed, but resolution fails unless `zipFile()` is also set. |
+| `github(...).release("v1").install()` | Release is stored, but no release ZIP was selected. | `release()` is allowed, but resolution fails unless `zipFile()` is also set. |
 | `github(...).spoonZipPattern(...).folder(...)` | Pattern is stored but direct folder selection wins. | `folder()` is replaced by `path()`. `path()` conflicts with Spoon patterns through a source exclusive group. |
 | `remoteZip(...).spoonZipPattern(...).spoon("A")` | Pattern is stored but remote ZIP cannot resolve `{name}` into another source. | `remoteZip` has no `spoonZipPattern` or `spoonFolderPattern` capability, so the builder rejects the pattern call. |
 
@@ -648,10 +648,10 @@ lib/providers/LocalFolder.lua
 
 ```text
 folder(...) -> path(...) or useFolder(...), depending on the intended meaning
-asset(...)  -> zipFile(...)
+release file selection -> zipFile(...)
 ```
 
-No legacy aliases are kept for `folder(...)` or `asset(...)`.
+No legacy aliases are kept for the replaced builder methods.
 
 `withName(...)` remains the install-name override by decision. It continues to store `target.name_withName` so the existing exclusive target-name group records which builder method set the name.
 

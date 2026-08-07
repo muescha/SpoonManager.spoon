@@ -29,7 +29,6 @@
     }
   },
   "resolved": {
-    "asset": "latest.zip",
     "installName": "DeepFolder",
     "release": "latest",
     "sourceKind": "zip",

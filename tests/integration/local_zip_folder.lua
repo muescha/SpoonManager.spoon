@@ -90,7 +90,7 @@ local function makeFixtureZip(tmpRoot)
     ensureDir(archiveRoot .. "/bundles/releases/archive/UnusedWidget.spoon")
 
     writeFile(archiveRoot .. "/bundles/releases/current/WidgetKit.spoon/init.lua", "return { name = 'WidgetKit' }\n")
-    writeFile(archiveRoot .. "/bundles/releases/current/WidgetKit.spoon/asset.txt", "widget asset\n")
+    writeFile(archiveRoot .. "/bundles/releases/current/WidgetKit.spoon/content.txt", "widget content\n")
     writeFile(archiveRoot .. "/bundles/releases/archive/UnusedWidget.spoon/init.lua", "return { name = 'UnusedWidget' }\n")
 
     local output, ok = run(
@@ -135,7 +135,7 @@ return function(T)
         T.assertTrue(result ~= nil, err)
         T.assertEqual(result.name, "WidgetKit")
         T.assertTrue(fileExists(configdir .. "/Spoons/WidgetKit.spoon/init.lua"))
-        T.assertTrue(fileExists(configdir .. "/Spoons/WidgetKit.spoon/asset.txt"))
+    T.assertTrue(fileExists(configdir .. "/Spoons/WidgetKit.spoon/content.txt"))
         T.assertFalse(fileExists(configdir .. "/Spoons/UnusedWidget.spoon/init.lua"))
     end)
 end

@@ -164,7 +164,6 @@ return function(T)
         local definition = T.SpoonManager.from.github("owner/repo")
 
         T.assertEqual(definition.folder, nil)
-        T.assertEqual(definition.asset, nil)
     end)
 
     T.test("definition rejects non string arguments", function()
@@ -187,7 +186,7 @@ return function(T)
         end, "Spoon name must be a string")
     end)
 
-    T.test("definition rejects non zip release asset", function()
+    T.test("definition rejects non zip release file", function()
         T.assertError(function()
             T.SpoonManager.from.github("owner/repo")
                 .releaseLatest()
@@ -195,7 +194,7 @@ return function(T)
         end, "ZIP file must point to a %.zip file")
     end)
 
-    T.test("installer rejects non zip release asset from config", function()
+    T.test("installer rejects non zip release file from config", function()
         local result, err =
             T.SpoonManager.from.config({
                 source = {

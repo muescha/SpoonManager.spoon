@@ -19,7 +19,7 @@ release assets, and remote ZIP URLs that are stable enough for end-to-end testin
 ## Goals
 
 - Test real GitHub archive downloads.
-- Test real GitHub release asset downloads.
+- Test real GitHub release ZIP downloads.
 - Test real remote ZIP downloads.
 - Install only into a temporary Hammerspoon config directory.
 - Never touch the user's real `~/.hammerspoon`.

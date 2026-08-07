@@ -383,8 +383,8 @@ Useful cases:
 
 - GitHub repository root -> `zip`
 - GitHub folder -> `zip`
-- GitHub release latest asset -> `zip`
-- GitHub release tag asset -> `zip`
+- GitHub latest release ZIP -> `zip`
+- GitHub tagged release ZIP -> `zip`
 - GitHub Spoon ZIP pattern -> `zip`
 - GitHub Spoon folder pattern -> `zip`
 - local folder with `path(...)` -> `folder`
@@ -434,7 +434,7 @@ Useful cases:
 - non-string builder arguments are rejected
 - remote ZIP URL must end in `.zip`
 - local ZIP path must end in `.zip`
-- release asset must end in `.zip`
+- release ZIP file must end in `.zip`
 - definition without an inferable name asks for `withName("Name")`
 - unsupported source types fail clearly
 

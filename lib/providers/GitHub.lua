@@ -26,7 +26,7 @@ return function(context)
         )
     end
 
-    local function releaseAssetUrl(source)
+    local function releaseZipUrl(source)
         local release = source.release or "latest"
 
         if release == "latest" then
@@ -34,7 +34,7 @@ return function(context)
                 "%s/%s/releases/latest/download/%s",
                 source.baseUrl or "https://github.com",
                 source.repository,
-                source.asset
+                source.zipFile
             )
         end
 
@@ -43,7 +43,7 @@ return function(context)
             source.baseUrl or "https://github.com",
             source.repository,
             release,
-            source.asset
+            source.zipFile
         )
     end
 
@@ -61,13 +61,12 @@ return function(context)
 
         return {
             sourceKind = "zip",
-            asset = ruleOptions.source.zipFile,
             release = release,
-            url = releaseAssetUrl({
+            url = releaseZipUrl({
                 baseUrl = ruleOptions.source.baseUrl,
                 repository = ruleOptions.source.repository,
                 release = release,
-                asset = ruleOptions.source.zipFile,
+                zipFile = ruleOptions.source.zipFile,
             }),
             extractFolder = ruleOptions.extract.folder,
         }

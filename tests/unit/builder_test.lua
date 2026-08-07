@@ -103,7 +103,7 @@ return function(T)
         )
     end)
 
-    T.test("builder creates github latest release asset definition", function()
+    T.test("builder creates github latest release ZIP definition", function()
         assertBuilderConfig(
             "github release builder config",
             T.SpoonManager.from.github("owner/TestSpoon.spoon")

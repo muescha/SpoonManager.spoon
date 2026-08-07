@@ -5,7 +5,7 @@ SpoonManager is an experimental Hammerspoon Spoon installer with explicit source
 ## Goals
 
 - Install known Spoons without loading a catalog first.
-- Support classic Spoon ZIPs, flat ZIPs, local folders, GitHub repository roots, GitHub folders, and GitHub release assets.
+- Support classic Spoon ZIPs, flat ZIPs, local folders, GitHub repository roots, GitHub folders, and GitHub release ZIPs.
 - Keep `install()` synchronous so a Hammerspoon `init.lua` can use the Spoon immediately after installation.
 - Keep `install()` idempotent: if the Spoon already exists, skip the download and only apply `.use(...)` options.
 - Use `update()` when the external source should be fetched again.
@@ -48,7 +48,7 @@ spoon.SpoonManager.from.github("muescha/DeepFolder.spoon")
     .install()
 ```
 
-Install from the latest GitHub release asset:
+Install from the latest GitHub release ZIP:
 
 ```lua
 spoon.SpoonManager.from.github("muescha/DeepFolder.spoon")
@@ -57,7 +57,7 @@ spoon.SpoonManager.from.github("muescha/DeepFolder.spoon")
     .install()
 ```
 
-Install from a tagged GitHub release asset:
+Install from a tagged GitHub release ZIP:
 
 ```lua
 spoon.SpoonManager.from.github("muescha/DeepFolder.spoon")
@@ -309,7 +309,7 @@ Installs as:
 deepfolder
 ```
 
-GitHub release asset:
+GitHub release ZIP:
 
 ```lua
 spoon.SpoonManager.from.github("user/repo")
@@ -370,9 +370,9 @@ The exported config table keeps user-provided values close to the builder calls:
 
 `source` answers where the files come from. `target` answers which Spoon is selected and what local name it should use.
 
-Builder arguments that describe names, paths, refs, URLs, patterns, releases, or assets must be strings. Passing a table, number, or another builder object raises an error instead of being converted with `tostring()`.
+Builder arguments that describe names, paths, refs, URLs, patterns, releases, or ZIP files must be strings. Passing a table, number, or another builder object raises an error instead of being converted with `tostring()`.
 
-Builder methods do not silently overwrite each other. Each group can be set once per builder: revision (`branch`/`ref`), Spoon pattern, selection (`spoon`/`folder`/`asset`), release, target name (`withName`), and local-change behavior.
+Builder methods do not silently overwrite each other. Each group can be set once per builder: revision (`branch`/`ref`), Spoon pattern, selection (`spoon`/`folder`/`zipFile`), release, target name (`withName`), and local-change behavior.
 
 If you need another Spoon from the same repository, keep the broad base builder and create each selected Spoon from that base:
 
@@ -554,7 +554,7 @@ spoon.SpoonManager.from.remoteZip("https://example.com/MySpoon.zip")
     .install()
 ```
 
-Example, GitHub latest release asset as a plain ZIP URL:
+Example, GitHub latest release ZIP as a plain ZIP URL:
 
 ```lua
 spoon.SpoonManager.from.remoteZip(

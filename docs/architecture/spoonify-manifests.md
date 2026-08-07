@@ -136,7 +136,7 @@ Example:
     },
     {
       "name": "ReleaseOnly",
-      "description": "Uses a latest release asset",
+      "description": "Uses a latest release ZIP",
       "source": {
         "release_releaseLatest": true,
         "zipFile": "ReleaseOnly.zip"

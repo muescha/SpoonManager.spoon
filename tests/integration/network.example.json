@@ -112,7 +112,7 @@
     {
       "id": "github-release-latest",
       "enabled": true,
-      "description": "Install a Spoon from the latest GitHub release ZIP asset.",
+      "description": "Install a Spoon from the latest GitHub release ZIP.",
       "config": {
         "source": {
           "type": "github",
@@ -132,7 +132,7 @@
     {
       "id": "github-release-ref",
       "enabled": true,
-      "description": "Install a Spoon from a fixed GitHub release ZIP asset.",
+      "description": "Install a Spoon from a fixed GitHub release ZIP.",
       "config": {
         "source": {
           "type": "github",
