@@ -119,7 +119,7 @@ function obj.registerProvider(provider)
     assert(obj.from[factoryName] == nil, "Source factory already registered: " .. factoryName)
 
     obj.from[factoryName] = function(...)
-        return context.definition.fromState({
+        return context.definition.createDefinition({
             source = provider.createSource(...),
         })
     end
@@ -211,7 +211,7 @@ end
 --- Function
 --- Create a Spoon definition from a plain Lua table.
 function obj.from.config(config)
-    return context.definition.fromState(config)
+    return context.definition.createDefinition(config)
 end
 
 obj.from.default = obj.from.spoonRepoZip("Hammerspoon/Spoons", {
