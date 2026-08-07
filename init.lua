@@ -105,7 +105,7 @@ context.registry = loadLib("Registry")(context)
 context.resolver = loadLib("Resolver")(context)
 context.archive = loadLib("Archive")(context)
 context.installer = loadLib("Installer")(context)
-context.definition = loadLib("Definition")(context)
+context.definitionBuilder = loadLib("DefinitionBuilder")(context)
 
 function obj.registerProvider(provider)
     assert(type(provider) == "table", "Provider must be a table")
@@ -119,7 +119,7 @@ function obj.registerProvider(provider)
     assert(obj.from[factoryName] == nil, "Source factory already registered: " .. factoryName)
 
     obj.from[factoryName] = function(...)
-        return context.definition.createDefinition({
+        return context.definitionBuilder.createDefinition({
             source = provider.createSource(...),
         })
     end
@@ -211,7 +211,7 @@ end
 --- Function
 --- Create a Spoon definition from a plain Lua table.
 function obj.from.config(config)
-    return context.definition.createDefinition(config)
+    return context.definitionBuilder.createDefinition(config)
 end
 
 obj.from.default = obj.from.spoonRepoZip("Hammerspoon/Spoons", {

@@ -1,6 +1,6 @@
 return function(context)
-    local Definition = {}
-    Definition.__index = Definition
+    local DefinitionBuilder = {}
+    DefinitionBuilder.__index = DefinitionBuilder
 
     local manager = context.manager
     local resolver = context.resolver
@@ -349,7 +349,7 @@ return function(context)
             return result, err
         end
 
-        return setmetatable(api, Definition)
+        return setmetatable(api, DefinitionBuilder)
     end
 
     local function createDefinition(input)
