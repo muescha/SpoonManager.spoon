@@ -368,7 +368,6 @@ return function(context)
     end
 
     return {
-        findFlatGroupValue = findFlatGroupValue,
         createDefinition = createDefinition,
     }
 end
