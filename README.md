@@ -10,7 +10,7 @@ SpoonManager is an experimental Hammerspoon Spoon installer with explicit source
 - Keep `install()` idempotent: if the Spoon already exists, skip the download and only apply `.use(...)` options.
 - Use `update()` when the external source should be fetched again.
 - Protect existing local changes by default.
-- Keep catalogs optional for later search, GUI, or SpoonHub-style workflows.
+- Keep catalogs optional for later search, GUI, or catalog-based discovery workflows.
 
 ## Examples
 
@@ -1627,4 +1627,4 @@ After updating snapshots, review the Git diff before committing.
 
 ## Notes
 
-`catalog.json` and `spoonify.json` are intentionally not part of the install path yet. They can come later for browsing, generated source configs, and SpoonHub-style discovery.
+`catalog.json` and `spoonify.json` are intentionally not part of the install path yet. They can come later for browsing, generated source configs, and catalog-based discovery.
