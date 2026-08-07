@@ -17,7 +17,7 @@ Use cases:
 
 - A Spoon repository publishes its own `spoonify.json`.
 - A third-party index maintains a manifest for an inactive repository.
-- A website such as "SpoonHub" or `spoonify.sh` exposes searchable Spoon metadata.
+- A website such as `example.com` exposes searchable Spoon metadata.
 - A GUI reads manifests and lets users select Spoons to install.
 - A user copies a generated SpoonManager definition into `init.lua`.
 
@@ -226,7 +226,7 @@ Possible API:
 SpoonManager.trustManifestRemoteUrls(
     "https://github.com",
     "https://raw.githubusercontent.com",
-    "https://spoonify.sh"
+    "https://example.com"
 )
 ```
 
@@ -242,7 +242,7 @@ Then this manifest source is allowed:
 {
   "source": {
     "type": "remoteZip",
-    "url": "https://spoonify.sh/downloads/Foo.zip"
+    "url": "https://example.com/downloads/Foo.zip"
   }
 }
 ```
@@ -250,7 +250,7 @@ Then this manifest source is allowed:
 only if the user has trusted:
 
 ```lua
-SpoonManager.trustManifestRemoteUrls("https://spoonify.sh")
+SpoonManager.trustManifestRemoteUrls("https://example.com")
 ```
 
 Provider-based sources such as `github`, `gitlab`, and `forgejo` do not need the remote ZIP allowlist. They are resolved by provider-specific resolver logic.
@@ -281,7 +281,7 @@ An external manifest can describe a repository that does not provide one itself:
 Possible API:
 
 ```lua
-SpoonManager.from.spoonify("https://spoonify.sh/manifests/useful-spoon.json")
+SpoonManager.from.spoonify("https://example.com/manifests/useful-spoon.json")
     .spoon("UsefulSpoon")
     .install()
 ```
@@ -289,7 +289,7 @@ SpoonManager.from.spoonify("https://spoonify.sh/manifests/useful-spoon.json")
 With a local rename:
 
 ```lua
-SpoonManager.from.spoonify("https://spoonify.sh/manifests/useful-spoon.json")
+SpoonManager.from.spoonify("https://example.com/manifests/useful-spoon.json")
     .spoon("UsefulSpoon")
     .withName("MyUsefulSpoon")
     .install()
@@ -298,7 +298,7 @@ SpoonManager.from.spoonify("https://spoonify.sh/manifests/useful-spoon.json")
 Installing all entries:
 
 ```lua
-SpoonManager.from.spoonify("https://spoonify.sh/manifests/useful-spoon.json")
+SpoonManager.from.spoonify("https://example.com/manifests/useful-spoon.json")
     .install()
 ```
 
@@ -322,7 +322,7 @@ Example:
     },
     {
       "name": "legacy-time-machine",
-      "url": "https://spoonify.sh/manifests/time-machine-progress.json"
+      "url": "https://example.com/manifests/time-machine-progress.json"
     }
   ]
 }
@@ -331,12 +331,12 @@ Example:
 Possible API:
 
 ```lua
-SpoonManager.from.spoonifyIndex("https://spoonify.sh/index.json")
+SpoonManager.from.spoonifyIndex("https://example.com/index.json")
     .search("TimeMachine")
 ```
 
 ```lua
-SpoonManager.from.spoonifyIndex("https://spoonify.sh/index.json")
+SpoonManager.from.spoonifyIndex("https://example.com/index.json")
     .spoon("TimeMachineProgress")
     .install()
 ```
