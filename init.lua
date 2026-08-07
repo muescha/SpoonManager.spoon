@@ -90,12 +90,10 @@ local function loadProvider(name)
 end
 
 local Util = loadLib("Util")
-local GitHub = loadLib("GitHub")
 
 obj.configDir = Util.pathJoin(hs.configdir, ".config", "SpoonManager")
 
 local context = {
-    github = GitHub,
     logger = obj.logger,
     manager = obj,
     util = Util,

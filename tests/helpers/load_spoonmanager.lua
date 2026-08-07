@@ -10,7 +10,6 @@ return function(repoRoot)
         logger = SpoonManager.logger,
     }
 
-    context.github = dofile(repoRoot .. "/lib/GitHub.lua")
     context.nameResolver = dofile(repoRoot .. "/lib/NameResolver.lua")(context)
     context.paths = dofile(repoRoot .. "/lib/Paths.lua")(context)
     context.resolver = dofile(repoRoot .. "/lib/Resolver.lua")(context)

@@ -1,6 +1,52 @@
 return function(context)
     local util = context.util
 
+    local function sourceRef(source)
+        return source.revision_ref or source.revision_branch or source.defaultBranch or "main"
+    end
+
+    local function archiveUrl(source)
+        local ref = sourceRef(source)
+        return string.format(
+            "%s/%s/archive/%s.zip",
+            source.baseUrl or "https://github.com",
+            source.repository,
+            ref
+        )
+    end
+
+    local function rawUrl(source, path)
+        local ref = sourceRef(source)
+        return string.format(
+            "%s/%s/raw/%s/%s",
+            source.baseUrl or "https://github.com",
+            source.repository,
+            ref,
+            path
+        )
+    end
+
+    local function releaseAssetUrl(source)
+        local release = source.release or "latest"
+
+        if release == "latest" then
+            return string.format(
+                "%s/%s/releases/latest/download/%s",
+                source.baseUrl or "https://github.com",
+                source.repository,
+                source.asset
+            )
+        end
+
+        return string.format(
+            "%s/%s/releases/download/%s/%s",
+            source.baseUrl or "https://github.com",
+            source.repository,
+            release,
+            source.asset
+        )
+    end
+
     local GitHub = {
         name = "github",
         factoryName = "github",
@@ -71,7 +117,6 @@ return function(context)
     end
 
     function GitHub.resolve(config, options)
-        local github = context.github
         local source = config.source or {}
         local extract = config.extract or {}
         local target = config.target or {}
@@ -87,7 +132,7 @@ return function(context)
             resolved.sourceKind = "zip"
             resolved.asset = source.zipFile
             resolved.release = release
-            resolved.url = github.releaseAssetUrl({
+            resolved.url = releaseAssetUrl({
                 baseUrl = source.baseUrl,
                 repository = source.repository,
                 release = release,
@@ -100,26 +145,26 @@ return function(context)
                 path = util.pathJoin(source.path, source.zipFile)
             end
             resolved.sourceKind = "zip"
-            resolved.url = github.rawUrl(source, path)
+            resolved.url = rawUrl(source, path)
             resolved.extractFolder = extract.folder
         elseif source.path then
             resolved.sourceKind = "zip"
             resolved.extractFolder = source.path
-            resolved.url = github.archiveUrl(source)
+            resolved.url = archiveUrl(source)
         elseif target.selection_spoon and source.pattern_spoonZipPattern then
             local path = selectedSpoonName and source.pattern_spoonZipPattern:gsub("{name}", selectedSpoonName) or nil
             resolved.sourceKind = "zip"
             if path then
-                resolved.url = github.rawUrl(source, path)
+                resolved.url = rawUrl(source, path)
             end
         elseif target.selection_spoon and source.pattern_spoonFolderPattern then
             local path = selectedSpoonName and source.pattern_spoonFolderPattern:gsub("{name}", selectedSpoonName) or nil
             resolved.sourceKind = "zip"
             resolved.extractFolder = path
-            resolved.url = github.archiveUrl(source)
+            resolved.url = archiveUrl(source)
         else
             resolved.sourceKind = "zip"
-            resolved.url = github.archiveUrl(source)
+            resolved.url = archiveUrl(source)
         end
 
         return resolved
