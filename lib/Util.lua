@@ -113,6 +113,14 @@ function Util.requireString(value, label)
     return value
 end
 
+function Util.requireStringOptional(value, label)
+    if value == nil then
+        return nil
+    end
+
+    return Util.requireString(value, label)
+end
+
 function Util.createLabel(method, value)
     if value == true or value == nil then
         return "." .. method .. "()"

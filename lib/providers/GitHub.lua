@@ -83,18 +83,10 @@ return function(context)
         util.requireString(repository, "GitHub repository")
 
         options = options or {}
-        if options.branch then
-            util.requireString(options.branch, "GitHub branch")
-        end
-        if options.ref then
-            util.requireString(options.ref, "GitHub ref")
-        end
-        if options.baseUrl then
-            util.requireString(options.baseUrl, "GitHub base URL")
-        end
-        if options.defaultBranch then
-            util.requireString(options.defaultBranch, "GitHub default branch")
-        end
+        util.requireStringOptional(options.branch, "GitHub branch")
+        util.requireStringOptional(options.ref, "GitHub ref")
+        util.requireStringOptional(options.baseUrl, "GitHub base URL")
+        util.requireStringOptional(options.defaultBranch, "GitHub default branch")
 
         local source = {
             type = GitHub.name,
