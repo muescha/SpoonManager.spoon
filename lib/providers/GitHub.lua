@@ -19,7 +19,19 @@ return function(context)
         defaults = {
             baseUrl = "https://github.com",
         },
+
+        builderPresets = {},
     }
+
+    function GitHub.builderPresets.spoonRepo(manager, repository, options)
+        return manager.from.github(repository, options)
+            .spoonFolderPattern(manager.options.patterns.spoonRepo)
+    end
+
+    function GitHub.builderPresets.spoonRepoZip(manager, repository, options)
+        return manager.from.github(repository, options)
+            .spoonZipPattern(manager.options.patterns.spoonRepoZip)
+    end
 
     function GitHub.createSource(repository, options)
         util.requireString(repository, "GitHub repository")

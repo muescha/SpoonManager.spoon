@@ -118,10 +118,24 @@ function obj.registerProvider(provider)
 
     local factoryName = provider.factoryName or provider.name
     assert(type(factoryName) == "string", "Provider factory name must be a string")
+    assert(obj.from[factoryName] == nil, "Source factory already registered: " .. factoryName)
+
+    for presetName, presetFactory in pairs(provider.builderPresets or {}) do
+        assert(type(presetName) == "string", "Provider builder preset name must be a string")
+        assert(type(presetFactory) == "function", "Provider builder preset must be a function")
+        assert(obj.from[presetName] == nil, "Source factory already registered: " .. presetName)
+    end
+
     obj.from[factoryName] = function(...)
         return context.definition.fromState({
             source = provider.createSource(...),
         })
+    end
+
+    for presetName, presetFactory in pairs(provider.builderPresets or {}) do
+        obj.from[presetName] = function(...)
+            return presetFactory(obj, ...)
+        end
     end
 
     return provider
@@ -202,22 +216,6 @@ end
 --- Create a Spoon definition from a plain Lua table.
 function obj.from.config(config)
     return context.definition.fromState(config)
-end
-
---- SpoonManager.from.spoonRepo(repository[, options]) -> definition
---- Function
---- Create a GitHub Spoon source repository using Source/{name}.spoon.
-function obj.from.spoonRepo(repository, options)
-    return obj.from.github(repository, options)
-        .spoonFolderPattern(obj.options.patterns.spoonRepo)
-end
-
---- SpoonManager.from.spoonRepoZip(repository[, options]) -> definition
---- Function
---- Create a GitHub Spoon ZIP repository using Spoons/{name}.spoon.zip.
-function obj.from.spoonRepoZip(repository, options)
-    return obj.from.github(repository, options)
-        .spoonZipPattern(obj.options.patterns.spoonRepoZip)
 end
 
 obj.from.default = obj.from.spoonRepoZip("Hammerspoon/Spoons", {

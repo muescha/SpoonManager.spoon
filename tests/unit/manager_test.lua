@@ -65,10 +65,37 @@ return function(T)
         T.assertEqual(providers.localZip.name, "localZip")
         T.assertEqual(providers.localFolder.name, "localFolder")
         T.assertTrue(providers.github.capabilities.release)
+        T.assertEqual(type(providers.github.builderPresets.spoonRepo), "function")
+        T.assertEqual(type(providers.github.builderPresets.spoonRepoZip), "function")
         T.assertTrue(providers.remoteZip.capabilities.useFolder)
         T.assertTrue(providers.localFolder.capabilities.path)
         T.assertEqual(type(T.SpoonManager.from.github), "function")
+        T.assertEqual(type(T.SpoonManager.from.spoonRepo), "function")
+        T.assertEqual(type(T.SpoonManager.from.spoonRepoZip), "function")
         T.assertEqual(type(T.SpoonManager.from.remoteZip), "function")
+    end)
+
+    T.test("manager rejects duplicate provider factories", function()
+        T.assertError(function()
+            T.SpoonManager.registerProvider({
+                name = "duplicateGitHub",
+                factoryName = "github",
+                createSource = function() end,
+            })
+        end, "Source factory already registered: github")
+    end)
+
+    T.test("manager rejects duplicate builder preset factories", function()
+        T.assertError(function()
+            T.SpoonManager.registerProvider({
+                name = "duplicateSpoonRepo",
+                factoryName = "duplicateSpoonRepo",
+                createSource = function() end,
+                builderPresets = {
+                    spoonRepo = function() end,
+                },
+            })
+        end, "Source factory already registered: spoonRepo")
     end)
 
     T.test("manager add stores definitions for later install and update", function()
