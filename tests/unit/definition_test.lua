@@ -246,7 +246,7 @@ return function(T)
         T.assertEqual(err, "Unsupported source kind: git")
     end)
 
-    T.test("resolver rejects release without zip file", function()
+    T.test("definition resolver rejects release without zip file", function()
         T.assertError(function()
             T.SpoonManager.from.github("owner/repo")
                 .releaseLatest()
@@ -254,7 +254,7 @@ return function(T)
         end, "GitHub release sources require %.zipFile%(%.%.%.%)%.")
     end)
 
-    T.test("resolver rejects unknown source type", function()
+    T.test("definition resolver rejects unknown source type", function()
         T.assertError(function()
             T.SpoonManager.from.config({
                 source = {

@@ -1,5 +1,5 @@
 return function(T)
-    T.test("resolver maps github repository root", function()
+    T.test("definition resolver maps github repository root", function()
         local config =
             T.SpoonManager.from.github("muescha/MySpoon.spoon")
                 .toConfig()
@@ -15,7 +15,7 @@ return function(T)
         T.assertEqual(command.target.name, "MySpoon")
     end)
 
-    T.test("resolver maps github folder pattern", function()
+    T.test("definition resolver maps github folder pattern", function()
         local config =
             T.SpoonManager.from.github("owner/repo")
                 .branch("main")
@@ -35,7 +35,7 @@ return function(T)
         T.assertEqual(command.target.name, "A")
     end)
 
-    T.test("resolver maps local folder selection", function()
+    T.test("definition resolver maps local folder selection", function()
         local config =
             T.SpoonManager.from.localFolder("~/Projects/SpoonRepo")
                 .path("Source/A.spoon")
