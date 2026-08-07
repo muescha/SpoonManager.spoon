@@ -47,6 +47,94 @@ return function(context)
         )
     end
 
+    local function resolveRelease(source, extract)
+        local release = source.release_release
+            or (source.release_releaseLatest and "latest")
+
+        if not release then
+            return nil
+        end
+
+        if not source.zipFile then
+            error("GitHub release sources require .zipFile(...).", 2)
+        end
+
+        return {
+            sourceKind = "zip",
+            asset = source.zipFile,
+            release = release,
+            url = releaseAssetUrl({
+                baseUrl = source.baseUrl,
+                repository = source.repository,
+                release = release,
+                asset = source.zipFile,
+            }),
+            extractFolder = extract.folder,
+        }
+    end
+
+    local function resolveZipFile(source, extract)
+        if not source.zipFile then
+            return nil
+        end
+
+        local path = source.path and util.pathJoin(source.path, source.zipFile) or source.zipFile
+
+        return {
+            sourceKind = "zip",
+            url = rawUrl(source, path),
+            extractFolder = extract.folder,
+        }
+    end
+
+    local function resolvePath(source, extract)
+        if not source.path then
+            return nil
+        end
+
+        return {
+            sourceKind = "zip",
+            extractFolder = source.path,
+            url = archiveUrl(source),
+        }
+    end
+
+    local function resolveSpoonZipPattern(source, extract, target, selectedSpoonName)
+        if not (target.selection_spoon and source.pattern_spoonZipPattern) then
+            return nil
+        end
+
+        local path = selectedSpoonName
+            and source.pattern_spoonZipPattern:gsub("{name}", selectedSpoonName)
+
+        return {
+            sourceKind = "zip",
+            url = path and rawUrl(source, path),
+        }
+    end
+
+    local function resolveSpoonFolderPattern(source, extract, target, selectedSpoonName)
+        if not (target.selection_spoon and source.pattern_spoonFolderPattern) then
+            return nil
+        end
+
+        local path = selectedSpoonName
+            and source.pattern_spoonFolderPattern:gsub("{name}", selectedSpoonName)
+
+        return {
+            sourceKind = "zip",
+            extractFolder = path,
+            url = archiveUrl(source),
+        }
+    end
+
+    local function resolveArchive(source)
+        return {
+            sourceKind = "zip",
+            url = archiveUrl(source),
+        }
+    end
+
     local GitHub = {
         name = "github",
         factoryName = "github",
@@ -67,6 +155,15 @@ return function(context)
         },
 
         builderPresets = {},
+    }
+
+    local resolutionRules = {
+        resolveRelease,
+        resolveZipFile,
+        resolvePath,
+        resolveSpoonZipPattern,
+        resolveSpoonFolderPattern,
+        resolveArchive,
     }
 
     function GitHub.builderPresets.spoonRepo(manager, repository, options)
@@ -113,53 +210,13 @@ return function(context)
         local extract = config.extract or {}
         local target = config.target or {}
         local selectedSpoonName = options.selectedSpoonName
-        local release = source.release_release or (source.release_releaseLatest and "latest") or "latest"
-        local resolved = {}
 
-        if (source.release_release or source.release_releaseLatest) and not source.zipFile then
-            error("GitHub release sources require .zipFile(...).", 2)
-        end
-
-        if source.zipFile and (source.release_release or source.release_releaseLatest) then
-            resolved.sourceKind = "zip"
-            resolved.asset = source.zipFile
-            resolved.release = release
-            resolved.url = releaseAssetUrl({
-                baseUrl = source.baseUrl,
-                repository = source.repository,
-                release = release,
-                asset = source.zipFile,
-            })
-            resolved.extractFolder = extract.folder
-        elseif source.zipFile then
-            local path = source.zipFile
-            if source.path then
-                path = util.pathJoin(source.path, source.zipFile)
+        for _, rule in ipairs(resolutionRules) do
+            local resolved = rule(source, extract, target, selectedSpoonName)
+            if resolved then
+                return resolved
             end
-            resolved.sourceKind = "zip"
-            resolved.url = rawUrl(source, path)
-            resolved.extractFolder = extract.folder
-        elseif source.path then
-            resolved.sourceKind = "zip"
-            resolved.extractFolder = source.path
-            resolved.url = archiveUrl(source)
-        elseif target.selection_spoon and source.pattern_spoonZipPattern then
-            local path = selectedSpoonName and source.pattern_spoonZipPattern:gsub("{name}", selectedSpoonName) or nil
-            resolved.sourceKind = "zip"
-            if path then
-                resolved.url = rawUrl(source, path)
-            end
-        elseif target.selection_spoon and source.pattern_spoonFolderPattern then
-            local path = selectedSpoonName and source.pattern_spoonFolderPattern:gsub("{name}", selectedSpoonName) or nil
-            resolved.sourceKind = "zip"
-            resolved.extractFolder = path
-            resolved.url = archiveUrl(source)
-        else
-            resolved.sourceKind = "zip"
-            resolved.url = archiveUrl(source)
         end
-
-        return resolved
     end
 
     return GitHub
