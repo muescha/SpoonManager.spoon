@@ -2,7 +2,7 @@
 
 This note describes the completed architecture for source providers, source capabilities, and the install pipeline.
 
-The implementation uses provider-based resolution and generic command source kinds (`zip` and `folder`). Future provider ideas live in `future-source-providers.md`; manifest loading remains a separate feature.
+The implementation uses provider-based resolution and generic command source kinds (`zip` and `folder`). Future provider ideas live in `../planned/future-source-providers.md`; manifest loading remains a separate feature.
 
 ## Problem
 
@@ -672,8 +672,8 @@ The source provider pipeline migration is complete.
 
 Follow-up work is tracked separately:
 
-- future provider ideas: `future-source-providers.md`
-- manifest concepts: `spoonify-manifests.md`
+- future provider ideas: `../planned/future-source-providers.md`
+- manifest concepts: `../planned/spoonify-manifests.md`
 
 ## Decisions
 
