@@ -120,12 +120,6 @@ function obj.registerProvider(provider)
     assert(type(factoryName) == "string", "Provider factory name must be a string")
     assert(obj.from[factoryName] == nil, "Source factory already registered: " .. factoryName)
 
-    for presetName, presetFactory in pairs(provider.builderPresets or {}) do
-        assert(type(presetName) == "string", "Provider builder preset name must be a string")
-        assert(type(presetFactory) == "function", "Provider builder preset must be a function")
-        assert(obj.from[presetName] == nil, "Source factory already registered: " .. presetName)
-    end
-
     obj.from[factoryName] = function(...)
         return context.definition.fromState({
             source = provider.createSource(...),
@@ -133,6 +127,10 @@ function obj.registerProvider(provider)
     end
 
     for presetName, presetFactory in pairs(provider.builderPresets or {}) do
+        assert(type(presetName) == "string", "Provider builder preset name must be a string")
+        assert(type(presetFactory) == "function", "Provider builder preset must be a function")
+        assert(obj.from[presetName] == nil, "Source factory already registered: " .. presetName)
+
         obj.from[presetName] = function(...)
             return presetFactory(obj, ...)
         end
