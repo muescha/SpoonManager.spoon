@@ -28,7 +28,7 @@ local testFiles = {
     "tests/unit/json_test.lua",
     "tests/unit/definition_test.lua",
     "tests/unit/manager_test.lua",
-    "tests/unit/resolver_test.lua",
+    "tests/unit/definition_resolver_test.lua",
 }
 
 for _, file in ipairs(testFiles) do

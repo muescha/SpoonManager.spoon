@@ -7,8 +7,8 @@ return function(T)
             config = config,
         }
 
-        local resolved = T.context.resolver.resolveFromDefinition(definition)
-        local command = T.context.resolver.commandFromResolved(definition, "install", resolved)
+        local resolved = T.context.definitionResolver.resolveFromDefinition(definition)
+        local command = T.context.definitionResolver.commandFromResolved(definition, "install", resolved)
 
         T.assertEqual(command.source.kind, "zip")
         T.assertEqual(command.source.url, "https://github.com/muescha/MySpoon.spoon/archive/main.zip")
@@ -26,8 +26,8 @@ return function(T)
             config = config,
         }
 
-        local resolved = T.context.resolver.resolveFromDefinition(definition)
-        local command = T.context.resolver.commandFromResolved(definition, "update", resolved)
+        local resolved = T.context.definitionResolver.resolveFromDefinition(definition)
+        local command = T.context.definitionResolver.commandFromResolved(definition, "update", resolved)
 
         T.assertEqual(command.action, "update")
         T.assertEqual(command.source.kind, "zip")
@@ -44,8 +44,8 @@ return function(T)
             config = config,
         }
 
-        local resolved = T.context.resolver.resolveFromDefinition(definition)
-        local command = T.context.resolver.commandFromResolved(definition, "install", resolved)
+        local resolved = T.context.definitionResolver.resolveFromDefinition(definition)
+        local command = T.context.definitionResolver.commandFromResolved(definition, "install", resolved)
 
         T.assertEqual(command.source.kind, "folder")
         T.assertEqual(command.source.path, "/Users/test/Projects/SpoonRepo/Source/A.spoon")

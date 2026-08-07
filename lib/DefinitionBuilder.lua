@@ -3,7 +3,7 @@ return function(context)
     DefinitionBuilder.__index = DefinitionBuilder
 
     local manager = context.manager
-    local resolver = context.resolver
+    local definitionResolver = context.definitionResolver
     local util = context.util
 
     local function ensureSection(config, sectionName)
@@ -116,17 +116,17 @@ return function(context)
         end
 
         api.explain = function()
-            return resolver.explain(def)
+            return definitionResolver.explain(def)
         end
 
         api.resolve = function()
-            def = resolver.withResolved(def)
+            def = definitionResolver.withResolved(def)
             def.state = computeState(def)
             return api
         end
 
         api.command = function(action)
-            def = resolver.withCommand(def, action)
+            def = definitionResolver.withCommand(def, action)
             def.state = computeState(def)
             return api
         end

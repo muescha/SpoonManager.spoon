@@ -102,7 +102,7 @@ local context = {
 context.nameResolver = loadLib("NameResolver")(context)
 context.paths = loadLib("Paths")(context)
 context.registry = loadLib("Registry")(context)
-context.resolver = loadLib("Resolver")(context)
+context.definitionResolver = loadLib("DefinitionResolver")(context)
 context.spoonExtractor = loadLib("SpoonExtractor")(context)
 context.installer = loadLib("Installer")(context)
 context.definitionBuilder = loadLib("DefinitionBuilder")(context)
@@ -170,7 +170,7 @@ local function definitionInstallName(definition)
     local state = definition.config and definition or {
         config = definitionConfig(definition),
     }
-    local ok, resolved = pcall(context.resolver.resolveFromDefinition, state)
+    local ok, resolved = pcall(context.definitionResolver.resolveFromDefinition, state)
     if ok and resolved then
         return resolved.installName
     end

@@ -5,7 +5,7 @@ return function(context)
     local manager = context.manager
     local paths = context.paths
     local registry = context.registry
-    local resolver = context.resolver
+    local definitionResolver = context.definitionResolver
     local util = context.util
 
     function Installer.checksumDirectory(path)
@@ -36,7 +36,7 @@ return function(context)
         }
         action = action or "install"
 
-        def = resolver.withCommand(def, action)
+        def = definitionResolver.withCommand(def, action)
         def.name = def.command.name
         def.options = util.copyTable(def.command.options)
         def.use = util.copyTable(def.command.use)
