@@ -356,3 +356,12 @@ definition -> resolved definition -> command -> execute
 ```
 
 This keeps manifests small and portable. Local values such as the final install path, `hs.configdir`, user-level `withName(...)`, and local-change behavior should be resolved by SpoonManager, not hard-coded into the manifest.
+
+## Future Implementation Scope
+
+Manifest loading is future implementation work, not part of the completed source
+provider pipeline migration. When implemented, APIs such as `from.spoonify(...)`
+or `from.spoonifyIndex(...)` should parse, validate, and map manifests into the
+same normal config shape described above. They should then hand that config to
+the existing config -> resolved -> command -> execute pipeline instead of adding
+a second execution path.
