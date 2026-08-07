@@ -33,5 +33,6 @@
     "installName": "Emojis",
     "sourceKind": "zip",
     "url": "https://github.com/Hammerspoon/Spoons/raw/main/Spoons/Emojis.spoon.zip"
-  }
+  },
+  "state": "command"
 }

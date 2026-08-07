@@ -33,5 +33,6 @@
     "release": "latest",
     "sourceKind": "zip",
     "url": "https://github.com/muescha/DeepFolder.spoon/releases/latest/download/latest.zip"
-  }
+  },
+  "state": "command"
 }

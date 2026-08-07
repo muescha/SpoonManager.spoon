@@ -30,5 +30,6 @@
     "release": "v1.2.3",
     "sourceKind": "zip",
     "url": "https://github.com/muescha/DeepFolder.spoon/releases/download/v1.2.3/DeepFolder.zip"
-  }
+  },
+  "state": "command"
 }

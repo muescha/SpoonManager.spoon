@@ -25,5 +25,6 @@
     "installName": "DeepFolder",
     "sourceKind": "zip",
     "url": "https://example.com/downloads/DeepFolder.spoon.zip"
-  }
+  },
+  "state": "command"
 }

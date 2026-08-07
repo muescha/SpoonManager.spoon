@@ -46,6 +46,13 @@ return function(T)
         end, "definition already has resolved values; cannot call %.branch%('main'%)")
     end)
 
+    T.test("definition tracks explicit state through the stages", function()
+        local definition = T.SpoonManager.from.github("owner/repo").path("Source/A.spoon")
+        T.assertEqual(definition.explain().state, "config")
+        T.assertEqual(definition.resolve().explain().state, "resolved")
+        T.assertEqual(definition.command("install").explain().state, "command")
+    end)
+
     T.test("definition rejects target changes after command", function()
         T.assertError(function()
             T.SpoonManager.from.github("owner/repo")

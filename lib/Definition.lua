@@ -49,7 +49,7 @@ return function(context)
         end
     end
 
-    local function computedStage(definition)
+    local function computeState(definition)
         if definition.command then
             return "command"
         end
@@ -58,16 +58,16 @@ return function(context)
             return "resolved"
         end
 
-        return nil
+        return "config"
     end
 
-    local function ensureNotComputed(definition, method, value)
-        local stage = computedStage(definition)
+    local function ensureState(definition, required, method, value)
+        local state = definition.state or computeState(definition)
 
-        if stage then
+        if state ~= required then
             error(string.format(
                 "definition already has %s values; cannot call %s. Start from the base definition instead.",
-                stage,
+                state,
                 util.createLabel(method, value)
             ), 3)
         end
@@ -119,6 +119,8 @@ return function(context)
             }
         end
 
+        def.state = computeState(def)
+
         local api = {}
 
         api.toConfig = function()
@@ -131,11 +133,13 @@ return function(context)
 
         api.resolve = function()
             def = resolver.withResolved(def)
+            def.state = computeState(def)
             return api
         end
 
         api.command = function(action)
             def = resolver.withCommand(def, action)
+            def.state = computeState(def)
             return api
         end
 
@@ -143,7 +147,7 @@ return function(context)
             util.requireString(branchName, "Branch name")
 
             local nextDef = util.copyTable(def)
-            ensureNotComputed(nextDef, "branch", branchName)
+            ensureState(nextDef, "config", "branch", branchName)
             requireCapability(nextDef, "branch", "branch", branchName)
             ensureNotFinalized(nextDef, "branch", branchName)
             setExclusive(ensureSection(nextDef.config, "source"), "revision", "branch", branchName)
@@ -154,7 +158,7 @@ return function(context)
             util.requireString(refName, "Ref name")
 
             local nextDef = util.copyTable(def)
-            ensureNotComputed(nextDef, "ref", refName)
+            ensureState(nextDef, "config", "ref", refName)
             requireCapability(nextDef, "ref", "ref", refName)
             ensureNotFinalized(nextDef, "ref", refName)
             setExclusive(ensureSection(nextDef.config, "source"), "revision", "ref", refName)
@@ -165,7 +169,7 @@ return function(context)
             util.requireZipPath(pattern, "Spoon ZIP pattern")
 
             local nextDef = util.copyTable(def)
-            ensureNotComputed(nextDef, "spoonZipPattern", pattern)
+            ensureState(nextDef, "config", "spoonZipPattern", pattern)
             requireCapability(nextDef, "spoonZipPattern", "spoonZipPattern", pattern)
             ensureNotFinalized(nextDef, "spoonZipPattern", pattern)
             setExclusive(ensureSection(nextDef.config, "source"), "pattern", "spoonZipPattern", pattern)
@@ -176,7 +180,7 @@ return function(context)
             util.requireString(pattern, "Spoon folder pattern")
 
             local nextDef = util.copyTable(def)
-            ensureNotComputed(nextDef, "spoonFolderPattern", pattern)
+            ensureState(nextDef, "config", "spoonFolderPattern", pattern)
             requireCapability(nextDef, "spoonFolderPattern", "spoonFolderPattern", pattern)
             ensureNotFinalized(nextDef, "spoonFolderPattern", pattern)
             setExclusive(ensureSection(nextDef.config, "source"), "pattern", "spoonFolderPattern", pattern)
@@ -185,7 +189,7 @@ return function(context)
 
         api.spoon = function(value)
             util.requireString(value, "Spoon name")
-            ensureNotComputed(def, "spoon", value)
+            ensureState(def, "config", "spoon", value)
             requireSpoonPattern(def)
 
             local nextDef = util.copyTable(def)
@@ -197,7 +201,7 @@ return function(context)
             util.requireString(path, "Source path")
 
             local nextDef = util.copyTable(def)
-            ensureNotComputed(nextDef, "path", path)
+            ensureState(nextDef, "config", "path", path)
             requireCapability(nextDef, "path", "path", path)
             ensureNotFinalized(nextDef, "path", path)
 
@@ -236,7 +240,7 @@ return function(context)
             util.requireString(path, "Folder path")
 
             local nextDef = util.copyTable(def)
-            ensureNotComputed(nextDef, "useFolder", path)
+            ensureState(nextDef, "config", "useFolder", path)
             requireCapability(nextDef, "useFolder", "useFolder", path)
 
             local extract = ensureSection(nextDef.config, "extract")
@@ -254,7 +258,7 @@ return function(context)
 
         api.releaseLatest = function()
             local nextDef = util.copyTable(def)
-            ensureNotComputed(nextDef, "releaseLatest")
+            ensureState(nextDef, "config", "releaseLatest")
             requireCapability(nextDef, "release", "releaseLatest")
             if nextDef.config.source and nextDef.config.source.path then
                 error(string.format(
@@ -272,7 +276,7 @@ return function(context)
             util.requireString(releaseName, "Release name")
 
             local nextDef = util.copyTable(def)
-            ensureNotComputed(nextDef, "release", releaseName)
+            ensureState(nextDef, "config", "release", releaseName)
             requireCapability(nextDef, "release", "release", releaseName)
             if nextDef.config.source and nextDef.config.source.path then
                 error(string.format(
@@ -290,7 +294,7 @@ return function(context)
             requireFileName(fileName, "ZIP file")
 
             local nextDef = util.copyTable(def)
-            ensureNotComputed(nextDef, "zipFile", fileName)
+            ensureState(nextDef, "config", "zipFile", fileName)
             requireCapability(nextDef, "zipFile", "zipFile", fileName)
 
             local source = ensureSection(nextDef.config, "source")
@@ -308,7 +312,7 @@ return function(context)
 
         api.withName = function(value)
             util.requireString(value, "Spoon name")
-            ensureNotComputed(def, "withName", value)
+            ensureState(def, "config", "withName", value)
 
             local nextDef = util.copyTable(def)
             setExclusive(ensureSection(nextDef.config, "target"), "name", "withName", value)
@@ -317,7 +321,7 @@ return function(context)
 
         api.use = function(useOptions)
             local nextDef = util.copyTable(def)
-            ensureNotComputed(nextDef, "use")
+            ensureState(nextDef, "config", "use")
             nextDef.config.use = util.mergeTables(nextDef.config.use or {}, useOptions or {})
             return fromState(nextDef)
         end
@@ -326,7 +330,7 @@ return function(context)
             assert(manager._isLocalChangesBehavior(behavior), "Invalid local changes behavior: " .. tostring(behavior))
 
             local nextDef = util.copyTable(def)
-            ensureNotComputed(nextDef, "onLocalChanges", behavior)
+            ensureState(nextDef, "config", "onLocalChanges", behavior)
             setExclusive(ensureSection(nextDef.config, "options"), "localChanges", "onLocalChanges", behavior)
             nextDef.config.options.onLocalChanges = behavior
             return fromState(nextDef)

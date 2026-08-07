@@ -31,5 +31,6 @@
     "installName": "DeepFolder",
     "sourceKind": "zip",
     "url": "https://github.com/muescha/SpoonRepo/archive/main.zip"
-  }
+  },
+  "state": "command"
 }

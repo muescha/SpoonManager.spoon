@@ -28,5 +28,6 @@
     "installName": "DeepFolder",
     "localPath": "/Users/test/Projects/experimental",
     "sourceKind": "folder"
-  }
+  },
+  "state": "command"
 }

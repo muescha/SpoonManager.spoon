@@ -28,5 +28,6 @@
     "installName": "DeepFolder",
     "sourceKind": "zip",
     "url": "https://github.com/muescha/DeepFolder.spoon/archive/v1.2.3.zip"
-  }
+  },
+  "state": "command"
 }

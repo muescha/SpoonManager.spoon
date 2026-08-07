@@ -28,5 +28,6 @@
     "installName": "DeepFolder",
     "localPath": "/Users/test/Downloads/latest.zip",
     "sourceKind": "zip"
-  }
+  },
+  "state": "command"
 }
