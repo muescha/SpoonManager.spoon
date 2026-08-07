@@ -1,6 +1,6 @@
 return function(context)
     local Installer = {}
-    local archive = context.archive
+    local spoonExtractor = context.spoonExtractor
     local logger = context.logger
     local manager = context.manager
     local paths = context.paths
@@ -137,7 +137,7 @@ return function(context)
             return nil, err
         end
 
-        local valid, validationError = archive.validateInstalledFolder(sourceFolder)
+        local valid, validationError = spoonExtractor.validateInstalledFolder(sourceFolder)
         if not valid then
             return nil, validationError
         end
@@ -160,7 +160,7 @@ return function(context)
     end
 
     function Installer.installFromZipFile(definition, zipFile, tmpdir)
-        local sourceFolder, err = archive.extractZipToSpoon(zipFile, {
+        local sourceFolder, err = spoonExtractor.extractZipToSpoon(zipFile, {
             folder = definition.command.source.folder,
         }, tmpdir)
         if not sourceFolder then
@@ -177,7 +177,7 @@ return function(context)
         end
 
         local zipFile = util.pathJoin(tmpdir, "download.zip")
-        local ok, err = archive.downloadToFile(url, zipFile)
+        local ok, err = spoonExtractor.downloadToFile(url, zipFile)
         if not ok then
             util.removePath(tmpdir, logger)
             return nil, err

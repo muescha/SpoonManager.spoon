@@ -1,9 +1,9 @@
 return function(context)
-    local Archive = {}
+    local SpoonExtractor = {}
     local util = context.util
     local logger = context.logger
 
-    function Archive.downloadToFile(url, destination)
+    function SpoonExtractor.downloadToFile(url, destination)
         local status, body = hs.http.get(url)
         if status < 100 or status >= 400 then
             return nil, string.format("Download failed with HTTP status %s for %s", tostring(status), url)
@@ -19,7 +19,7 @@ return function(context)
         return true
     end
 
-    function Archive.validateInstalledFolder(path)
+    function SpoonExtractor.validateInstalledFolder(path)
         if not util.fileExists(util.pathJoin(path, "init.lua")) then
             return nil, "Installed folder does not contain init.lua"
         end
@@ -27,7 +27,7 @@ return function(context)
         return true
     end
 
-    function Archive.extractZipToSpoon(zipFile, selection, tmpdir)
+    function SpoonExtractor.extractZipToSpoon(zipFile, selection, tmpdir)
         local extractDir = util.pathJoin(tmpdir, "extract")
         util.ensureDir(extractDir, logger)
 
@@ -71,7 +71,7 @@ return function(context)
             return nil, "Could not locate Spoon folder in archive"
         end
 
-        local valid, err = Archive.validateInstalledFolder(sourceFolder)
+        local valid, err = SpoonExtractor.validateInstalledFolder(sourceFolder)
         if not valid then
             return nil, err
         end
@@ -79,5 +79,5 @@ return function(context)
         return sourceFolder
     end
 
-    return Archive
+    return SpoonExtractor
 end
