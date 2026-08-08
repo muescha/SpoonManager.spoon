@@ -681,7 +681,8 @@ spoon.SpoonManager.from.default
 
 Not every builder method works with every source. Each provider declares which
 methods it supports (its `capabilities`), and calling an unsupported method
-raises an error such as `localZip source does not support .branch`.
+raises an error such as `localZip source does not support .branch`. The table
+below mirrors those `capabilities` declarations directly.
 
 The `from.*` factories map to these four providers:
 
@@ -706,11 +707,12 @@ Provider-gated builder methods:
 | `.spoonFolderPattern(pattern)` | ✓ | — | — | — |
 | `.spoon(name)` | ✓ \* | — | — | — |
 | `.useFolder(path)` | ✓ | ✓ | ✓ | ✓ |
+| `.withName(name)` | ✓ | ✓ | ✓ | ✓ |
+| `.conflictStrategy(behavior)` | ✓ | ✓ | ✓ | ✓ |
 
-\* `.spoon(name)` has no capability flag of its own; it needs a Spoon pattern to
-resolve (`.spoonZipPattern(...)`/`.spoonFolderPattern(...)`, or a preset such as
-`from.spoonRepo`/`from.spoonRepoZip`), so in practice it is usable only with the
-`github` provider.
+\* `.spoon(name)` is a `github` capability; it additionally needs a Spoon pattern
+to resolve (`.spoonZipPattern(...)`/`.spoonFolderPattern(...)`, or a preset such as
+`from.spoonRepo`/`from.spoonRepoZip`).
 
 † On `remoteZip` and `localZip`, `.path(...)`/`.zipFile(...)` build the address of
 the actual ZIP from a base location (URL or folder), e.g.
@@ -718,10 +720,10 @@ the actual ZIP from a base location (URL or folder), e.g.
 apply only when the base is not itself a `.zip`: if it already ends in `.zip` they
 are rejected, and a non-`.zip` base requires `.zipFile(...)`.
 
-Provider-independent methods work on every source: `.withName(name)`,
-`.use(options)`, `.conflictStrategy(behavior)`, and the lifecycle calls
+`.withName(name)` and `.conflictStrategy(behavior)` are declared by every
+provider, so they work on any source. `.use(options)` and the lifecycle calls
 `.add()`, `.install()`, `.update()`, `.resolve()`, `.command(action)`,
-`.toConfig()`, and `.explain()`.
+`.toConfig()`, and `.explain()` are not capability-gated and always available.
 
 ### `builder.branch(name)`
 

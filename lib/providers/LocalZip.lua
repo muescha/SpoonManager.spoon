@@ -9,6 +9,8 @@ return function(context)
             path = true,
             zipFile = true,
             useFolder = true,
+            withName = true,
+            conflictStrategy = true,
         },
 
         -- A localZip path either points directly at a .zip, or it is a base folder

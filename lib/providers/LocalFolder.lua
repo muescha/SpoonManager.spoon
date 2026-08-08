@@ -9,6 +9,8 @@ return function(context)
             path = true,
             zipFile = true,
             useFolder = true,
+            withName = true,
+            conflictStrategy = true,
         },
     }
 

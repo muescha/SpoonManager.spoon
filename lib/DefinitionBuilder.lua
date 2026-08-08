@@ -118,7 +118,6 @@ return function(context)
             method = "spoon",
             validate = util.requireString,
             label = "Spoon name",
-            capability = false,
             section = "source",
             group = "selection",
         },
@@ -151,12 +150,10 @@ return function(context)
             method = "withName",
             validate = util.requireString,
             label = "Spoon name",
-            capability = false,
             section = "naming",
         },
         {
             method = "conflictStrategy",
-            capability = false,
             section = "installOptions",
             validate = function(value)
                 assert(manager._isConflictStrategy(value), "Invalid conflict strategy: " .. tostring(value))
@@ -197,10 +194,7 @@ return function(context)
 
                 local nextDef = util.copyTable(def)
                 ensureState(nextDef, "config", spec.method, value)
-                -- Capability defaults to the method name; set capability = false to skip.
-                if spec.capability ~= false then
-                    requireCapability(nextDef, spec.method, spec.method, value)
-                end
+                requireCapability(nextDef, spec.method, spec.method, value)
                 setExclusive(ensureSection(nextDef.config, spec.section), spec.group, spec.method, value)
                 return createBuilder(nextDef)
             end

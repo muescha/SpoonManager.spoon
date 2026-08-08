@@ -158,6 +158,9 @@ return function(context)
             useFolder = true,
             spoonZipPattern = true,
             spoonFolderPattern = true,
+            spoon = true,
+            withName = true,
+            conflictStrategy = true,
         },
 
         defaults = {

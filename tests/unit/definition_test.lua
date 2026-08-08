@@ -162,6 +162,11 @@ return function(T)
             T.SpoonManager.from.remoteZip("https://example.com/A.zip")
                 .spoonZipPattern("Spoons/{name}.spoon.zip")
         end, "remoteZip source does not support %.spoonZipPattern")
+
+        T.assertError(function()
+            T.SpoonManager.from.localFolder("~/Projects/A.spoon")
+                .spoon("A")
+        end, "localFolder source does not support %.spoon")
     end)
 
     T.test("definition rejects unknown provider capabilities", function()
