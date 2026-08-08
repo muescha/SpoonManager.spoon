@@ -114,7 +114,7 @@ stateDiagram-v2
   Installing --> Installed: success
   Installing --> SkippedExists: already present
   Updating --> Updated: success
-  Updating --> SkippedLocalChanges: onLocalChanges = abort
+  Updating --> SkippedLocalChanges: conflictStrategy = abort
   Updating --> Failed: error
   Installed --> [*]
   Updated --> [*]
@@ -144,7 +144,7 @@ sequenceDiagram
   B->>Cmd: command("install" / "update")
   Cmd-->>B: executable task
   B->>Ins: execute
-  alt local changes and onLocalChanges = abort
+  alt local changes and conflictStrategy = abort
     Ins-->>B: skipped (protect local changes)
   else success
     Ins->>Reg: write installed record

@@ -156,8 +156,8 @@ broken and the expected behavior is a structured error result.
       "type": "remoteZip",
       "url": "https://example.com/TestSpoon.zip"
     },
-    "target": {
-      "name_withName": "TestSpoon"
+    "naming": {
+      "withName": "TestSpoon"
     }
   },
   "expect": {
@@ -317,8 +317,8 @@ GitHub folder definition:
       "revision_branch": "master",
       "selection_path": "Source/WindowSigils.spoon"
     },
-    "target": {
-      "name_withName": "WindowSigils"
+    "naming": {
+      "withName": "WindowSigils"
     }
   }
 }
@@ -355,13 +355,13 @@ Use `source.selection_spoon` when the definition uses a Spoon name pattern:
 }
 ```
 
-Use `target.name_withName` when the source does not determine the install name
+Use `naming.withName` when the source does not determine the install name
 clearly, or when the test should explicitly rename the installed Spoon:
 
 ```json
 {
-  "target": {
-    "name_withName": "WindowSigils"
+  "naming": {
+    "withName": "WindowSigils"
   }
 }
 ```

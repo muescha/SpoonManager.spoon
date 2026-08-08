@@ -4,6 +4,15 @@ This note describes the completed architecture for source providers, source capa
 
 The implementation uses provider-based resolution and generic command source kinds (`zip` and `folder`). Future provider ideas live in `../planned/future-source-providers.md`; manifest loading remains a separate feature.
 
+## Changes after implementation
+
+This is a historical design note. Some config keys shown below were renamed in later refactors; read the sections that follow with these substitutions in mind (the sections themselves are left unchanged):
+
+- `extract.folder` → `extract.useFolder` (the config key now matches the method name).
+- `target.name_withName` → `naming.withName` — the explicit name override moved into its own `naming` section and the single-member `name` group was dropped. The rationale below for keeping it in `target` no longer applies.
+- `config.options` → `config.installOptions`.
+- `onLocalChanges` → `conflictStrategy`, including the `options.localChanges` enum → `options.conflictStrategy`.
+
 ## Problem
 
 The earlier builder was flexible enough to express combinations that were either ignored or ambiguous.

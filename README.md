@@ -204,15 +204,15 @@ Override per builder:
 ```lua
 spoon.SpoonManager.from.default
     .spoon("Emojis")
-    .onLocalChanges(spoon.SpoonManager.options.localChanges.backup)
+    .conflictStrategy(spoon.SpoonManager.options.conflictStrategy.backup)
     .install()
 ```
 
 Allowed values:
 
-- `spoon.SpoonManager.options.localChanges.abort`: default
-- `spoon.SpoonManager.options.localChanges.backup`: move the existing Spoon aside first
-- `spoon.SpoonManager.options.localChanges.overwrite`: replace the existing Spoon
+- `spoon.SpoonManager.options.conflictStrategy.abort`: default
+- `spoon.SpoonManager.options.conflictStrategy.backup`: move the existing Spoon aside first
+- `spoon.SpoonManager.options.conflictStrategy.overwrite`: replace the existing Spoon
 
 The plain strings `"abort"`, `"backup"`, and `"overwrite"` also work, but the constants are easier for an LSP server to suggest.
 
@@ -893,7 +893,7 @@ Returns a new builder with a specific installed Spoon name.
 
 This is useful when the inferred name is not the name you want. For example, a folder named `Source/deepfolder` is inferred as `deepfolder`; use `withName("ManagedDeepFolder")` if the installed Spoon should be named `ManagedDeepFolder`.
 
-In exported configs, this uses `target.name_withName = name`.
+In exported configs, this uses `naming.withName = name`.
 
 Example:
 
@@ -992,18 +992,18 @@ spoon.SpoonManager.from.github("muescha/SpoonRepo", {
     .install()
 ```
 
-### `SpoonManager.options.localChanges`
+### `SpoonManager.options.conflictStrategy`
 
-Constants for `builder.onLocalChanges(behavior)`.
+Constants for `builder.conflictStrategy(behavior)`.
 
 Using constants avoids typo-prone strings and gives Lua language servers concrete fields to suggest.
 
 Values:
 
 ```lua
-spoon.SpoonManager.options.localChanges.abort
-spoon.SpoonManager.options.localChanges.backup
-spoon.SpoonManager.options.localChanges.overwrite
+spoon.SpoonManager.options.conflictStrategy.abort
+spoon.SpoonManager.options.conflictStrategy.backup
+spoon.SpoonManager.options.conflictStrategy.overwrite
 ```
 
 Example:
@@ -1011,21 +1011,21 @@ Example:
 ```lua
 spoon.SpoonManager.from.default
     .spoon("TimeMachineProgress")
-    .onLocalChanges(spoon.SpoonManager.options.localChanges.backup)
+    .conflictStrategy(spoon.SpoonManager.options.conflictStrategy.backup)
     .update()
 ```
 
-### `SpoonManager.onLocalChanges(behavior)`
+### `SpoonManager.conflictStrategy(behavior)`
 
 Sets the default behavior for existing or locally changed Spoons.
 
-This default is used by `install()` and `update()` unless a builder sets its own behavior with `builder.onLocalChanges(behavior)`.
+This default is used by `install()` and `update()` unless a builder sets its own behavior with `builder.conflictStrategy(behavior)`.
 
 Example, default to backup:
 
 ```lua
-spoon.SpoonManager.onLocalChanges(
-    spoon.SpoonManager.options.localChanges.backup
+spoon.SpoonManager.conflictStrategy(
+    spoon.SpoonManager.options.conflictStrategy.backup
 )
 
 spoon.SpoonManager.from.default
@@ -1036,26 +1036,26 @@ spoon.SpoonManager.from.default
 Example, builder overrides the manager default:
 
 ```lua
-spoon.SpoonManager.onLocalChanges(
-    spoon.SpoonManager.options.localChanges.backup
+spoon.SpoonManager.conflictStrategy(
+    spoon.SpoonManager.options.conflictStrategy.backup
 )
 
 spoon.SpoonManager.from.default
     .spoon("TimeMachineProgress")
-    .onLocalChanges(spoon.SpoonManager.options.localChanges.abort)
+    .conflictStrategy(spoon.SpoonManager.options.conflictStrategy.abort)
     .update()
 ```
 
-### `builder.onLocalChanges(behavior)`
+### `builder.conflictStrategy(behavior)`
 
 Returns a new builder with explicit behavior for existing or locally changed Spoons.
 
 Accepted values:
 
 ```lua
-spoon.SpoonManager.options.localChanges.abort
-spoon.SpoonManager.options.localChanges.backup
-spoon.SpoonManager.options.localChanges.overwrite
+spoon.SpoonManager.options.conflictStrategy.abort
+spoon.SpoonManager.options.conflictStrategy.backup
+spoon.SpoonManager.options.conflictStrategy.overwrite
 ```
 
 `abort` is the default.
@@ -1065,7 +1065,7 @@ Example, backup before replacing:
 ```lua
 spoon.SpoonManager.from.default
     .spoon("TimeMachineProgress")
-    .onLocalChanges(spoon.SpoonManager.options.localChanges.backup)
+    .conflictStrategy(spoon.SpoonManager.options.conflictStrategy.backup)
     .update()
 ```
 
@@ -1074,7 +1074,7 @@ Example, force overwrite:
 ```lua
 spoon.SpoonManager.from.default
     .spoon("TimeMachineProgress")
-    .onLocalChanges(spoon.SpoonManager.options.localChanges.overwrite)
+    .conflictStrategy(spoon.SpoonManager.options.conflictStrategy.overwrite)
     .update()
 ```
 
@@ -1159,7 +1159,7 @@ Example with backup if local files are unmanaged or changed:
 ```lua
 spoon.SpoonManager.from.default
     .spoon("TimeMachineProgress")
-    .onLocalChanges(spoon.SpoonManager.options.localChanges.backup)
+    .conflictStrategy(spoon.SpoonManager.options.conflictStrategy.backup)
     .update()
 ```
 
@@ -1172,10 +1172,11 @@ This is useful for debugging, storing configs, or generating a future `spoonify.
 The returned config contains only values the user declared through the builder:
 
 ```text
-config.source  = where the Spoon comes from
-config.target  = which Spoon is selected and what local name it should have
-config.use     = optional post-install hs.spoons.use options
-config.options = optional install/update behavior
+config.source         = where the Spoon comes from and which Spoon is selected
+config.extract        = optional folder selected from a materialized source
+config.naming         = optional explicit install-name override
+config.installOptions = optional install/update behavior
+config.use            = optional post-install hs.spoons.use options
 ```
 
 It does not include derived runtime values such as inferred names, download URLs, install paths, or commands. Those are added only when `resolve()`, `command(...)`, `install()`, or `update()` runs.

@@ -284,10 +284,10 @@ Expected:
         type = "github",
         repository = "owner/repo",
         revision_branch = "main",
-        path = "Source/A.spoon",
+        selection_path = "Source/A.spoon",
     },
-    target = {
-        name_withName = "BetterA",
+    naming = {
+        withName = "BetterA",
     },
 }
 ```

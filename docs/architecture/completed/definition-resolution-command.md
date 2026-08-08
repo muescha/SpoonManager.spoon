@@ -4,6 +4,15 @@ This note describes the intended internal model for SpoonManager.
 
 The core idea is that user-facing builder calls and manifest files should produce a simple declarative config. The config keeps the user-provided values as close to 1:1 as possible. SpoonManager then wraps that config in a runtime definition and enriches that definition step by step until it can execute an install or update command.
 
+## Changes after implementation
+
+This is a historical design note. Some config keys shown below were renamed in later refactors; read the sections that follow with these substitutions in mind (the sections themselves are left unchanged, except where already annotated):
+
+- `extract.folder` → `extract.useFolder` (the config key now matches the method name).
+- `target.name_withName` → `naming.withName` — the explicit name override moved into its own `naming` section and the single-member `name` group was dropped.
+- `config.options` → `config.installOptions`.
+- `onLocalChanges` → `conflictStrategy`, including the `options.localChanges` enum → `options.conflictStrategy`.
+
 ## Goals
 
 - Keep configs readable and predictable.
