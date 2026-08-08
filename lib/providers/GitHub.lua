@@ -84,16 +84,18 @@ return function(context)
         }
     end
 
-    local function resolvePath(ruleOptions)
-        if not ruleOptions.source.selection_path then
+    -- Path selected WITHOUT a .zipFile(): download the repo archive and extract the
+    -- folder. The explicit "no zipFile" guard makes this independent of rule order
+    -- (resolveZipFile handles the path + zipFile case) and makes clear why .path()
+    -- and .useFolder() simply compose here.
+    local function resolvePathWithoutZip(ruleOptions)
+        if not ruleOptions.source.selection_path or ruleOptions.source.zipFile then
             return nil
         end
 
-        -- Principle of least astonishment: without a .zipFile(...), .useFolder()
-        -- composes onto .path() as a deeper folder inside the archive, so
-        -- path("a").useFolder("b") extracts "a/b". pathJoin skips a nil useFolder.
-        -- (With .zipFile(...) the path is only a URL prefix and .useFolder() is
-        -- handled by resolveZipFile instead.)
+        -- Principle of least astonishment: .useFolder() composes onto .path() as a
+        -- deeper folder inside the archive, so path("a").useFolder("b") extracts
+        -- "a/b". pathJoin skips a nil useFolder.
         return {
             sourceKind = "zip",
             extractFolder = util.pathJoin(ruleOptions.source.selection_path, ruleOptions.extract.useFolder),
@@ -202,7 +204,7 @@ return function(context)
     local resolutionRules = {
         resolveRelease,
         resolveZipFile,
-        resolvePath,
+        resolvePathWithoutZip,
         resolveSpoonZipPattern,
         resolveSpoonFolderPattern,
         resolveArchive,
