@@ -353,9 +353,9 @@ More cases:
 - `withName(...)` then `withName(...)`
 - source-changing method after final selection, for example `spoon("A").branch("main")`
 
-### Resolver Commands
+### DefinitionResolver Commands
 
-Resolver tests are the bridge between definitions and executable work.
+DefinitionResolver tests are the bridge between definitions and executable work.
 
 Examples:
 

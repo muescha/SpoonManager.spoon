@@ -132,8 +132,8 @@ local-changes decision branch.
 sequenceDiagram
   autonumber
   participant U as User / Manifest
-  participant B as Builder
-  participant Rz as Resolver
+  participant B as DefinitionBuilder
+  participant Rz as DefinitionResolver
   participant Cmd as Command
   participant Ins as Installer
   participant Reg as Registry

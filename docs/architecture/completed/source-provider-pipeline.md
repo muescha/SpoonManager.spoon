@@ -360,7 +360,7 @@ function SpoonManager.registerProvider(provider)
     SpoonManager.providers[provider.name] = provider
 
     SpoonManager.from[provider.factoryName or provider.name] = function(...)
-        return Definition.fromState({
+        return DefinitionBuilder.createDefinition({
             source = provider.createSource(...),
         })
     end
@@ -400,7 +400,7 @@ api.path = function(path)
     ensureNotComputed(nextDef, "path", path)
     requireCapability(nextDef, "path", "path", path)
     setExclusive(ensureSection(nextDef.config, "source"), "path", "path", path)
-    return fromState(nextDef)
+    return createBuilder(nextDef)
 end
 ```
 
@@ -413,7 +413,7 @@ api.zipFile = function(fileName)
     ensureNotComputed(nextDef, "zipFile", fileName)
     requireCapability(nextDef, "zipFile", "zipFile", fileName)
     setExclusive(ensureSection(nextDef.config, "source"), "file", "zipFile", fileName)
-    return fromState(nextDef)
+    return createBuilder(nextDef)
 end
 ```
 
@@ -425,16 +425,16 @@ api.useFolder = function(path)
     ensureNotComputed(nextDef, "useFolder", path)
     requireCapability(nextDef, "useFolder", "useFolder", path)
     setExclusive(ensureSection(nextDef.config, "extract"), "folder", "useFolder", path)
-    return fromState(nextDef)
+    return createBuilder(nextDef)
 end
 ```
 
-## Resolver Pipeline
+## DefinitionResolver Pipeline
 
 The resolver should dispatch to the provider:
 
 ```lua
-function Resolver.resolveFromDefinition(definition)
+function DefinitionResolver.resolveFromDefinition(definition)
     local config = definition.config or {}
     local source = config.source or {}
     local extract = config.extract or {}
@@ -544,9 +544,9 @@ working source + optional extract.folder -> Spoon folder
 copy Spoon folder to target
 ```
 
-## Archive and Installer Responsibilities
+## SpoonExtractor and Installer Responsibilities
 
-Archive should not branch on provider-specific source types.
+SpoonExtractor should not branch on provider-specific source types.
 
 Bad:
 
@@ -561,7 +561,7 @@ end
 Better:
 
 ```lua
-Archive.extractZip(zipPath, {
+SpoonExtractor.extractZip(zipPath, {
     folder = command.extract.folder,
 })
 ```
@@ -655,7 +655,7 @@ No legacy aliases are kept for the replaced builder methods.
 
 `withName(...)` remains the install-name override by decision. It continues to store `target.name_withName` so the existing exclusive target-name group records which builder method set the name.
 
-7. Provider-specific resolution moved from `Resolver.lua` into provider `resolve()` methods.
+7. Provider-specific resolution moved from `DefinitionResolver.lua` into provider `resolve()` methods.
 
 8. Resolved and command output now use generic source kinds:
 
@@ -664,7 +664,7 @@ zip
 folder
 ```
 
-9. `Archive.lua` and `Installer.lua` execute generic command sources only.
+9. `SpoonExtractor.lua` and `Installer.lua` execute generic command sources only.
 
 10. Examples, snapshots, README, and network test configs were updated.
 

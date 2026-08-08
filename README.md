@@ -1585,26 +1585,32 @@ the modules in `lib/` together.
 SpoonManager.spoon/
 ├── init.lua
 └── lib/
-    ├── Archive.lua
-    ├── Definition.lua
-    ├── GitHub.lua
+    ├── DefinitionBuilder.lua
+    ├── DefinitionResolver.lua
     ├── Installer.lua
     ├── NameResolver.lua
     ├── Paths.lua
     ├── Registry.lua
-    └── Util.lua
+    ├── SpoonExtractor.lua
+    ├── Util.lua
+    └── providers/
+        ├── GitHub.lua
+        ├── LocalFolder.lua
+        ├── LocalZip.lua
+        └── RemoteZip.lua
 ```
 
 The modules have narrow responsibilities:
 
-- `Archive.lua`: download and extract ZIP files
-- `Definition.lua`: builder methods for one installable Spoon
-- `GitHub.lua`: GitHub URL construction
+- `DefinitionBuilder.lua`: builder methods for one installable Spoon
+- `DefinitionResolver.lua`: resolve a definition into resolved data and an executable command
 - `Installer.lua`: install, update, local-change checks, and `hs.spoons.use()`
 - `NameResolver.lua`: Spoon name inference and name logging
 - `Paths.lua`: install and metadata paths
 - `Registry.lua`: `installed.json` read/write
+- `SpoonExtractor.lua`: download and extract ZIP files
 - `Util.lua`: small shared helpers
+- `providers/`: source providers (GitHub, local folder, local ZIP, remote ZIP)
 
 ### Tests
 
