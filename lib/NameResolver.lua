@@ -47,18 +47,27 @@ return function(context)
         return inferred
     end
 
-    function NameResolver.inferFromSource(source)
-        if not source then
-            return nil
-        end
+    -- Full install-name precedence in one place. Returns the install name and the
+    -- selected Spoon name (the latter is also used for pattern expansion).
+    function NameResolver.inferNames(config)
+        local source = config.source or {}
+        local extract = config.extract or {}
+        local naming = config.naming or {}
 
-        return NameResolver.infer(source.name, "source name")
+        local selectedSpoonName = NameResolver.infer(source.selection_spoon, "selected Spoon name")
+
+        local installName = NameResolver.infer(naming.withName, "explicit Spoon name")
+            or selectedSpoonName
+            or NameResolver.infer(extract.useFolder, "extract folder")
             or NameResolver.infer(source.zipFile, "ZIP file")
             or NameResolver.infer(source.selection_path, "source path")
+            or NameResolver.infer(source.name, "source name")
             or NameResolver.infer(source.file, "source file")
             or NameResolver.infer(source.root, "source root")
             or NameResolver.infer(source.url, "URL")
             or NameResolver.infer(source.repository, "repository")
+
+        return installName, selectedSpoonName
     end
 
     return NameResolver

@@ -117,15 +117,7 @@ return function(context)
 
         local config = definition.config or {}
         local source = config.source or {}
-        local extract = config.extract or {}
-        local naming = config.naming or {}
-        local selectedSpoonName = nameResolver.infer(source.selection_spoon, "selected Spoon name")
-        local installName = nameResolver.infer(naming.withName, "explicit Spoon name")
-            or selectedSpoonName
-            or nameResolver.infer(extract.useFolder, "extract folder")
-            or nameResolver.infer(source.zipFile, "ZIP file")
-            or nameResolver.infer(source.selection_path, "source path")
-            or nameResolver.inferFromSource(source)
+        local installName, selectedSpoonName = nameResolver.inferNames(config)
 
         local resolved = {
             installName = installName,
