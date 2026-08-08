@@ -5,7 +5,7 @@ return function(context)
         return source.revision_ref or source.revision_branch or source.defaultBranch or "main"
     end
 
-    local function archiveUrl(source)
+    local function repositoryZipUrl(source)
         local ref = sourceRef(source)
         return string.format(
             "%s/%s/archive/%s.zip",
@@ -15,7 +15,7 @@ return function(context)
         )
     end
 
-    local function rawUrl(source, path)
+    local function repositoryFileUrl(source, path)
         local ref = sourceRef(source)
         return string.format(
             "%s/%s/raw/%s/%s",
@@ -79,7 +79,7 @@ return function(context)
 
         return {
             sourceKind = "zip",
-            url = rawUrl(ruleOptions.source, path),
+            url = repositoryFileUrl(ruleOptions.source, path),
             extractFolder = ruleOptions.extract.useFolder,
         }
     end
@@ -103,7 +103,7 @@ return function(context)
         return {
             sourceKind = "zip",
             extractFolder = util.pathJoin(ruleOptions.source.selection_path, ruleOptions.extract.useFolder),
-            url = archiveUrl(ruleOptions.source),
+            url = repositoryZipUrl(ruleOptions.source),
         }
     end
 
@@ -126,7 +126,7 @@ return function(context)
 
         return {
             sourceKind = "zip",
-            url = path and rawUrl(ruleOptions.source, path),
+            url = path and repositoryFileUrl(ruleOptions.source, path),
         }
     end
 
@@ -144,14 +144,16 @@ return function(context)
         return {
             sourceKind = "zip",
             extractFolder = path,
-            url = archiveUrl(ruleOptions.source),
+            url = repositoryZipUrl(ruleOptions.source),
         }
     end
 
-    local function resolveArchive(ruleOptions)
+    -- Fallback (last rule, no guard): nothing was selected, so download the whole
+    -- repository zip and install its root as the Spoon.
+    local function resolveRepositoryOnly(ruleOptions)
         return {
             sourceKind = "zip",
-            url = archiveUrl(ruleOptions.source),
+            url = repositoryZipUrl(ruleOptions.source),
         }
     end
 
@@ -211,7 +213,7 @@ return function(context)
         resolvePathWithoutZip,
         resolveSpoonZipPattern,
         resolveSpoonFolderPattern,
-        resolveArchive,
+        resolveRepositoryOnly,
     }
 
     function GitHub.builderPresets.spoonRepo(manager, repository, options)
