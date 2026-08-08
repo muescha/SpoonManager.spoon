@@ -155,7 +155,7 @@ return function(context)
         end
 
         api.path = function(path)
-            util.requireString(path, "Source path")
+            util.requireSafeRelPath(path, "Source path")
 
             local nextDef = util.copyTable(def)
             ensureState(nextDef, "config", "path", path)
@@ -177,7 +177,7 @@ return function(context)
         end
 
         api.useFolder = function(path)
-            util.requireString(path, "Folder path")
+            util.requireSafeRelPath(path, "Folder path")
 
             local nextDef = util.copyTable(def)
             ensureState(nextDef, "config", "useFolder", path)
