@@ -27,6 +27,17 @@ return function(context)
         return true
     end
 
+    -- Zip-slip guard: ensure a located folder resolves inside the extraction dir.
+    local function isWithin(base, path)
+        local absBase = hs.fs.pathToAbsolute(base)
+        local absPath = hs.fs.pathToAbsolute(path)
+        if not absBase or not absPath then
+            return false
+        end
+
+        return absPath == absBase or absPath:sub(1, #absBase + 1) == absBase .. "/"
+    end
+
     function SpoonExtractor.extractZipToSpoon(zipFile, selection, tmpdir)
         local extractDir = util.pathJoin(tmpdir, "extract")
         util.ensureDir(extractDir, logger)
@@ -69,6 +80,10 @@ return function(context)
 
         if not sourceFolder or sourceFolder == "" then
             return nil, "Could not locate Spoon folder in archive"
+        end
+
+        if not isWithin(extractDir, sourceFolder) then
+            return nil, "Extracted Spoon folder escapes the extraction directory"
         end
 
         local valid, err = SpoonExtractor.validateInstalledFolder(sourceFolder)
