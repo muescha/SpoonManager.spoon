@@ -92,6 +92,15 @@ return function(context)
         local source = config.source or {}
         local extract = config.extract or {}
         local naming = config.naming or {}
+
+        -- Sanitize untrusted path-ish fields here so it also covers configs that
+        -- bypass the builder setters (from.config / a future manifest).
+        if source.selection_path then
+            util.requireSafeRelPath(source.selection_path, "Source path")
+        end
+        if extract.useFolder then
+            util.requireSafeRelPath(extract.useFolder, "Folder path")
+        end
         local selectedSpoonName = nameResolver.infer(source.selection_spoon, "selected Spoon name")
         local installName = nameResolver.infer(naming.withName, "explicit Spoon name")
             or selectedSpoonName

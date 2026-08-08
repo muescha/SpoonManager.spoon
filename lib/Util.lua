@@ -122,6 +122,23 @@ function Util.localPath(path)
     return path
 end
 
+-- Reject path traversal in an untrusted relative path segment (allows "/" for
+-- subpaths, but forbids ".." and backslashes). Used for selection paths and
+-- extract folders, which may arrive from a config/manifest and reach pathJoin.
+function Util.requireSafeRelPath(value, label)
+    Util.requireString(value, label)
+
+    if value:find("%.%.") then
+        error(string.format("%s must not contain '..': %s", label or "Path", value), 3)
+    end
+
+    if value:find("\\", 1, true) then
+        error(string.format("%s must not contain a backslash: %s", label or "Path", value), 3)
+    end
+
+    return value
+end
+
 function Util.requireString(value, label)
     if type(value) ~= "string" then
         error(string.format("%s must be a string, got %s", label or "Value", type(value)), 3)

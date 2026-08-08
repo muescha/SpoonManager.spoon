@@ -292,6 +292,32 @@ return function(T)
         end, "localZip needs a %.zip")
     end)
 
+    T.test("definition resolver rejects path traversal in source path", function()
+        T.assertError(function()
+            T.SpoonManager.from.config({
+                source = {
+                    type = "github",
+                    repository = "owner/repo",
+                    selection_path = "../../etc",
+                },
+            }).resolve()
+        end, "Source path must not contain '%.%.'")
+    end)
+
+    T.test("definition resolver rejects path traversal in use folder", function()
+        T.assertError(function()
+            T.SpoonManager.from.config({
+                source = {
+                    type = "remoteZip",
+                    url = "https://example.com/A.zip",
+                },
+                extract = {
+                    useFolder = "../secret",
+                },
+            }).resolve()
+        end, "Folder path must not contain '%.%.'")
+    end)
+
     T.test("definition resolver rejects unknown source type", function()
         T.assertError(function()
             T.SpoonManager.from.config({
