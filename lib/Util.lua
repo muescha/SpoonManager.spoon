@@ -8,7 +8,20 @@ function Util.trim(value)
     return tostring(value or ""):gsub("^%s+", ""):gsub("%s+$", "")
 end
 
+-- Defense-in-depth: refuse to build a path/URL out of a traversal segment.
+-- Untrusted segments are validated earlier (Util.requireSafeRelPath), so this
+-- only fires if something slipped past that boundary.
+local function assertSafeSegment(part)
+    if type(part) == "string" and part:find("%.%.") then
+        error("path segment must not contain '..': " .. part, 3)
+    end
+end
+
 function Util.pathJoin(...)
+    for i = 1, select("#", ...) do
+        assertSafeSegment((select(i, ...)))
+    end
+
     local parts = { ... }
     local path = table.concat(parts, "/")
     path = path:gsub("/+", "/")
@@ -21,6 +34,7 @@ function Util.joinUrl(...)
     local url = ""
     for i = 1, select("#", ...) do
         local part = select(i, ...)
+        assertSafeSegment(part)
         if part and part ~= "" then
             if url == "" then
                 url = part
