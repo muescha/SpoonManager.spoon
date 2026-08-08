@@ -137,6 +137,22 @@ return function(T)
         T.assertEqual(command.target.name, "WindowGrid")
     end)
 
+    T.test("definition resolver escapes percent in spoon name expansion", function()
+        local config =
+            T.SpoonManager.from.github("owner/repo")
+                .branch("main")
+                .spoonFolderPattern("Source/{name}.spoon")
+                .spoon("Wid%get")
+                .toConfig()
+        local definition = {
+            config = config,
+        }
+
+        local resolved = T.context.definitionResolver.resolveFromDefinition(definition)
+
+        T.assertEqual(resolved.extractFolder, "Source/Wid%get.spoon")
+    end)
+
     T.test("definition resolver maps local folder selection", function()
         local config =
             T.SpoonManager.from.localFolder("~/Projects/SpoonRepo")

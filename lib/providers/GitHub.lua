@@ -96,6 +96,12 @@ return function(context)
         }
     end
 
+    -- Substitute {name} in a pattern. The replacement is escaped so a Spoon name
+    -- containing "%" is not treated as a gsub replacement reference.
+    local function expandName(pattern, name)
+        return (pattern:gsub("{name}", (name:gsub("%%", "%%%%"))))
+    end
+
     local function resolveSpoonZipPattern(ruleOptions)
         if not (
             ruleOptions.source.selection_spoon
@@ -105,10 +111,7 @@ return function(context)
         end
 
         local path = ruleOptions.selectedSpoonName
-            and ruleOptions.source.pattern_spoonZipPattern:gsub(
-                "{name}",
-                ruleOptions.selectedSpoonName
-            )
+            and expandName(ruleOptions.source.pattern_spoonZipPattern, ruleOptions.selectedSpoonName)
 
         return {
             sourceKind = "zip",
@@ -125,10 +128,7 @@ return function(context)
         end
 
         local path = ruleOptions.selectedSpoonName
-            and ruleOptions.source.pattern_spoonFolderPattern:gsub(
-                "{name}",
-                ruleOptions.selectedSpoonName
-            )
+            and expandName(ruleOptions.source.pattern_spoonFolderPattern, ruleOptions.selectedSpoonName)
 
         return {
             sourceKind = "zip",
