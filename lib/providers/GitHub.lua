@@ -55,10 +55,6 @@ return function(context)
             return nil
         end
 
-        if not ruleOptions.source.zipFile then
-            error("GitHub release sources require .zipFile(...).", 2)
-        end
-
         return {
             sourceKind = "zip",
             release = release,
@@ -167,6 +163,30 @@ return function(context)
             baseUrl = "https://github.com",
         },
 
+        -- Logical (cross-field) checks, run by the resolver before GitHub.resolve.
+        -- Step 2's exclusive "selection" group already keeps spoon/path/release/
+        -- releaseLatest mutually exclusive; the only free modifier left is zipFile,
+        -- so the residual ambiguity (spoon + zipFile) is covered here too.
+        resolveChecks = {
+            {
+                when = { field = "selection_spoon" },
+                forbid = { field = "zipFile" },
+                message = "GitHub spoon selection conflicts with .zipFile(...); "
+                    .. "use a Spoon pattern (.spoonZipPattern/.spoonFolderPattern) instead of .zipFile(...).",
+            },
+            {
+                when = { field = "selection_spoon" },
+                require = { group = "pattern" },
+                message = "GitHub spoon selection requires .spoonZipPattern(...) or .spoonFolderPattern(...); "
+                    .. "or use from.spoonRepo(...)/from.spoonRepoZip(...).",
+            },
+            {
+                when = { anyField = { "selection_release", "selection_releaseLatest" } },
+                require = { field = "zipFile" },
+                message = "GitHub release sources require .zipFile(...).",
+            },
+        },
+
         builderPresets = {},
     }
 
@@ -218,39 +238,12 @@ return function(context)
         return source
     end
 
-    -- Logical (cross-field) checks. Step 2's exclusive "selection" group already
-    -- keeps spoon/path/release/releaseLatest mutually exclusive; the only free
-    -- modifier left is zipFile, so the residual ambiguity is spoon + zipFile.
-    local function validateSource(source)
-        if not source.selection_spoon then
-            return
-        end
-
-        if source.zipFile then
-            error(
-                "GitHub spoon selection conflicts with .zipFile(...); use a Spoon pattern "
-                    .. "(.spoonZipPattern/.spoonFolderPattern) instead of .zipFile(...).",
-                2
-            )
-        end
-
-        if not (source.pattern_spoonZipPattern or source.pattern_spoonFolderPattern) then
-            error(
-                "GitHub spoon selection requires .spoonZipPattern(...) or .spoonFolderPattern(...); "
-                    .. "or use from.spoonRepo(...)/from.spoonRepoZip(...).",
-                2
-            )
-        end
-    end
-
     function GitHub.resolve(config, options)
         local ruleOptions = {
             source = config.source or {},
             extract = config.extract or {},
             selectedSpoonName = options.selectedSpoonName,
         }
-
-        validateSource(ruleOptions.source)
 
         for _, rule in ipairs(resolutionRules) do
             local resolved = rule(ruleOptions)

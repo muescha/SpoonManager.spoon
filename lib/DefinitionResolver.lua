@@ -5,6 +5,68 @@ return function(context)
     local paths = context.paths
     local util = context.util
 
+    -- Read a "section.field" reference from a config (bare name defaults to source).
+    local function readRef(config, ref)
+        local section, field = ref:match("^(.-)%.(.+)$")
+        if not section then
+            section, field = "source", ref
+        end
+        return (config[section] or {})[field]
+    end
+
+    local function groupIsSet(config, ref)
+        local section, group = ref:match("^(.-)%.(.+)$")
+        if not section then
+            section, group = "source", ref
+        end
+        return util.findFlatGroupValue(config[section] or {}, group) ~= nil
+    end
+
+    local function whenHolds(config, when)
+        if when.field then
+            return readRef(config, when.field) ~= nil
+        end
+
+        if when.anyField then
+            for _, ref in ipairs(when.anyField) do
+                if readRef(config, ref) ~= nil then
+                    return true
+                end
+            end
+        end
+
+        return false
+    end
+
+    local function checkPasses(config, check)
+        if check.require then
+            if check.require.field then
+                return readRef(config, check.require.field) ~= nil
+            end
+            if check.require.group then
+                return groupIsSet(config, check.require.group)
+            end
+        end
+
+        if check.forbid then
+            if check.forbid.field then
+                return readRef(config, check.forbid.field) == nil
+            end
+        end
+
+        return true
+    end
+
+    -- Run a provider's declarative resolveChecks (logical cross-field checks)
+    -- before handing the config to the provider's own resolution rules.
+    local function runResolveChecks(provider, config)
+        for _, check in ipairs(provider.resolveChecks or {}) do
+            if whenHolds(config, check.when) and not checkPasses(config, check) then
+                error(check.message, 0)
+            end
+        end
+    end
+
     function DefinitionResolver.resolveFromDefinition(definition)
         if definition.resolved then
             return util.copyTable(definition.resolved)
@@ -30,6 +92,8 @@ return function(context)
         if not provider or not provider.resolve then
             error("Unsupported source type: " .. tostring(source.type), 2)
         end
+
+        runResolveChecks(provider, config)
 
         resolved = util.mergeTables(resolved, provider.resolve(config, {
             selectedSpoonName = selectedSpoonName,
