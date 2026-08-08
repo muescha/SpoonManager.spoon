@@ -103,6 +103,40 @@ return function(T)
         T.assertEqual(command.target.name, "WindowGrid")
     end)
 
+    T.test("definition resolver builds local zip path from base and zip file", function()
+        local config =
+            T.SpoonManager.from.localZip("~/Downloads")
+                .zipFile("WindowGrid.spoon.zip")
+                .toConfig()
+        local definition = {
+            config = config,
+        }
+
+        local resolved = T.context.definitionResolver.resolveFromDefinition(definition)
+        local command = T.context.definitionResolver.commandFromResolved(definition, "install", resolved)
+
+        T.assertEqual(command.source.kind, "zip")
+        T.assertEqual(command.source.path, "/Users/test/Downloads/WindowGrid.spoon.zip")
+        T.assertEqual(command.target.name, "WindowGrid")
+    end)
+
+    T.test("definition resolver builds local zip path with path prefix", function()
+        local config =
+            T.SpoonManager.from.localZip("~/Downloads")
+                .path("spoons")
+                .zipFile("WindowGrid.spoon.zip")
+                .toConfig()
+        local definition = {
+            config = config,
+        }
+
+        local resolved = T.context.definitionResolver.resolveFromDefinition(definition)
+        local command = T.context.definitionResolver.commandFromResolved(definition, "install", resolved)
+
+        T.assertEqual(command.source.path, "/Users/test/Downloads/spoons/WindowGrid.spoon.zip")
+        T.assertEqual(command.target.name, "WindowGrid")
+    end)
+
     T.test("definition resolver maps local folder selection", function()
         local config =
             T.SpoonManager.from.localFolder("~/Projects/SpoonRepo")

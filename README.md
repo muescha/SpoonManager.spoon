@@ -583,14 +583,26 @@ Creates a builder from a local ZIP file.
 
 In exported configs, this uses `source.type = "localZip"`.
 
-The path must point to a `.zip` file. Other archive formats are rejected.
+The path may point directly at a `.zip` file, or it may be a base folder that
+addresses the ZIP through `.path(...)`/`.zipFile(...)`. A non-`.zip` base requires
+`.zipFile(...)`; if the path already ends in `.zip`, `.path(...)` and `.zipFile(...)`
+are rejected.
 
-The Spoon name is inferred from the ZIP filename. Use `.withName(name)` to override it.
+The Spoon name is inferred from the ZIP filename (or from `.zipFile(...)`). Use
+`.withName(name)` to override it.
 
-Example:
+Example, direct ZIP file:
 
 ```lua
 spoon.SpoonManager.from.localZip("~/Downloads/MySpoon.zip")
+    .install()
+```
+
+Example, base folder plus the ZIP file:
+
+```lua
+spoon.SpoonManager.from.localZip("~/Downloads")
+    .zipFile("MySpoon.spoon.zip")
     .install()
 ```
 
@@ -669,7 +681,7 @@ spoon.SpoonManager.from.default
 
 Not every builder method works with every source. Each provider declares which
 methods it supports (its `capabilities`), and calling an unsupported method
-raises an error such as `localZip source does not support .zipFile`.
+raises an error such as `localZip source does not support .branch`.
 
 The `from.*` factories map to these four providers:
 
@@ -686,8 +698,8 @@ Provider-gated builder methods:
 |--------|:--------:|:-------------:|:----------:|:-----------:|
 | `.branch(name)` | ✓ | — | — | — |
 | `.ref(name)` | ✓ | — | — | — |
-| `.path(path)` | ✓ | ✓ | — | ✓ † |
-| `.zipFile(name)` | ✓ | ✓ | — | ✓ † |
+| `.path(path)` | ✓ | ✓ | ✓ † | ✓ † |
+| `.zipFile(name)` | ✓ | ✓ | ✓ † | ✓ † |
 | `.release(name)` | ✓ | — | — | — |
 | `.releaseLatest()` | ✓ | — | — | — |
 | `.spoonZipPattern(pattern)` | ✓ | — | — | — |
@@ -700,10 +712,11 @@ resolve (`.spoonZipPattern(...)`/`.spoonFolderPattern(...)`, or a preset such as
 `from.spoonRepo`/`from.spoonRepoZip`), so in practice it is usable only with the
 `github` provider.
 
-† On `remoteZip`, `.path(...)`/`.zipFile(...)` build the URL to the actual ZIP
-from a base URL, e.g. `from.remoteZip("https://example.com/").path("sub").zipFile("X.spoon.zip")`.
-They apply only when the URL is a base: if the URL already ends in `.zip` they are
-rejected, and a base URL requires `.zipFile(...)`.
+† On `remoteZip` and `localZip`, `.path(...)`/`.zipFile(...)` build the address of
+the actual ZIP from a base location (URL or folder), e.g.
+`from.remoteZip("https://example.com/").path("sub").zipFile("X.spoon.zip")`. They
+apply only when the base is not itself a `.zip`: if it already ends in `.zip` they
+are rejected, and a non-`.zip` base requires `.zipFile(...)`.
 
 Provider-independent methods work on every source: `.withName(name)`,
 `.use(options)`, `.conflictStrategy(behavior)`, and the lifecycle calls
