@@ -43,7 +43,7 @@ return function(T)
                     or target.name_withName
                     or extract.folder
                     or source.zipFile
-                    or source.path
+                    or source.path_path
                 ) or "unknown",
             }
         end

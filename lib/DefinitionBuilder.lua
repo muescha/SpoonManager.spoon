@@ -194,15 +194,6 @@ return function(context)
             ensureNotFinalized(nextDef, "path", path)
 
             local source = ensureSection(nextDef.config, "source")
-            local releaseMethod, releaseValue = findFlatGroupValue(source, "path")
-            if releaseMethod then
-                error(string.format(
-                    ".%s already set; cannot call %s.",
-                    util.createLabel(releaseMethod, releaseValue):sub(2),
-                    util.createLabel("path", path)
-                ), 3)
-            end
-
             local patternMethod, patternValue = findFlatGroupValue(source, "pattern")
             if patternMethod then
                 error(string.format(
@@ -212,15 +203,7 @@ return function(context)
                 ), 3)
             end
 
-            if source.path then
-                error(string.format(
-                    "%s already set; cannot call %s.",
-                    util.createLabel("path", source.path),
-                    util.createLabel("path", path)
-                ), 3)
-            end
-
-            source.path = path
+            setExclusive(source, "path", "path", path)
             return createBuilder(nextDef)
         end
 
@@ -248,13 +231,6 @@ return function(context)
             local nextDef = util.copyTable(def)
             ensureState(nextDef, "config", "releaseLatest")
             requireCapability(nextDef, "release", "releaseLatest")
-            if nextDef.config.source and nextDef.config.source.path then
-                error(string.format(
-                    "%s already set; cannot call %s.",
-                    util.createLabel("path", nextDef.config.source.path),
-                    util.createLabel("releaseLatest")
-                ), 3)
-            end
             ensureNotFinalized(nextDef, "releaseLatest")
             setExclusive(ensureSection(nextDef.config, "source"), "path", "releaseLatest", true)
             return createBuilder(nextDef)
@@ -266,13 +242,6 @@ return function(context)
             local nextDef = util.copyTable(def)
             ensureState(nextDef, "config", "release", releaseName)
             requireCapability(nextDef, "release", "release", releaseName)
-            if nextDef.config.source and nextDef.config.source.path then
-                error(string.format(
-                    "%s already set; cannot call %s.",
-                    util.createLabel("path", nextDef.config.source.path),
-                    util.createLabel("release", releaseName)
-                ), 3)
-            end
             ensureNotFinalized(nextDef, "release", releaseName)
             setExclusive(ensureSection(nextDef.config, "source"), "path", "release", releaseName)
             return createBuilder(nextDef)

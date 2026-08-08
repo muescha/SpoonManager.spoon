@@ -77,8 +77,8 @@ return function(context)
             return nil
         end
 
-        local path = ruleOptions.source.path
-            and util.pathJoin(ruleOptions.source.path, ruleOptions.source.zipFile)
+        local path = ruleOptions.source.path_path
+            and util.pathJoin(ruleOptions.source.path_path, ruleOptions.source.zipFile)
             or ruleOptions.source.zipFile
 
         return {
@@ -89,13 +89,13 @@ return function(context)
     end
 
     local function resolvePath(ruleOptions)
-        if not ruleOptions.source.path then
+        if not ruleOptions.source.path_path then
             return nil
         end
 
         return {
             sourceKind = "zip",
-            extractFolder = ruleOptions.source.path,
+            extractFolder = ruleOptions.source.path_path,
             url = archiveUrl(ruleOptions.source),
         }
     end

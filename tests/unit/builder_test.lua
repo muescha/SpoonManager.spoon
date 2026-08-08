@@ -26,7 +26,7 @@ return function(T)
                     repository = "Hammerspoon/Spoons",
                     baseUrl = "https://github.com",
                     revision_branch = "master",
-                    path = "Source/WindowSigils.spoon",
+                    path_path = "Source/WindowSigils.spoon",
                 },
                 target = {
                     name_withName = "WindowSigils",

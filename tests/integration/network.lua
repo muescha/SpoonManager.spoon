@@ -198,7 +198,7 @@ local function targetLabel(test)
         or target.selection_spoon
         or extract.folder
         or source.zipFile
-        or source.path
+        or source.path_path
         or test.id
 end
 

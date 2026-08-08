@@ -8,7 +8,7 @@ return function(T)
                     repository = "muescha/SpoonRepo",
                     baseUrl = "https://github.com",
                     revision_branch = "main",
-                    path = "Source/DeepFolder.spoon",
+                    path_path = "Source/DeepFolder.spoon",
                 },
             }).command("install").explain()
 

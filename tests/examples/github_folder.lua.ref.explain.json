@@ -19,7 +19,7 @@
   "config": {
     "source": {
       "baseUrl": "https://github.com",
-      "path": "Source/DeepFolder.spoon",
+      "path_path": "Source/DeepFolder.spoon",
       "provider": "github",
       "repository": "muescha/SpoonRepo",
       "revision_ref": "v1.2.3",

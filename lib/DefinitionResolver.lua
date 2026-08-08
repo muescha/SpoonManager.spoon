@@ -19,7 +19,7 @@ return function(context)
             or selectedSpoonName
             or nameResolver.infer(extract.folder, "extract folder")
             or nameResolver.infer(source.zipFile, "ZIP file")
-            or nameResolver.infer(source.path, "source path")
+            or nameResolver.infer(source.path_path, "source path")
             or nameResolver.inferFromSource(source)
 
         local resolved = {
