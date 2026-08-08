@@ -54,7 +54,7 @@ test("default spoon zip", function()
     assertEqual(config.source.type, "github")
     assertEqual(config.source.revision_branch, "master")
     assertEqual(config.source.pattern_spoonZipPattern, "Spoons/{name}.spoon.zip")
-    assertEqual(config.target.selection_spoon, "Emojis")
+    assertEqual(config.source.path_spoon, "Emojis")
 end)
 ```
 
@@ -84,10 +84,8 @@ The golden file is readable by itself:
     "repository": "Hammerspoon/Spoons",
     "baseUrl": "https://github.com",
     "revision_branch": "master",
-    "pattern_spoonZipPattern": "Spoons/{name}.spoon.zip"
-  },
-  "target": {
-    "selection_spoon": "Emojis"
+    "pattern_spoonZipPattern": "Spoons/{name}.spoon.zip",
+    "path_spoon": "Emojis"
   },
   "resolved": {
     "installName": "Emojis",
@@ -194,10 +192,8 @@ Example normalized installed snapshot:
         "repository": "Hammerspoon/Spoons",
         "baseUrl": "https://github.com",
         "revision_branch": "master",
-        "pattern_spoonZipPattern": "Spoons/{name}.spoon.zip"
-      },
-      "target": {
-        "selection_spoon": "Emojis"
+        "pattern_spoonZipPattern": "Spoons/{name}.spoon.zip",
+        "path_spoon": "Emojis"
       }
     },
     "resolved": {
@@ -351,7 +347,7 @@ More cases:
 - `spoon(...)` then `path(...)`
 - `path(...)` then `path(...)`
 - `withName(...)` then `withName(...)`
-- source-changing method after final selection, for example `spoon("A").branch("main")`
+- `spoon(...)` then `path(...)` (the source `path` group is mutually exclusive)
 
 ### DefinitionResolver Commands
 
@@ -482,7 +478,7 @@ return function(test, SpoonManager)
                 .spoon("TimeMachineProgress")
                 .toConfig()
 
-        assertEqual(config.target.selection_spoon, "TimeMachineProgress")
+        assertEqual(config.source.path_spoon, "TimeMachineProgress")
     end)
 end
 ```

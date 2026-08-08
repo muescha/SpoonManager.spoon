@@ -361,18 +361,16 @@ The exported config table keeps user-provided values close to the builder calls:
         repository = "Hammerspoon/Spoons",
         revision_branch = "master",
         pattern_spoonZipPattern = "Spoons/{name}.spoon.zip",
-    },
-    target = {
-        selection_spoon = "Emojis",
+        path_spoon = "Emojis",
     },
 }
 ```
 
-`source` answers where the files come from. `target` answers which Spoon is selected and what local name it should use.
+`source` answers where the files come from and which Spoon is selected. `target` answers what local name it should use.
 
 Builder arguments that describe names, paths, refs, URLs, patterns, releases, or ZIP files must be strings. Passing a table, number, or another builder object raises an error instead of being converted with `tostring()`.
 
-Builder methods do not silently overwrite each other. Each group can be set once per builder: revision (`branch`/`ref`), Spoon pattern, selection (`spoon`/`folder`/`zipFile`), release, target name (`withName`), and local-change behavior.
+Builder methods do not silently overwrite each other. Each group can be set once per builder: revision (`branch`/`ref`), Spoon pattern, source selection (`spoon`/`path`/`release`/`releaseLatest`, mutually exclusive), target name (`withName`), and local-change behavior.
 
 If you need another Spoon from the same repository, keep the broad base builder and create each selected Spoon from that base:
 
@@ -398,7 +396,7 @@ local emojis =
     official
         .spoon("Emojis")
 
--- Error: selection_spoon('Emojis') already selected.
+-- Error: .spoon('Emojis') already set; cannot call .spoon('WindowSigils').
 local windowSigils =
     emojis
         .spoon("WindowSigils")
@@ -750,7 +748,7 @@ repo.spoon("MySpoon")
 
 Creates a Spoon builder from a known Spoon name using a configured Spoon pattern.
 
-In exported configs, this stores the selected Spoon in `target.selection_spoon`.
+In exported configs, this stores the selected Spoon in `source.path_spoon`.
 
 With `from.default`, this resolves directly to the official Spoon ZIP:
 
@@ -1208,9 +1206,7 @@ Example output:
         baseUrl = "https://github.com",
         defaultBranch = "master",
         pattern_spoonZipPattern = "Spoons/{name}.spoon.zip",
-    },
-    target = {
-        selection_spoon = "Emojis",
+        path_spoon = "Emojis",
     },
     use = {
         start = true,
@@ -1293,9 +1289,7 @@ Before resolving, the output contains only `config`:
             type = "github",
             repository = "Hammerspoon/Spoons",
             pattern_spoonZipPattern = "Spoons/{name}.spoon.zip",
-        },
-        target = {
-            selection_spoon = "Emojis",
+            path_spoon = "Emojis",
         },
     },
 }

@@ -46,9 +46,7 @@ Example:
         repository = "Hammerspoon/Spoons",
         revision_branch = "master",
         pattern_spoonFolderPattern = "Source/{name}.spoon",
-    },
-    target = {
-        selection_spoon = "Emojis",
+        path_spoon = "Emojis",
     },
 }
 ```
@@ -62,14 +60,14 @@ ref("v1.2.3")                   -> source.revision_ref = "v1.2.3"
 remoteZip(url)                  -> source.url = url
 localFolder(path)               -> source.root = path
 localZip(path)                  -> source.file = path
-releaseLatest()                 -> source.release_releaseLatest = true
-release("v1.2.3")               -> source.release_release = "v1.2.3"
+releaseLatest()                 -> source.path_releaseLatest = true
+release("v1.2.3")               -> source.path_release = "v1.2.3"
 spoonZipPattern("Spoons/{name}.spoon.zip")
                                   -> source.pattern_spoonZipPattern = "Spoons/{name}.spoon.zip"
 spoonFolderPattern("Source/{name}.spoon")
                                   -> source.pattern_spoonFolderPattern = "Source/{name}.spoon"
-spoon("A")                      -> target.selection_spoon = "A"
-path("Source/A.spoon")          -> source.path = "Source/A.spoon"
+spoon("A")                      -> source.path_spoon = "A"
+path("Source/A.spoon")          -> source.path_path = "Source/A.spoon"
 zipFile("A.zip")                -> source.zipFile = "A.zip"
 useFolder("dist/A.spoon")       -> extract.folder = "dist/A.spoon"
 withName("BetterName")          -> target.name_withName = "BetterName"
@@ -86,9 +84,7 @@ The source answers "where does the code come from?" The extract section selects 
         repository = "Hammerspoon/Spoons",
         revision_branch = "master",
         pattern_spoonFolderPattern = "Source/{name}.spoon",
-    },
-    target = {
-        selection_spoon = "Emojis",
+        path_spoon = "Emojis",
     },
 }
 ```
@@ -107,9 +103,7 @@ Example:
             repository = "Hammerspoon/Spoons",
             revision_branch = "master",
             pattern_spoonFolderPattern = "Source/{name}.spoon",
-        },
-        target = {
-            selection_spoon = "Emojis",
+            path_spoon = "Emojis",
         },
     },
     resolved = {
@@ -176,9 +170,7 @@ Example:
             repository = "Hammerspoon/Spoons",
             revision_branch = "master",
             pattern_spoonFolderPattern = "Source/{name}.spoon",
-        },
-        target = {
-            selection_spoon = "Emojis",
+            path_spoon = "Emojis",
         },
     },
     resolved = {
@@ -212,10 +204,10 @@ Examples:
 source = {
     revision_branch = "master",
     pattern_spoonZipPattern = "Spoons/{name}.spoon.zip",
+    path_spoon = "Emojis",
 }
 
 target = {
-    selection_spoon = "Emojis",
     name_withName = "MyEmojis",
 }
 ```
@@ -225,7 +217,7 @@ The groups are:
 ```text
 config.source.revision_*  = one of revision_branch, revision_ref
 config.source.pattern_*   = one of pattern_spoonZipPattern, pattern_spoonFolderPattern
-config.target.selection_* = selection_spoon for pattern-based Spoon selection
+config.source.path_*      = one of path_path, path_release, path_releaseLatest, path_spoon (mutually exclusive source selection)
 config.target.name_*      = one of name_withName
 ```
 
@@ -273,6 +265,8 @@ branch('master') already set; cannot call ref('v1.2.3').
 
 Source-changing methods also need to fail after pattern-based Spoon selection has been finalized. A definition is finalized once `target.selection_spoon` exists. Keep this check explicit instead of hiding it in an overly generic setter.
 
+> Superseded in Step 2: this separate finalization guard was removed. `spoon` now joins `path`/`release`/`releaseLatest` as members of one exclusive `source` `path` group (`source.path_spoon`), so `setExclusive` enforces the same source-mode exclusivity symmetrically. The original rationale is kept below for the record.
+
 ```lua
 local function ensureNotFinalized(definition, method, value)
     local selectedMethod, selectedValue =
@@ -306,7 +300,7 @@ setExclusive(definition.config.target, "name", "withName", spoonName)
 
 ## Endpoints
 
-Endpoint methods select the concrete Spoon from the source. Pattern-based Spoon selection writes to the `target` section and finalizes source selection. Direct source methods write to `source` or `extract`.
+Endpoint methods select the concrete Spoon from the source. Pattern-based Spoon selection writes to the `source` `path` group (`source.path_spoon`), mutually exclusive with the other source-selection methods. Direct source methods write to `source` or `extract`.
 
 Endpoint methods:
 
@@ -347,9 +341,7 @@ Config:
         repository = "Hammerspoon/Spoons",
         revision_branch = "master",
         pattern_spoonFolderPattern = "Source/{name}.spoon",
-    },
-    target = {
-        selection_spoon = "Emojis",
+        path_spoon = "Emojis",
     },
 }
 ```
@@ -375,14 +367,14 @@ No `origin` is needed in the config because the original config is never overwri
 
 ## Folder Values
 
-`.path(value)` should always set `source.path = value`.
+`.path(value)` should always set `source.path_path = value`.
 
 Recommended meaning:
 
 ```text
 source.root      = local base folder
 source.file      = local ZIP file
-source.path      = selected path inside a repository or local folder
+source.path_path = selected path inside a repository or local folder
 source.url       = remote ZIP URL
 source.zipFile   = selected ZIP file from a repository or release
 extract.folder   = selected folder inside a materialized ZIP/source
@@ -400,7 +392,7 @@ SpoonManager.from.github("muescha/SpoonRepo")
     source = {
         type = "github",
         repository = "muescha/SpoonRepo",
-        path = "Source/MySpoon.spoon",
+        path_path = "Source/MySpoon.spoon",
     },
 }
 ```
@@ -415,25 +407,25 @@ SpoonManager.from.localFolder("~/Projects/SpoonRepo")
     source = {
         type = "localFolder",
         root = "/Users/example/Projects/SpoonRepo",
-        path = "Source/MySpoon.spoon",
+        path_path = "Source/MySpoon.spoon",
     },
 }
 ```
 
-The resolved command can join local `source.root` and `source.path` when needed.
+The resolved command can join local `source.root` and `source.path_path` when needed.
 
 ## Name Resolution
 
-The target section contains the selected input and optional user rename. It should not duplicate derived names.
+The target section contains the optional user rename. It should not duplicate derived names.
 
 Selection methods provide the default install name:
 
 ```text
-target.selection_spoon      -> infer from the selected Spoon name
-source.path                 -> infer from the selected source path
+source.path_spoon           -> infer from the selected Spoon name
+source.path_path            -> infer from the selected source path
 source.zipFile              -> infer from the ZIP file name
 extract.folder              -> infer from the extracted folder basename
-source                      -> infer from the source only if no target selection exists
+source                      -> infer from the source only if no selection exists
 ```
 
 `.withName(value)` stores an explicit override:

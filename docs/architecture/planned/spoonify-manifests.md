@@ -109,7 +109,7 @@ Merge rule:
 final source = manifest.source + entry.source
 ```
 
-The `name` field in a manifest entry is a human-friendly shorthand for the default Spoon selection. When the manifest is converted into a definition, it maps to `target.selection_spoon` unless the entry provides a more specific `source.path`, `source.zipFile`, or `extract.folder` value. It should not become a separate top-level `definition.name`.
+The `name` field in a manifest entry is a human-friendly shorthand for the default Spoon selection. When the manifest is converted into a definition, it maps to `source.path_spoon` unless the entry provides a more specific `source.path_path`, `source.zipFile`, or `extract.folder` value. It should not become a separate top-level `definition.name`.
 
 Example:
 
@@ -131,14 +131,14 @@ Example:
       "name": "DeepFolder",
       "description": "Uses a custom folder",
       "source": {
-        "path": "experimental/deepfolder"
+        "path_path": "experimental/deepfolder"
       }
     },
     {
       "name": "ReleaseOnly",
       "description": "Uses a latest release ZIP",
       "source": {
-        "release_releaseLatest": true,
+        "path_releaseLatest": true,
         "zipFile": "ReleaseOnly.zip"
       }
     }
@@ -169,7 +169,7 @@ Provider-based sources are preferred:
     "type": "github",
     "repository": "owner/repo",
     "revision_branch": "main",
-    "path": "Source/Foo.spoon"
+    "path_path": "Source/Foo.spoon"
   }
 }
 ```

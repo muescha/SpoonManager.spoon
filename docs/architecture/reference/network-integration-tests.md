@@ -315,7 +315,7 @@ GitHub folder definition:
       "repository": "Hammerspoon/Spoons",
       "baseUrl": "https://github.com",
       "revision_branch": "master",
-      "path": "Source/WindowSigils.spoon"
+      "path_path": "Source/WindowSigils.spoon"
     },
     "target": {
       "name_withName": "WindowSigils"
@@ -345,12 +345,12 @@ exclusive in builder output.
 
 ## Target Fields
 
-Use `target.selection_spoon` when the definition uses a Spoon name pattern:
+Use `source.path_spoon` when the definition uses a Spoon name pattern:
 
 ```json
 {
-  "target": {
-    "selection_spoon": "WindowSigils"
+  "source": {
+    "path_spoon": "WindowSigils"
   }
 }
 ```
