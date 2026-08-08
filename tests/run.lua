@@ -20,6 +20,7 @@ local testFiles = {
     "tests/examples/github_patterns.lua",
     "tests/examples/github_release.lua",
     "tests/examples/github_repository.lua",
+    "tests/examples/install_options.lua",
     "tests/examples/local_sources.lua",
     "tests/examples/zip_sources.lua",
     "tests/integration/local_zip_folder.lua",

@@ -1,0 +1,35 @@
+{
+  "command": {
+    "action": "install",
+    "name": "DeepFolder",
+    "options": {
+      "onLocalChanges": "abort"
+    },
+    "source": {
+      "folder": "bundles/DeepFolder.spoon",
+      "kind": "zip",
+      "path": "/Users/test/Downloads/DeepFolder.spoon.zip"
+    },
+    "target": {
+      "name": "DeepFolder",
+      "path": "/tmp/hammerspoon-test/Spoons/DeepFolder.spoon",
+      "type": "spoon"
+    }
+  },
+  "config": {
+    "extract": {
+      "folder": "bundles/DeepFolder.spoon"
+    },
+    "source": {
+      "file": "~/Downloads/DeepFolder.spoon.zip",
+      "type": "localZip"
+    }
+  },
+  "resolved": {
+    "extractFolder": "bundles/DeepFolder.spoon",
+    "installName": "DeepFolder",
+    "localPath": "/Users/test/Downloads/DeepFolder.spoon.zip",
+    "sourceKind": "zip"
+  },
+  "state": "command"
+}

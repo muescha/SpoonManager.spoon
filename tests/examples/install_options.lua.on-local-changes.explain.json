@@ -1,0 +1,40 @@
+{
+  "command": {
+    "action": "install",
+    "name": "A",
+    "options": {
+      "localChanges_onLocalChanges": "backup",
+      "onLocalChanges": "backup"
+    },
+    "source": {
+      "folder": "Source/A.spoon",
+      "kind": "zip",
+      "url": "https://github.com/owner/repo/archive/main.zip"
+    },
+    "target": {
+      "name": "A",
+      "path": "/tmp/hammerspoon-test/Spoons/A.spoon",
+      "type": "spoon"
+    }
+  },
+  "config": {
+    "options": {
+      "localChanges_onLocalChanges": "backup",
+      "onLocalChanges": "backup"
+    },
+    "source": {
+      "baseUrl": "https://github.com",
+      "provider": "github",
+      "repository": "owner/repo",
+      "selection_path": "Source/A.spoon",
+      "type": "github"
+    }
+  },
+  "resolved": {
+    "extractFolder": "Source/A.spoon",
+    "installName": "A",
+    "sourceKind": "zip",
+    "url": "https://github.com/owner/repo/archive/main.zip"
+  },
+  "state": "command"
+}
