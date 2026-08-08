@@ -85,12 +85,16 @@ return function(context)
     end
 
     -- Path selected WITHOUT a .zipFile(): download the repo archive and extract the
-    -- folder. The explicit "no zipFile" guard makes this independent of rule order
-    -- (resolveZipFile handles the path + zipFile case) and makes clear why .path()
-    -- and .useFolder() simply compose here.
+    -- folder. The path + zipFile case belongs to resolveZipFile, which precedes this
+    -- rule, so reaching here with a zipFile means resolutionRules is misordered.
     local function resolvePathWithoutZip(ruleOptions)
-        if not ruleOptions.source.selection_path or ruleOptions.source.zipFile then
+        if not ruleOptions.source.selection_path then
             return nil
+        end
+
+        if ruleOptions.source.zipFile then
+            error("internal error: resolvePathWithoutZip reached with a zipFile set; "
+                .. "place it after resolveZipFile in resolutionRules", 2)
         end
 
         -- Principle of least astonishment: .useFolder() composes onto .path() as a
