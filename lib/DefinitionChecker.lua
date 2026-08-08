@@ -77,6 +77,7 @@ return function(context)
         { ref = "source.selection_path", label = "Source path", check = util.requireSafeRelPath },
         { ref = "extract.useFolder", label = "Folder path", check = util.requireSafeRelPath },
         { ref = "source.zipFile", label = "ZIP file", check = util.requireSafeFileName },
+        { ref = "source.zipFile", label = "ZIP file", check = util.requireZipPath },
     }
 
     -- Run the blanket input-safety pass plus a provider's declarative resolveChecks

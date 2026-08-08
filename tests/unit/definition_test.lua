@@ -213,19 +213,31 @@ return function(T)
         end, "ZIP file must point to a %.zip file")
     end)
 
-    T.test("installer rejects non zip release file from config", function()
+    -- Backup for the early zipFile pre-check: the installer independently rejects a
+    -- non-zip resolved source (reached directly here, bypassing the resolve checks).
+    T.test("installer rejects a non zip resolved source", function()
         local result, err =
-            T.SpoonManager.from.config({
-                source = {
-                    type = "github",
-                    repository = "owner/repo",
-                    selection_releaseLatest = true,
-                    zipFile = "A.tar.gz",
+            T.context.installer.installDefinition({
+                name = "A",
+                config = {},
+                resolved = {
+                    installName = "A",
                 },
-                naming = {
-                    withName = "A",
+                command = {
+                    action = "install",
+                    name = "A",
+                    source = {
+                        kind = "zip",
+                        url = "https://example.com/A.tar.gz",
+                    },
+                    target = {
+                        type = "spoon",
+                        name = "A",
+                    },
+                    options = {},
                 },
-            }).install()
+                options = {},
+            })
 
         T.assertFalse(result)
         T.assertEqual(err, "ZIP source must point to a .zip file")
@@ -377,6 +389,18 @@ return function(T)
                 },
             }).resolve()
         end, "ZIP file must be a file name, not a path")
+    end)
+
+    T.test("definition resolver rejects a non-zip zip file", function()
+        T.assertError(function()
+            T.SpoonManager.from.config({
+                source = {
+                    type = "github",
+                    repository = "owner/repo",
+                    zipFile = "A.tar.gz",
+                },
+            }).resolve()
+        end, "ZIP file must point to a %.zip file")
     end)
 
     T.test("definition resolver rejects unknown source type", function()
