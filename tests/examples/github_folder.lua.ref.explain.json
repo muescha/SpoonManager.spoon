@@ -3,7 +3,7 @@
     "action": "update",
     "name": "DeepFolder",
     "options": {
-      "onLocalChanges": "abort"
+      "conflictStrategy": "abort"
     },
     "source": {
       "folder": "Source/DeepFolder.spoon",

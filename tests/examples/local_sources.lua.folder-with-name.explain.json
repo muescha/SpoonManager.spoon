@@ -3,7 +3,7 @@
     "action": "install",
     "name": "DeepFolder",
     "options": {
-      "onLocalChanges": "abort"
+      "conflictStrategy": "abort"
     },
     "source": {
       "kind": "folder",

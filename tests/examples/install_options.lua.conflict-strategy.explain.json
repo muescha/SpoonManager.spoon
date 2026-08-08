@@ -3,8 +3,7 @@
     "action": "install",
     "name": "A",
     "options": {
-      "localChanges_onLocalChanges": "backup",
-      "onLocalChanges": "backup"
+      "conflictStrategy": "backup"
     },
     "source": {
       "folder": "Source/A.spoon",
@@ -19,8 +18,7 @@
   },
   "config": {
     "installOptions": {
-      "localChanges_onLocalChanges": "backup",
-      "onLocalChanges": "backup"
+      "conflictStrategy": "backup"
     },
     "source": {
       "baseUrl": "https://github.com",

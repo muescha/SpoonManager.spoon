@@ -64,8 +64,8 @@ return function(context)
             end
         end
 
-        if definition.options and definition.options.onLocalChanges and not manager._isLocalChangesBehavior(definition.options.onLocalChanges) then
-            return nil, "Invalid local changes behavior: " .. tostring(definition.options.onLocalChanges)
+        if definition.options and definition.options.conflictStrategy and not manager._isConflictStrategy(definition.options.conflictStrategy) then
+            return nil, "Invalid conflict strategy: " .. tostring(definition.options.conflictStrategy)
         end
 
         return true
@@ -78,14 +78,14 @@ return function(context)
             return true
         end
 
-        local behavior = definition.options.onLocalChanges or manager.options.localChanges.abort
+        local behavior = definition.options.conflictStrategy or manager.options.conflictStrategy.abort
 
         if not installed or not installed.checksum then
-            if behavior == manager.options.localChanges.overwrite then
+            if behavior == manager.options.conflictStrategy.overwrite then
                 return true
             end
 
-            if behavior == manager.options.localChanges.backup then
+            if behavior == manager.options.conflictStrategy.backup then
                 local backupPath = destination .. ".backup-" .. os.date("!%Y%m%dT%H%M%SZ")
                 local _, ok = util.movePath(destination, backupPath, logger)
                 if ok then
@@ -94,7 +94,7 @@ return function(context)
                 return nil, "Could not backup existing unmanaged Spoon"
             end
 
-            return nil, "Spoon already exists but is not managed by SpoonManager. Use .onLocalChanges(\"backup\") or .onLocalChanges(\"overwrite\") to install anyway."
+            return nil, "Spoon already exists but is not managed by SpoonManager. Use .conflictStrategy(\"backup\") or .conflictStrategy(\"overwrite\") to install anyway."
         end
 
         local currentChecksum = Installer.checksumDirectory(destination)
@@ -102,11 +102,11 @@ return function(context)
             return true
         end
 
-        if behavior == manager.options.localChanges.overwrite then
+        if behavior == manager.options.conflictStrategy.overwrite then
             return true
         end
 
-        if behavior == manager.options.localChanges.backup then
+        if behavior == manager.options.conflictStrategy.backup then
             local backupPath = destination .. ".backup-" .. os.date("!%Y%m%dT%H%M%SZ")
             local _, ok = util.movePath(destination, backupPath, logger)
             if ok then
@@ -115,7 +115,7 @@ return function(context)
             return nil, "Could not backup locally changed Spoon"
         end
 
-        return nil, "Local changes detected. Use .onLocalChanges(\"backup\") or .onLocalChanges(\"overwrite\") to update anyway."
+        return nil, "Local changes detected. Use .conflictStrategy(\"backup\") or .conflictStrategy(\"overwrite\") to update anyway."
     end
 
     function Installer.applyUse(definition)

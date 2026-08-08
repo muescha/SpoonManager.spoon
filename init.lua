@@ -39,13 +39,13 @@ obj.definitions = {}
 --- Public constants used by the builder API.
 ---
 --- Contains:
----  * `localChanges.abort`
----  * `localChanges.backup`
----  * `localChanges.overwrite`
+---  * `conflictStrategy.abort`
+---  * `conflictStrategy.backup`
+---  * `conflictStrategy.overwrite`
 ---  * `patterns.spoonRepo`
 ---  * `patterns.spoonRepoZip`
 obj.options = {
-    localChanges = {
+    conflictStrategy = {
         abort = "abort",
         backup = "backup",
         overwrite = "overwrite",
@@ -57,11 +57,11 @@ obj.options = {
 }
 
 obj.installOptions = {
-    onLocalChanges = obj.options.localChanges.abort,
+    conflictStrategy = obj.options.conflictStrategy.abort,
 }
 
-function obj._isLocalChangesBehavior(behavior)
-    for _, value in pairs(obj.options.localChanges) do
+function obj._isConflictStrategy(behavior)
+    for _, value in pairs(obj.options.conflictStrategy) do
         if behavior == value then
             return true
         end
@@ -70,13 +70,13 @@ function obj._isLocalChangesBehavior(behavior)
     return false
 end
 
---- SpoonManager.onLocalChanges(behavior) -> SpoonManager
+--- SpoonManager.conflictStrategy(behavior) -> SpoonManager
 --- Function
 --- Set the default behavior for existing or locally changed Spoons.
-function obj.onLocalChanges(behavior)
-    assert(obj._isLocalChangesBehavior(behavior), "Invalid local changes behavior: " .. tostring(behavior))
+function obj.conflictStrategy(behavior)
+    assert(obj._isConflictStrategy(behavior), "Invalid conflict strategy: " .. tostring(behavior))
 
-    obj.installOptions.onLocalChanges = behavior
+    obj.installOptions.conflictStrategy = behavior
     return obj
 end
 

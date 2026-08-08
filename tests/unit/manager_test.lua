@@ -261,12 +261,12 @@ return function(T)
             local ok, err = T.context.installer.checkLocalChanges({
                 name = "Emojis",
                 options = {
-                    onLocalChanges = T.SpoonManager.options.localChanges.abort,
+                    conflictStrategy = T.SpoonManager.options.conflictStrategy.abort,
                 },
             }, destination)
 
             T.assertFalse(ok)
-            T.assertEqual(err, "Spoon already exists but is not managed by SpoonManager. Use .onLocalChanges(\"backup\") or .onLocalChanges(\"overwrite\") to install anyway.")
+            T.assertEqual(err, "Spoon already exists but is not managed by SpoonManager. Use .conflictStrategy(\"backup\") or .conflictStrategy(\"overwrite\") to install anyway.")
         end)
     end)
 
@@ -303,7 +303,7 @@ return function(T)
             local ok, err = T.context.installer.checkLocalChanges({
                 name = "Emojis",
                 options = {
-                    onLocalChanges = T.SpoonManager.options.localChanges.abort,
+                    conflictStrategy = T.SpoonManager.options.conflictStrategy.abort,
                 },
             }, destination)
 

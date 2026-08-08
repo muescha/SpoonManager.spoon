@@ -255,13 +255,12 @@ return function(context)
             return createBuilder(nextDef)
         end
 
-        api.onLocalChanges = function(behavior)
-            assert(manager._isLocalChangesBehavior(behavior), "Invalid local changes behavior: " .. tostring(behavior))
+        api.conflictStrategy = function(behavior)
+            assert(manager._isConflictStrategy(behavior), "Invalid conflict strategy: " .. tostring(behavior))
 
             local nextDef = util.copyTable(def)
-            ensureState(nextDef, "config", "onLocalChanges", behavior)
-            setExclusive(ensureSection(nextDef.config, "installOptions"), "localChanges", "onLocalChanges", behavior)
-            nextDef.config.installOptions.onLocalChanges = behavior
+            ensureState(nextDef, "config", "conflictStrategy", behavior)
+            setExclusive(ensureSection(nextDef.config, "installOptions"), nil, "conflictStrategy", behavior)
             return createBuilder(nextDef)
         end
 
