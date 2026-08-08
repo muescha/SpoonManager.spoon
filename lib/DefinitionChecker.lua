@@ -86,7 +86,7 @@ return function(context)
         for _, entry in ipairs(safeFields) do
             local value = readRef(config, entry.ref)
             if value then
-                entry.check(value, entry.label)
+                entry.check(value, entry.label, entry.ref)
             end
         end
 

@@ -142,15 +142,28 @@ end
 -- Reject path traversal in an untrusted relative path segment (allows "/" for
 -- subpaths, but forbids ".." and backslashes). Used for selection paths and
 -- extract folders, which may arrive from a config/manifest and reach pathJoin.
-function Util.requireSafeRelPath(value, label)
+-- Message subject for a field error. With a sourceRef, use the setter label
+-- ".method('value')" and drop the trailing value (it is already in the label);
+-- without one, fall back to the plain label plus ": value".
+local function fieldSubject(label, value, sourceRef)
+    if sourceRef then
+        return Util.createLabel(sourceRef, value), ""
+    end
+
+    return label, ": " .. tostring(value)
+end
+
+function Util.requireSafeRelPath(value, label, sourceRef)
     Util.requireString(value, label)
 
+    local subject, tail = fieldSubject(label or "Path", value, sourceRef)
+
     if value:find("%.%.") then
-        error(string.format("%s must not contain '..': %s", label or "Path", value), 3)
+        error(subject .. " must not contain '..'" .. tail, 3)
     end
 
     if value:find("\\", 1, true) then
-        error(string.format("%s must not contain a backslash: %s", label or "Path", value), 3)
+        error(subject .. " must not contain a backslash" .. tail, 3)
     end
 
     return value
@@ -158,11 +171,12 @@ end
 
 -- Reject any path separator in an untrusted file name (a bare name, no directory).
 -- Slash-free means it cannot traverse; used for zipFile at the builder and resolve.
-function Util.requireSafeFileName(value, label)
+function Util.requireSafeFileName(value, label, sourceRef)
     Util.requireString(value, label)
 
     if value:find("[/\\]") then
-        error(string.format("%s must be a file name, not a path: %s", label or "File name", tostring(value)), 3)
+        local subject, tail = fieldSubject(label or "File name", value, sourceRef)
+        error(subject .. " must be a file name, not a path" .. tail, 3)
     end
 
     return value
@@ -184,7 +198,11 @@ function Util.requireStringOptional(value, label)
     return Util.requireString(value, label)
 end
 
+-- Builds a setter label like ".path('value')". `method` may be a plain method name
+-- or a field ref ("source.selection_path") -- the last "." / "_" segment is used.
 function Util.createLabel(method, value)
+    method = tostring(method):match("[^._]+$") or method
+
     if value == true or value == nil then
         return "." .. method .. "()"
     end
@@ -214,11 +232,12 @@ function Util.isZipPath(value)
     return path:match("%.zip$") ~= nil
 end
 
-function Util.requireZipPath(value, label)
+function Util.requireZipPath(value, label, sourceRef)
     Util.requireString(value, label or "ZIP source")
 
     if not Util.isZipPath(value) then
-        error(string.format("%s must point to a .zip file: %s", label or "ZIP source", tostring(value)), 3)
+        local subject, tail = fieldSubject(label or "ZIP source", value, sourceRef)
+        error(subject .. " must point to a .zip file" .. tail, 3)
     end
 
     return value

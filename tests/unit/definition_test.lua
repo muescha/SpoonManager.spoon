@@ -332,7 +332,7 @@ return function(T)
                     selection_path = "../../etc",
                 },
             }).resolve()
-        end, "Source path must not contain '%.%.'")
+        end, "%.path%('%.%./%.%./etc'%) must not contain '%.%.'")
     end)
 
     T.test("definition resolver rejects path traversal in use folder", function()
@@ -346,7 +346,7 @@ return function(T)
                     useFolder = "../secret",
                 },
             }).resolve()
-        end, "Folder path must not contain '%.%.'")
+        end, "%.useFolder%('%.%./secret'%) must not contain '%.%.'")
     end)
 
     T.test("definition resolver composes github path with use folder", function()
@@ -388,7 +388,7 @@ return function(T)
                     zipFile = "../../other.zip",
                 },
             }).resolve()
-        end, "ZIP file must be a file name, not a path")
+        end, "%.zipFile%('%.%./%.%./other%.zip'%) must be a file name, not a path")
     end)
 
     T.test("definition resolver rejects a non-zip zip file", function()
@@ -400,7 +400,7 @@ return function(T)
                     zipFile = "A.tar.gz",
                 },
             }).resolve()
-        end, "ZIP file must point to a %.zip file")
+        end, "%.zipFile%('A%.tar%.gz'%) must point to a %.zip file")
     end)
 
     T.test("definition resolver rejects unknown source type", function()

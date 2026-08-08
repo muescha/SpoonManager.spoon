@@ -37,6 +37,6 @@ return function(T)
                     selection_path = "../etc",
                 },
             })
-        end, "Source path must not contain '%.%.'")
+        end, "%.path%('%.%./etc'%) must not contain '%.%.'")
     end)
 end
