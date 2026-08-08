@@ -34,7 +34,7 @@ return function(context)
             return {
                 sourceKind = "zip",
                 localPath = util.pathJoin(util.localPath(source.root), path),
-                extractFolder = extract.folder,
+                extractFolder = extract.useFolder,
             }
         end
 

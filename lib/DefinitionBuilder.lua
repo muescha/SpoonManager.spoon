@@ -209,16 +209,7 @@ return function(context)
             ensureState(nextDef, "config", "useFolder", path)
             requireCapability(nextDef, "useFolder", "useFolder", path)
 
-            local extract = ensureSection(nextDef.config, "extract")
-            if extract.folder then
-                error(string.format(
-                    "%s already set; cannot call %s.",
-                    util.createLabel("useFolder", extract.folder),
-                    util.createLabel("useFolder", path)
-                ), 3)
-            end
-
-            extract.folder = path
+            setExclusive(ensureSection(nextDef.config, "extract"), nil, "useFolder", path)
             return createBuilder(nextDef)
         end
 

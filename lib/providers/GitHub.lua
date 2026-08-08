@@ -68,7 +68,7 @@ return function(context)
                 release = release,
                 zipFile = ruleOptions.source.zipFile,
             }),
-            extractFolder = ruleOptions.extract.folder,
+            extractFolder = ruleOptions.extract.useFolder,
         }
     end
 
@@ -84,7 +84,7 @@ return function(context)
         return {
             sourceKind = "zip",
             url = rawUrl(ruleOptions.source, path),
-            extractFolder = ruleOptions.extract.folder,
+            extractFolder = ruleOptions.extract.useFolder,
         }
     end
 

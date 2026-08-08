@@ -26,7 +26,7 @@ return function(context)
         return {
             sourceKind = "zip",
             url = source.url,
-            extractFolder = extract.folder,
+            extractFolder = extract.useFolder,
         }
     end
 

@@ -17,7 +17,7 @@ return function(context)
         local selectedSpoonName = nameResolver.infer(source.selection_spoon, "selected Spoon name")
         local installName = nameResolver.infer(target.name_withName, "explicit Spoon name")
             or selectedSpoonName
-            or nameResolver.infer(extract.folder, "extract folder")
+            or nameResolver.infer(extract.useFolder, "extract folder")
             or nameResolver.infer(source.zipFile, "ZIP file")
             or nameResolver.infer(source.selection_path, "source path")
             or nameResolver.inferFromSource(source)

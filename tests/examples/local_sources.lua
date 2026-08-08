@@ -68,7 +68,7 @@ return function(T)
                 .useFolder("bundles/DeepFolder.spoon")
                 .command("install").explain()
 
-        T.assertEqual(explanation.config.extract.folder, "bundles/DeepFolder.spoon")
+        T.assertEqual(explanation.config.extract.useFolder, "bundles/DeepFolder.spoon")
         T.assertEqual(explanation.command.source.kind, "zip")
         T.assertEqual(explanation.command.source.path, "/Users/test/Downloads/DeepFolder.spoon.zip")
         T.assertEqual(explanation.command.source.folder, "bundles/DeepFolder.spoon")

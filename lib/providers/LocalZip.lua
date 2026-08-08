@@ -26,7 +26,7 @@ return function(context)
         return {
             sourceKind = "zip",
             localPath = util.localPath(source.file),
-            extractFolder = extract.folder,
+            extractFolder = extract.useFolder,
         }
     end
 

@@ -41,7 +41,7 @@ return function(T)
                 name = (
                     source.selection_spoon
                     or target.name_withName
-                    or extract.folder
+                    or extract.useFolder
                     or source.zipFile
                     or source.selection_path
                 ) or "unknown",
