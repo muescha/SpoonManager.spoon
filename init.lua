@@ -102,6 +102,7 @@ local context = {
 context.nameResolver = loadLib("NameResolver")(context)
 context.paths = loadLib("Paths")(context)
 context.registry = loadLib("Registry")(context)
+context.definitionChecker = loadLib("DefinitionChecker")(context)
 context.definitionResolver = loadLib("DefinitionResolver")(context)
 context.spoonExtractor = loadLib("SpoonExtractor")(context)
 context.installer = loadLib("Installer")(context)

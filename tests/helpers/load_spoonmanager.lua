@@ -12,6 +12,7 @@ return function(repoRoot)
 
     context.nameResolver = dofile(repoRoot .. "/lib/NameResolver.lua")(context)
     context.paths = dofile(repoRoot .. "/lib/Paths.lua")(context)
+    context.definitionChecker = dofile(repoRoot .. "/lib/DefinitionChecker.lua")(context)
     context.definitionResolver = dofile(repoRoot .. "/lib/DefinitionResolver.lua")(context)
     context.spoonExtractor = dofile(repoRoot .. "/lib/SpoonExtractor.lua")(context)
     context.registry = dofile(repoRoot .. "/lib/Registry.lua")(context)

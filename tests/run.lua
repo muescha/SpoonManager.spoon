@@ -31,6 +31,7 @@ local testFiles = {
     "tests/unit/definition_test.lua",
     "tests/unit/manager_test.lua",
     "tests/unit/definition_resolver_test.lua",
+    "tests/unit/definition_checker_test.lua",
 }
 
 for _, file in ipairs(testFiles) do
