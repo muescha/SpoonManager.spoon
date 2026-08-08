@@ -89,9 +89,17 @@ return function(context)
             return nil
         end
 
+        -- Hidden feature (principle of least astonishment): without a .zipFile(...),
+        -- .useFolder() composes onto .path() as a deeper folder inside the archive,
+        -- so path("a").useFolder("b") extracts "a/b". (With .zipFile(...) the path is
+        -- only a URL prefix and .useFolder() is handled by resolveZipFile instead.)
+        local extractFolder = ruleOptions.extract.useFolder
+            and util.pathJoin(ruleOptions.source.selection_path, ruleOptions.extract.useFolder)
+            or ruleOptions.source.selection_path
+
         return {
             sourceKind = "zip",
-            extractFolder = ruleOptions.source.selection_path,
+            extractFolder = extractFolder,
             url = archiveUrl(ruleOptions.source),
         }
     end
@@ -188,15 +196,6 @@ return function(context)
                 when = { anyField = { "selection_release", "selection_releaseLatest" } },
                 require = { field = "zipFile" },
                 message = "GitHub release sources require .zipFile(...).",
-            },
-            {
-                -- .path() alone selects the folder to extract (extractFolder), so a
-                -- separate .useFolder() would be silently ignored. With .zipFile(...)
-                -- the path is only a directory prefix and .useFolder() is valid.
-                when = { allOf = { { field = "selection_path" }, { absentField = "zipFile" } } },
-                forbid = { field = "extract.useFolder" },
-                message = "GitHub .path(...) already selects the folder; drop .useFolder(...) "
-                    .. "-- or add .zipFile(...) to make .path(...) a directory prefix.",
             },
         },
 

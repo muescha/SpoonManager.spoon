@@ -20,21 +20,8 @@ return function(context)
     end
 
     local function whenHolds(config, when)
-        if when.allOf then
-            for _, sub in ipairs(when.allOf) do
-                if not whenHolds(config, sub) then
-                    return false
-                end
-            end
-            return true
-        end
-
         if when.field then
             return readRef(config, when.field) ~= nil
-        end
-
-        if when.absentField then
-            return readRef(config, when.absentField) == nil
         end
 
         if when.anyField then
