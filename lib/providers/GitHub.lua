@@ -48,8 +48,8 @@ return function(context)
     end
 
     local function resolveRelease(ruleOptions)
-        local release = ruleOptions.source.release_release
-            or (ruleOptions.source.release_releaseLatest and "latest")
+        local release = ruleOptions.source.path_release
+            or (ruleOptions.source.path_releaseLatest and "latest")
 
         if not release then
             return nil

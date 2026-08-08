@@ -18,8 +18,8 @@
   "config": {
     "source": {
       "baseUrl": "https://github.com",
+      "path_releaseLatest": true,
       "provider": "github",
-      "release_releaseLatest": true,
       "repository": "muescha/DeepFolder.spoon",
       "type": "github",
       "zipFile": "latest.zip"

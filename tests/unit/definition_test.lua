@@ -207,7 +207,7 @@ return function(T)
                 source = {
                     type = "github",
                     repository = "owner/repo",
-                    release_releaseLatest = true,
+                    path_releaseLatest = true,
                     zipFile = "A.tar.gz",
                 },
                 target = {

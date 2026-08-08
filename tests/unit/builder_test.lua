@@ -116,7 +116,7 @@ return function(T)
                     provider = "github",
                     repository = "owner/TestSpoon.spoon",
                     baseUrl = "https://github.com",
-                    release_releaseLatest = true,
+                    path_releaseLatest = true,
                     zipFile = "TestSpoon.zip",
                 },
                 target = {

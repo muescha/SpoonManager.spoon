@@ -194,7 +194,7 @@ return function(context)
             ensureNotFinalized(nextDef, "path", path)
 
             local source = ensureSection(nextDef.config, "source")
-            local releaseMethod, releaseValue = findFlatGroupValue(source, "release")
+            local releaseMethod, releaseValue = findFlatGroupValue(source, "path")
             if releaseMethod then
                 error(string.format(
                     ".%s already set; cannot call %s.",
@@ -256,7 +256,7 @@ return function(context)
                 ), 3)
             end
             ensureNotFinalized(nextDef, "releaseLatest")
-            setExclusive(ensureSection(nextDef.config, "source"), "release", "releaseLatest", true)
+            setExclusive(ensureSection(nextDef.config, "source"), "path", "releaseLatest", true)
             return createBuilder(nextDef)
         end
 
@@ -274,7 +274,7 @@ return function(context)
                 ), 3)
             end
             ensureNotFinalized(nextDef, "release", releaseName)
-            setExclusive(ensureSection(nextDef.config, "source"), "release", "release", releaseName)
+            setExclusive(ensureSection(nextDef.config, "source"), "path", "release", releaseName)
             return createBuilder(nextDef)
         end
 
