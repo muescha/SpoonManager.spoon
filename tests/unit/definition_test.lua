@@ -26,12 +26,12 @@ return function(T)
 
         local plain = definition.explain()
         T.assertEqual(plain.config.source.selection_spoon, "A.spoon")
-        T.assertEqual(plain.config.target.name_withName, "B.spoon")
+        T.assertEqual(plain.config.naming.withName, "B.spoon")
         T.assertFalse(plain.resolved)
 
         local commanded = definition.command("install").explain()
         T.assertEqual(commanded.config.source.selection_spoon, "A.spoon")
-        T.assertEqual(commanded.config.target.name_withName, "B.spoon")
+        T.assertEqual(commanded.config.naming.withName, "B.spoon")
         T.assertEqual(commanded.resolved.installName, "B")
         T.assertEqual(commanded.command.name, "B")
         T.assertEqual(commanded.command.source.url, "https://github.com/owner/repo/raw/main/dist/A.spoon.zip")
@@ -202,8 +202,8 @@ return function(T)
                     selection_releaseLatest = true,
                     zipFile = "A.tar.gz",
                 },
-                target = {
-                    name_withName = "A",
+                naming = {
+                    withName = "A",
                 },
             }).install()
 

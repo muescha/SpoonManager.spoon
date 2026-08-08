@@ -16,6 +16,9 @@
     }
   },
   "config": {
+    "naming": {
+      "withName": "DeepFolder"
+    },
     "source": {
       "baseUrl": "https://github.com",
       "provider": "github",
@@ -23,9 +26,6 @@
       "selection_release": "v1.2.3",
       "type": "github",
       "zipFile": "latest.zip"
-    },
-    "target": {
-      "name_withName": "DeepFolder"
     }
   },
   "resolved": {

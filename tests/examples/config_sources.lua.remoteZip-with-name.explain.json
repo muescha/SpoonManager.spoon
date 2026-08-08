@@ -16,12 +16,12 @@
     }
   },
   "config": {
+    "naming": {
+      "withName": "DeepFolder"
+    },
     "source": {
       "type": "remoteZip",
       "url": "https://example.com/downloads/latest.zip"
-    },
-    "target": {
-      "name_withName": "DeepFolder"
     }
   },
   "resolved": {

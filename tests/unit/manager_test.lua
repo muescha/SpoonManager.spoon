@@ -29,7 +29,7 @@ return function(T)
             local config = definitionConfig.config or definitionConfig
             local source = config.source or {}
             local extract = config.extract or {}
-            local target = config.target or {}
+            local naming = config.naming or {}
             table.insert(calls, {
                 config = config,
                 action = action,
@@ -40,7 +40,7 @@ return function(T)
                 action = action,
                 name = (
                     source.selection_spoon
-                    or target.name_withName
+                    or naming.withName
                     or extract.useFolder
                     or source.zipFile
                     or source.selection_path

@@ -25,8 +25,8 @@ return function(T)
                     type = "remoteZip",
                     url = "https://example.com/downloads/latest.zip",
                 },
-                target = {
-                    name_withName = "DeepFolder",
+                naming = {
+                    withName = "DeepFolder",
                 },
             }).command("install").explain()
 

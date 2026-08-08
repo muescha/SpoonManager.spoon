@@ -17,7 +17,7 @@ return function(T)
                 .withName("DeepFolder")
                 .command("install").explain()
 
-        T.assertEqual(explanation.config.target.name_withName, "DeepFolder")
+        T.assertEqual(explanation.config.naming.withName, "DeepFolder")
         T.assertEqual(explanation.command.source.url, "https://example.com/downloads/latest.zip")
         T.assertEqual(explanation.command.target.name, "DeepFolder")
         T.assertMatchesJson("examples/zip_sources.lua.remote-with-name.explain.json", explanation)

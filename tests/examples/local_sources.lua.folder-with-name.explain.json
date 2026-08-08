@@ -16,12 +16,12 @@
     }
   },
   "config": {
+    "naming": {
+      "withName": "DeepFolder"
+    },
     "source": {
       "root": "~/Projects/experimental",
       "type": "localFolder"
-    },
-    "target": {
-      "name_withName": "DeepFolder"
     }
   },
   "resolved": {

@@ -28,8 +28,8 @@ return function(T)
                     revision_branch = "master",
                     selection_path = "Source/WindowSigils.spoon",
                 },
-                target = {
-                    name_withName = "WindowSigils",
+                naming = {
+                    withName ="WindowSigils",
                 },
             }
         )
@@ -92,8 +92,8 @@ return function(T)
                     baseUrl = "https://github.com",
                     revision_branch = "main",
                 },
-                target = {
-                    name_withName = "TestSpoon",
+                naming = {
+                    withName ="TestSpoon",
                 },
             }
         )
@@ -115,8 +115,8 @@ return function(T)
                     selection_releaseLatest = true,
                     zipFile = "TestSpoon.zip",
                 },
-                target = {
-                    name_withName = "TestSpoon",
+                naming = {
+                    withName ="TestSpoon",
                 },
             }
         )
@@ -145,8 +145,8 @@ return function(T)
                     type = "remoteZip",
                     url = "https://example.com/TestSpoon.zip",
                 },
-                target = {
-                    name_withName = "TestSpoon",
+                naming = {
+                    withName ="TestSpoon",
                 },
             }
         )

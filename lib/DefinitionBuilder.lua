@@ -244,7 +244,7 @@ return function(context)
             ensureState(def, "config", "withName", value)
 
             local nextDef = util.copyTable(def)
-            setExclusive(ensureSection(nextDef.config, "target"), "name", "withName", value)
+            setExclusive(ensureSection(nextDef.config, "naming"), nil, "withName", value)
             return createBuilder(nextDef)
         end
 

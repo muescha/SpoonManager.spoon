@@ -16,12 +16,12 @@
     }
   },
   "config": {
+    "naming": {
+      "withName": "DeepFolder"
+    },
     "source": {
       "file": "~/Downloads/latest.zip",
       "type": "localZip"
-    },
-    "target": {
-      "name_withName": "DeepFolder"
     }
   },
   "resolved": {
