@@ -222,10 +222,22 @@ return function(context)
     -- keeps spoon/path/release/releaseLatest mutually exclusive; the only free
     -- modifier left is zipFile, so the residual ambiguity is spoon + zipFile.
     local function validateSource(source)
-        if source.selection_spoon and source.zipFile then
+        if not source.selection_spoon then
+            return
+        end
+
+        if source.zipFile then
             error(
                 "GitHub spoon selection conflicts with .zipFile(...); use a Spoon pattern "
                     .. "(.spoonZipPattern/.spoonFolderPattern) instead of .zipFile(...).",
+                2
+            )
+        end
+
+        if not (source.pattern_spoonZipPattern or source.pattern_spoonFolderPattern) then
+            error(
+                "GitHub spoon selection requires .spoonZipPattern(...) or .spoonFolderPattern(...); "
+                    .. "or use from.spoonRepo(...)/from.spoonRepoZip(...).",
                 2
             )
         end

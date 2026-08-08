@@ -94,16 +94,6 @@ return function(context)
         end
     end
 
-    local function requireSpoonPattern(definition)
-        local source = definition.config.source or {}
-
-        if source.pattern_spoonZipPattern or source.pattern_spoonFolderPattern then
-            return
-        end
-
-        error(".spoon() requires .spoonZipPattern(...) or .spoonFolderPattern(...) on this source.", 3)
-    end
-
     local function createBuilder(def)
         local api = {}
 
@@ -170,7 +160,6 @@ return function(context)
         api.spoon = function(value)
             util.requireString(value, "Spoon name")
             ensureState(def, "config", "spoon", value)
-            requireSpoonPattern(def)
 
             local nextDef = util.copyTable(def)
             setExclusive(ensureSection(nextDef.config, "source"), "selection", "spoon", value)

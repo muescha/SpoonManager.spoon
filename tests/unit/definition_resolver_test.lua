@@ -35,6 +35,25 @@ return function(T)
         T.assertEqual(command.target.name, "A")
     end)
 
+    T.test("definition resolver allows spoon selection before its pattern", function()
+        local config =
+            T.SpoonManager.from.github("owner/repo")
+                .branch("main")
+                .spoon("A")
+                .spoonFolderPattern("Source/{name}.spoon")
+                .toConfig()
+        local definition = {
+            config = config,
+        }
+
+        local resolved = T.context.definitionResolver.resolveFromDefinition(definition)
+        local command = T.context.definitionResolver.commandFromResolved(definition, "install", resolved)
+
+        T.assertEqual(command.source.kind, "zip")
+        T.assertEqual(command.source.folder, "Source/A.spoon")
+        T.assertEqual(command.target.name, "A")
+    end)
+
     T.test("definition resolver maps local folder selection", function()
         local config =
             T.SpoonManager.from.localFolder("~/Projects/SpoonRepo")
