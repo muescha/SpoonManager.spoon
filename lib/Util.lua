@@ -142,28 +142,26 @@ end
 -- Reject path traversal in an untrusted relative path segment (allows "/" for
 -- subpaths, but forbids ".." and backslashes). Used for selection paths and
 -- extract folders, which may arrive from a config/manifest and reach pathJoin.
--- Message subject for a field error. With a sourceRef, use the setter label
--- ".method('value')" and drop the trailing value (it is already in the label);
--- without one, fall back to the plain label plus ": value".
-local function fieldSubject(label, value, sourceRef)
+-- Build a field error message from a reason clause. With a sourceRef, prefix with
+-- the setter label ".method('value')"; without one, use the plain label and append
+-- ": value". So createMessage(" must point to a .zip file", "ZIP file", v, ref).
+local function createMessage(reason, label, value, sourceRef)
     if sourceRef then
-        return Util.createLabel(sourceRef, value), ""
+        return Util.createLabel(sourceRef, value) .. reason
     end
 
-    return label, ": " .. tostring(value)
+    return label .. reason .. ": " .. tostring(value)
 end
 
 function Util.requireSafeRelPath(value, label, sourceRef)
     Util.requireString(value, label)
 
-    local subject, tail = fieldSubject(label or "Path", value, sourceRef)
-
     if value:find("%.%.") then
-        error(subject .. " must not contain '..'" .. tail, 3)
+        error(createMessage(" must not contain '..'", label or "Path", value, sourceRef), 3)
     end
 
     if value:find("\\", 1, true) then
-        error(subject .. " must not contain a backslash" .. tail, 3)
+        error(createMessage(" must not contain a backslash", label or "Path", value, sourceRef), 3)
     end
 
     return value
@@ -175,8 +173,7 @@ function Util.requireSafeFileName(value, label, sourceRef)
     Util.requireString(value, label)
 
     if value:find("[/\\]") then
-        local subject, tail = fieldSubject(label or "File name", value, sourceRef)
-        error(subject .. " must be a file name, not a path" .. tail, 3)
+        error(createMessage(" must be a file name, not a path", label or "File name", value, sourceRef), 3)
     end
 
     return value
@@ -236,8 +233,7 @@ function Util.requireZipPath(value, label, sourceRef)
     Util.requireString(value, label or "ZIP source")
 
     if not Util.isZipPath(value) then
-        local subject, tail = fieldSubject(label or "ZIP source", value, sourceRef)
-        error(subject .. " must point to a .zip file" .. tail, 3)
+        error(createMessage(" must point to a .zip file", label or "ZIP source", value, sourceRef), 3)
     end
 
     return value
