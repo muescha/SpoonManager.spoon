@@ -332,6 +332,31 @@ return function(T)
         end, "Folder path must not contain '%.%.'")
     end)
 
+    T.test("definition resolver rejects github path combined with use folder", function()
+        T.assertError(function()
+            T.SpoonManager.from.github("owner/repo")
+                .path("Source/A.spoon")
+                .useFolder("nested")
+                .resolve()
+        end, "GitHub %.path%(%.%.%.%) already selects the folder")
+    end)
+
+    T.test("definition resolver allows github path with zip file and use folder", function()
+        local config =
+            T.SpoonManager.from.github("owner/repo")
+                .path("dist")
+                .zipFile("A.zip")
+                .useFolder("nested")
+                .toConfig()
+        local resolved = T.context.definitionResolver.resolveFromDefinition({
+            config = config,
+        })
+
+        T.assertEqual(resolved.sourceKind, "zip")
+        T.assertEqual(resolved.url, "https://github.com/owner/repo/raw/main/dist/A.zip")
+        T.assertEqual(resolved.extractFolder, "nested")
+    end)
+
     T.test("definition resolver rejects unknown source type", function()
         T.assertError(function()
             T.SpoonManager.from.config({

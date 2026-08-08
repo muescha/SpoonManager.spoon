@@ -185,6 +185,15 @@ return function(context)
                 require = { field = "zipFile" },
                 message = "GitHub release sources require .zipFile(...).",
             },
+            {
+                -- .path() alone selects the folder to extract (extractFolder), so a
+                -- separate .useFolder() would be silently ignored. With .zipFile(...)
+                -- the path is only a directory prefix and .useFolder() is valid.
+                when = { allOf = { { field = "selection_path" }, { absentField = "zipFile" } } },
+                forbid = { field = "extract.useFolder" },
+                message = "GitHub .path(...) already selects the folder; drop .useFolder(...) "
+                    .. "-- or add .zipFile(...) to make .path(...) a directory prefix.",
+            },
         },
 
         builderPresets = {},
