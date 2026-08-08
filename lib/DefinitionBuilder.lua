@@ -11,18 +11,6 @@ return function(context)
         return config[sectionName]
     end
 
-    local function findFlatGroupValue(container, group)
-        local prefix = group .. "_"
-
-        for key, value in pairs(container or {}) do
-            if type(key) == "string" and key:sub(1, #prefix) == prefix then
-                return key:sub(#prefix + 1), value, key
-            end
-        end
-
-        return nil, nil, nil
-    end
-
     local function setExclusive(container, group, method, value)
         local containerKey = group == nil and method or group .. "_" .. method
         local existingMethod, existingValue
@@ -31,7 +19,7 @@ return function(context)
                 existingMethod, existingValue = method, container[containerKey]
             end
         else
-            existingMethod, existingValue = findFlatGroupValue(container, group)
+            existingMethod, existingValue = util.findFlatGroupValue(container, group)
         end
 
         if existingMethod then
@@ -176,7 +164,7 @@ return function(context)
             local source = ensureSection(nextDef.config, "source")
             setExclusive(source, "selection", "path", path)
 
-            local patternMethod, patternValue = findFlatGroupValue(source, "pattern")
+            local patternMethod, patternValue = util.findFlatGroupValue(source, "pattern")
             if patternMethod then
                 error(string.format(
                     ".%s already set; cannot call %s.",

@@ -130,6 +130,18 @@ function Util.createLabel(method, value)
     return "." .. method .. "('" .. escaped .. "')"
 end
 
+function Util.findFlatGroupValue(container, group)
+    local prefix = group .. "_"
+
+    for key, value in pairs(container or {}) do
+        if type(key) == "string" and key:sub(1, #prefix) == prefix then
+            return key:sub(#prefix + 1), value, key
+        end
+    end
+
+    return nil, nil, nil
+end
+
 function Util.isZipPath(value)
     if type(value) ~= "string" then
         return false
