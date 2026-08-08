@@ -24,10 +24,11 @@ return function(context)
     end
 
     local function setExclusive(container, group, method, value)
+        local containerKey = group == nil and method or group .. "_" .. method
         local existingMethod, existingValue
         if group == nil then
-            if container[method] ~= nil then
-                existingMethod, existingValue = method, container[method]
+            if container[containerKey] ~= nil then
+                existingMethod, existingValue = method, container[containerKey]
             end
         else
             existingMethod, existingValue = findFlatGroupValue(container, group)
@@ -41,11 +42,7 @@ return function(context)
             ), 3)
         end
 
-        if group == nil then
-            container[method] = value
-        else
-            container[group .. "_" .. method] = value
-        end
+        container[containerKey] = value
     end
 
     local function computeState(definition)
