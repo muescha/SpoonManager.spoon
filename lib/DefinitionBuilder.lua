@@ -82,6 +82,29 @@ return function(context)
         end
     end
 
+    -- Declarative specs for the near-identical builder setters. Each stores a value
+    -- into a config section with a validator, an optional capability check, and an
+    -- exclusivity group (nil = single-field guard). `fixedValue` is for no-arg calls.
+    local setterSpecs = {
+        { method = "branch", validate = util.requireString, label = "Branch name", capability = "branch", section = "source", group = "revision" },
+        { method = "ref", validate = util.requireString, label = "Ref name", capability = "ref", section = "source", group = "revision" },
+        { method = "spoonZipPattern", validate = util.requireZipPath, label = "Spoon ZIP pattern", capability = "spoonZipPattern", section = "source", group = "pattern" },
+        { method = "spoonFolderPattern", validate = util.requireString, label = "Spoon folder pattern", capability = "spoonFolderPattern", section = "source", group = "pattern" },
+        { method = "spoon", validate = util.requireString, label = "Spoon name", section = "source", group = "selection" },
+        { method = "release", validate = util.requireString, label = "Release name", capability = "release", section = "source", group = "selection" },
+        { method = "releaseLatest", fixedValue = true, capability = "release", section = "source", group = "selection" },
+        { method = "zipFile", validate = requireFileName, label = "ZIP file", capability = "zipFile", section = "source" },
+        { method = "useFolder", validate = util.requireSafeRelPath, label = "Folder path", capability = "useFolder", section = "extract" },
+        { method = "withName", validate = util.requireString, label = "Spoon name", section = "naming" },
+        {
+            method = "conflictStrategy",
+            section = "installOptions",
+            validate = function(value)
+                assert(manager._isConflictStrategy(value), "Invalid conflict strategy: " .. tostring(value))
+            end,
+        },
+    }
+
     local function createBuilder(def)
         local api = {}
 
@@ -105,53 +128,22 @@ return function(context)
             return api
         end
 
-        api.branch = function(branchName)
-            util.requireString(branchName, "Branch name")
+        for _, spec in ipairs(setterSpecs) do
+            api[spec.method] = function(value)
+                if spec.fixedValue ~= nil then
+                    value = spec.fixedValue
+                elseif spec.validate then
+                    spec.validate(value, spec.label)
+                end
 
-            local nextDef = util.copyTable(def)
-            ensureState(nextDef, "config", "branch", branchName)
-            requireCapability(nextDef, "branch", "branch", branchName)
-            setExclusive(ensureSection(nextDef.config, "source"), "revision", "branch", branchName)
-            return createBuilder(nextDef)
-        end
-
-        api.ref = function(refName)
-            util.requireString(refName, "Ref name")
-
-            local nextDef = util.copyTable(def)
-            ensureState(nextDef, "config", "ref", refName)
-            requireCapability(nextDef, "ref", "ref", refName)
-            setExclusive(ensureSection(nextDef.config, "source"), "revision", "ref", refName)
-            return createBuilder(nextDef)
-        end
-
-        api.spoonZipPattern = function(pattern)
-            util.requireZipPath(pattern, "Spoon ZIP pattern")
-
-            local nextDef = util.copyTable(def)
-            ensureState(nextDef, "config", "spoonZipPattern", pattern)
-            requireCapability(nextDef, "spoonZipPattern", "spoonZipPattern", pattern)
-            setExclusive(ensureSection(nextDef.config, "source"), "pattern", "spoonZipPattern", pattern)
-            return createBuilder(nextDef)
-        end
-
-        api.spoonFolderPattern = function(pattern)
-            util.requireString(pattern, "Spoon folder pattern")
-
-            local nextDef = util.copyTable(def)
-            ensureState(nextDef, "config", "spoonFolderPattern", pattern)
-            requireCapability(nextDef, "spoonFolderPattern", "spoonFolderPattern", pattern)
-            setExclusive(ensureSection(nextDef.config, "source"), "pattern", "spoonFolderPattern", pattern)
-            return createBuilder(nextDef)
-        end
-
-        api.spoon = function(value)
-            util.requireString(value, "Spoon name")
-            ensureState(def, "config", "spoon", value)
-
-            local nextDef = util.copyTable(def)
-            setExclusive(ensureSection(nextDef.config, "source"), "selection", "spoon", value)
-            return createBuilder(nextDef)
+                local nextDef = util.copyTable(def)
+                ensureState(nextDef, "config", spec.method, value)
+                if spec.capability then
+                    requireCapability(nextDef, spec.capability, spec.method, value)
+                end
+                setExclusive(ensureSection(nextDef.config, spec.section), spec.group, spec.method, value)
+                return createBuilder(nextDef)
+            end
         end
 
         api.path = function(path)
@@ -176,68 +168,10 @@ return function(context)
             return createBuilder(nextDef)
         end
 
-        api.useFolder = function(path)
-            util.requireSafeRelPath(path, "Folder path")
-
-            local nextDef = util.copyTable(def)
-            ensureState(nextDef, "config", "useFolder", path)
-            requireCapability(nextDef, "useFolder", "useFolder", path)
-
-            setExclusive(ensureSection(nextDef.config, "extract"), nil, "useFolder", path)
-            return createBuilder(nextDef)
-        end
-
-        api.releaseLatest = function()
-            local nextDef = util.copyTable(def)
-            ensureState(nextDef, "config", "releaseLatest")
-            requireCapability(nextDef, "release", "releaseLatest")
-            setExclusive(ensureSection(nextDef.config, "source"), "selection", "releaseLatest", true)
-            return createBuilder(nextDef)
-        end
-
-        api.release = function(releaseName)
-            util.requireString(releaseName, "Release name")
-
-            local nextDef = util.copyTable(def)
-            ensureState(nextDef, "config", "release", releaseName)
-            requireCapability(nextDef, "release", "release", releaseName)
-            setExclusive(ensureSection(nextDef.config, "source"), "selection", "release", releaseName)
-            return createBuilder(nextDef)
-        end
-
-        api.zipFile = function(fileName)
-            requireFileName(fileName, "ZIP file")
-
-            local nextDef = util.copyTable(def)
-            ensureState(nextDef, "config", "zipFile", fileName)
-            requireCapability(nextDef, "zipFile", "zipFile", fileName)
-
-            setExclusive(ensureSection(nextDef.config, "source"), nil, "zipFile", fileName)
-            return createBuilder(nextDef)
-        end
-
-        api.withName = function(value)
-            util.requireString(value, "Spoon name")
-            ensureState(def, "config", "withName", value)
-
-            local nextDef = util.copyTable(def)
-            setExclusive(ensureSection(nextDef.config, "naming"), nil, "withName", value)
-            return createBuilder(nextDef)
-        end
-
         api.use = function(useOptions)
             local nextDef = util.copyTable(def)
             ensureState(nextDef, "config", "use")
             nextDef.config.use = util.mergeTables(nextDef.config.use or {}, useOptions or {})
-            return createBuilder(nextDef)
-        end
-
-        api.conflictStrategy = function(behavior)
-            assert(manager._isConflictStrategy(behavior), "Invalid conflict strategy: " .. tostring(behavior))
-
-            local nextDef = util.copyTable(def)
-            ensureState(nextDef, "config", "conflictStrategy", behavior)
-            setExclusive(ensureSection(nextDef.config, "installOptions"), nil, "conflictStrategy", behavior)
             return createBuilder(nextDef)
         end
 
