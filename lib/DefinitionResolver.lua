@@ -35,6 +35,14 @@ return function(context)
             end
         end
 
+        if when.isZip then
+            return util.isZipPath(readRef(config, when.isZip))
+        end
+
+        if when.notZip then
+            return not util.isZipPath(readRef(config, when.notZip))
+        end
+
         return false
     end
 
@@ -51,6 +59,14 @@ return function(context)
         if check.forbid then
             if check.forbid.field then
                 return readRef(config, check.forbid.field) == nil
+            end
+            if check.forbid.fields then
+                for _, ref in ipairs(check.forbid.fields) do
+                    if readRef(config, ref) ~= nil then
+                        return false
+                    end
+                end
+                return true
             end
         end
 

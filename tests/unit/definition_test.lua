@@ -256,6 +256,27 @@ return function(T)
         end, "GitHub spoon selection conflicts with %.zipFile%(%.%.%.%)")
     end)
 
+    T.test("definition resolver rejects remote zip extras on a direct zip url", function()
+        T.assertError(function()
+            T.SpoonManager.from.remoteZip("https://example.com/WindowGrid.spoon.zip")
+                .zipFile("Other.zip")
+                .resolve()
+        end, "already points at a %.zip")
+
+        T.assertError(function()
+            T.SpoonManager.from.remoteZip("https://example.com/WindowGrid.spoon.zip")
+                .path("subfolder")
+                .resolve()
+        end, "already points at a %.zip")
+    end)
+
+    T.test("definition resolver rejects a remote base url without zip file", function()
+        T.assertError(function()
+            T.SpoonManager.from.remoteZip("https://example.com/")
+                .resolve()
+        end, "remoteZip needs a %.zip")
+    end)
+
     T.test("definition resolver rejects unknown source type", function()
         T.assertError(function()
             T.SpoonManager.from.config({

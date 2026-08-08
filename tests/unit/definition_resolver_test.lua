@@ -54,6 +54,55 @@ return function(T)
         T.assertEqual(command.target.name, "A")
     end)
 
+    T.test("definition resolver builds remote zip url from base and zip file", function()
+        local config =
+            T.SpoonManager.from.remoteZip("https://example.com/")
+                .zipFile("WindowGrid.spoon.zip")
+                .toConfig()
+        local definition = {
+            config = config,
+        }
+
+        local resolved = T.context.definitionResolver.resolveFromDefinition(definition)
+        local command = T.context.definitionResolver.commandFromResolved(definition, "install", resolved)
+
+        T.assertEqual(command.source.kind, "zip")
+        T.assertEqual(command.source.url, "https://example.com/WindowGrid.spoon.zip")
+        T.assertEqual(command.target.name, "WindowGrid")
+    end)
+
+    T.test("definition resolver builds remote zip url with path prefix", function()
+        local config =
+            T.SpoonManager.from.remoteZip("https://example.com/")
+                .path("subfolder")
+                .zipFile("WindowGrid.spoon.zip")
+                .toConfig()
+        local definition = {
+            config = config,
+        }
+
+        local resolved = T.context.definitionResolver.resolveFromDefinition(definition)
+        local command = T.context.definitionResolver.commandFromResolved(definition, "install", resolved)
+
+        T.assertEqual(command.source.url, "https://example.com/subfolder/WindowGrid.spoon.zip")
+        T.assertEqual(command.target.name, "WindowGrid")
+    end)
+
+    T.test("definition resolver keeps a direct remote zip url", function()
+        local config =
+            T.SpoonManager.from.remoteZip("https://example.com/WindowGrid.spoon.zip")
+                .toConfig()
+        local definition = {
+            config = config,
+        }
+
+        local resolved = T.context.definitionResolver.resolveFromDefinition(definition)
+        local command = T.context.definitionResolver.commandFromResolved(definition, "install", resolved)
+
+        T.assertEqual(command.source.url, "https://example.com/WindowGrid.spoon.zip")
+        T.assertEqual(command.target.name, "WindowGrid")
+    end)
+
     T.test("definition resolver maps local folder selection", function()
         local config =
             T.SpoonManager.from.localFolder("~/Projects/SpoonRepo")

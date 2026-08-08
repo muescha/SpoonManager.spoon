@@ -541,15 +541,29 @@ Use this when you already know the exact ZIP URL. The ZIP may contain a `.spoon`
 
 In exported configs, this uses `source.type = "remoteZip"`.
 
-The URL must point to a `.zip` file. Other archive formats are rejected.
+The URL may point directly at a `.zip` file, or it may be a base URL that
+addresses the ZIP through `.path(...)`/`.zipFile(...)` (see below). A base URL
+requires `.zipFile(...)`; if the URL already ends in `.zip`, `.path(...)` and
+`.zipFile(...)` are rejected.
 
-The Spoon name is inferred from the ZIP URL. Use `.withName(name)` to override it.
+The Spoon name is inferred from the ZIP URL (or from `.zipFile(...)`). Use
+`.withName(name)` to override it.
 
-Example:
+Example, direct ZIP URL:
 
 ```lua
 spoon.SpoonManager.from.remoteZip("https://example.com/MySpoon.zip")
     .install()
+```
+
+Example, base URL plus the ZIP file (optionally a subfolder):
+
+```lua
+spoon.SpoonManager.from.remoteZip("https://example.com/downloads/")
+    .path("spoons")
+    .zipFile("MySpoon.spoon.zip")
+    .install()
+-- https://example.com/downloads/spoons/MySpoon.spoon.zip
 ```
 
 Example, GitHub latest release ZIP as a plain ZIP URL:
@@ -672,8 +686,8 @@ Provider-gated builder methods:
 |--------|:--------:|:-------------:|:----------:|:-----------:|
 | `.branch(name)` | ✓ | — | — | — |
 | `.ref(name)` | ✓ | — | — | — |
-| `.path(path)` | ✓ | ✓ | — | — |
-| `.zipFile(name)` | ✓ | ✓ | — | — |
+| `.path(path)` | ✓ | ✓ | — | ✓ † |
+| `.zipFile(name)` | ✓ | ✓ | — | ✓ † |
 | `.release(name)` | ✓ | — | — | — |
 | `.releaseLatest()` | ✓ | — | — | — |
 | `.spoonZipPattern(pattern)` | ✓ | — | — | — |
@@ -685,6 +699,11 @@ Provider-gated builder methods:
 resolve (`.spoonZipPattern(...)`/`.spoonFolderPattern(...)`, or a preset such as
 `from.spoonRepo`/`from.spoonRepoZip`), so in practice it is usable only with the
 `github` provider.
+
+† On `remoteZip`, `.path(...)`/`.zipFile(...)` build the URL to the actual ZIP
+from a base URL, e.g. `from.remoteZip("https://example.com/").path("sub").zipFile("X.spoon.zip")`.
+They apply only when the URL is a base: if the URL already ends in `.zip` they are
+rejected, and a base URL requires `.zipFile(...)`.
 
 Provider-independent methods work on every source: `.withName(name)`,
 `.use(options)`, `.conflictStrategy(behavior)`, and the lifecycle calls
