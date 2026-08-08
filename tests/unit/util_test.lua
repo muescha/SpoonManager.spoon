@@ -6,6 +6,12 @@ return function(T)
         T.assertEqual(util.pathJoin("a/", "/b"), "a/b")
     end)
 
+    T.test("util pathJoin skips nil segments", function()
+        T.assertEqual(util.pathJoin("a", nil, "c"), "a/c")
+        T.assertEqual(util.pathJoin("a", nil), "a")
+        T.assertEqual(util.pathJoin(nil, "b"), "b")
+    end)
+
     T.test("util pathJoin rejects traversal segments", function()
         T.assertError(function()
             util.pathJoin("base", "../etc")

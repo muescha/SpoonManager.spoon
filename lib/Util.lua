@@ -17,15 +17,18 @@ local function assertSafeSegment(part)
     end
 end
 
+-- Join path segments, skipping nil ones (like joinUrl), and collapse slashes.
 function Util.pathJoin(...)
+    local parts = {}
     for i = 1, select("#", ...) do
-        assertSafeSegment((select(i, ...)))
+        local part = select(i, ...)
+        if part ~= nil then
+            assertSafeSegment(part)
+            parts[#parts + 1] = part
+        end
     end
 
-    local parts = { ... }
-    local path = table.concat(parts, "/")
-    path = path:gsub("/+", "/")
-    return path
+    return (table.concat(parts, "/"):gsub("/+", "/"))
 end
 
 -- Join URL segments without collapsing the "scheme://" slashes (unlike pathJoin).
