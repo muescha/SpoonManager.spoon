@@ -156,6 +156,18 @@ function Util.requireSafeRelPath(value, label)
     return value
 end
 
+-- Reject any path separator in an untrusted file name (a bare name, no directory).
+-- Slash-free means it cannot traverse; used for zipFile at the builder and resolve.
+function Util.requireSafeFileName(value, label)
+    Util.requireString(value, label)
+
+    if value:find("[/\\]") then
+        error(string.format("%s must be a file name, not a path: %s", label or "File name", tostring(value)), 3)
+    end
+
+    return value
+end
+
 function Util.requireString(value, label)
     if type(value) ~= "string" then
         error(string.format("%s must be a string, got %s", label or "Value", type(value)), 3)

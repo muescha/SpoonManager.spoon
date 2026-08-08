@@ -70,20 +70,22 @@ return function(context)
         return true
     end
 
-    -- Untrusted path-ish fields sanitized for every provider (blanket policy);
-    -- covers configs that bypass the builder setters (from.config / a manifest).
-    local safePathFields = {
-        { ref = "source.selection_path", label = "Source path" },
-        { ref = "extract.useFolder", label = "Folder path" },
+    -- Untrusted inputs sanitized for every provider (blanket policy); covers configs
+    -- that bypass the builder setters (from.config / a manifest). Paths may contain
+    -- "/" (subpaths) but no "..", a zipFile must be a bare file name (no separators).
+    local safeFields = {
+        { ref = "source.selection_path", label = "Source path", check = util.requireSafeRelPath },
+        { ref = "extract.useFolder", label = "Folder path", check = util.requireSafeRelPath },
+        { ref = "source.zipFile", label = "ZIP file", check = util.requireSafeFileName },
     }
 
-    -- Run the blanket path-safety pass plus a provider's declarative resolveChecks
+    -- Run the blanket input-safety pass plus a provider's declarative resolveChecks
     -- (logical cross-field checks) before handing the config to its resolution rules.
     function DefinitionChecker.run(provider, config)
-        for _, entry in ipairs(safePathFields) do
+        for _, entry in ipairs(safeFields) do
             local value = readRef(config, entry.ref)
             if value then
-                util.requireSafeRelPath(value, entry.label)
+                entry.check(value, entry.label)
             end
         end
 

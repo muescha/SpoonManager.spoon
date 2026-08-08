@@ -367,6 +367,18 @@ return function(T)
         T.assertEqual(resolved.extractFolder, "nested")
     end)
 
+    T.test("definition resolver rejects path separators in zip file", function()
+        T.assertError(function()
+            T.SpoonManager.from.config({
+                source = {
+                    type = "github",
+                    repository = "owner/repo",
+                    zipFile = "../../other.zip",
+                },
+            }).resolve()
+        end, "ZIP file must be a file name, not a path")
+    end)
+
     T.test("definition resolver rejects unknown source type", function()
         T.assertError(function()
             T.SpoonManager.from.config({

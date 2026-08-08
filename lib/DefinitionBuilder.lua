@@ -76,10 +76,7 @@ return function(context)
 
     local function requireFileName(value, label)
         util.requireZipPath(value, label)
-
-        if value:find("[/\\]") then
-            error(string.format("%s must be a file name, not a path: %s", label, tostring(value)), 3)
-        end
+        util.requireSafeFileName(value, label)
     end
 
     -- Declarative specs for the near-identical builder setters. Each stores a value

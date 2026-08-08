@@ -29,6 +29,18 @@ return function(T)
         end, "must not contain '%.%.'")
     end)
 
+    T.test("util requireSafeFileName rejects path separators", function()
+        T.assertEqual(util.requireSafeFileName("A.spoon.zip", "ZIP file"), "A.spoon.zip")
+
+        T.assertError(function()
+            util.requireSafeFileName("sub/A.zip", "ZIP file")
+        end, "ZIP file must be a file name, not a path")
+
+        T.assertError(function()
+            util.requireSafeFileName("../A.zip", "ZIP file")
+        end, "ZIP file must be a file name, not a path")
+    end)
+
     T.test("util requireSafeRelPath allows subpaths and rejects traversal", function()
         T.assertEqual(util.requireSafeRelPath("Source/A.spoon", "Source path"), "Source/A.spoon")
 
