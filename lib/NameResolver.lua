@@ -8,7 +8,7 @@ return function(context)
         end
 
         name = tostring(name)
-        if name:find("[/\\]") or name:find("%.%.", 1, true) then
+        if name:find("[/\\]") or name:find("%.%.") then
             return nil
         end
 

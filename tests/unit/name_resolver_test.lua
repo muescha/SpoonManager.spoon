@@ -14,4 +14,11 @@ return function(T)
             T.assertEqual(T.context.nameResolver.infer(item[1]), item[2])
         end)
     end
+
+    T.test("name safe rejects traversal and separators", function()
+        T.assertEqual(T.context.nameResolver.safe(".."), nil)
+        T.assertEqual(T.context.nameResolver.safe("a/b"), nil)
+        T.assertEqual(T.context.nameResolver.safe("a..b"), nil)
+        T.assertEqual(T.context.nameResolver.safe("Emojis"), "Emojis")
+    end)
 end
