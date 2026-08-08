@@ -50,9 +50,7 @@ return function(T)
                     baseUrl = "https://github.com",
                     revision_branch = "master",
                     pattern_spoonFolderPattern = "Source/{name}.spoon",
-                },
-                target = {
-                    selection_spoon = "WindowSigils",
+                    path_spoon = "WindowSigils",
                 },
             }
         )
@@ -73,9 +71,7 @@ return function(T)
                     baseUrl = "https://github.com",
                     revision_branch = "master",
                     pattern_spoonZipPattern = "Spoons/{name}.spoon.zip",
-                },
-                target = {
-                    selection_spoon = "WindowSigils",
+                    path_spoon = "WindowSigils",
                 },
             }
         )

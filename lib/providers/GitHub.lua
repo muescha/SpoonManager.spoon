@@ -102,7 +102,7 @@ return function(context)
 
     local function resolveSpoonZipPattern(ruleOptions)
         if not (
-            ruleOptions.target.selection_spoon
+            ruleOptions.source.path_spoon
             and ruleOptions.source.pattern_spoonZipPattern
         ) then
             return nil
@@ -122,7 +122,7 @@ return function(context)
 
     local function resolveSpoonFolderPattern(ruleOptions)
         if not (
-            ruleOptions.target.selection_spoon
+            ruleOptions.source.path_spoon
             and ruleOptions.source.pattern_spoonFolderPattern
         ) then
             return nil
@@ -222,7 +222,6 @@ return function(context)
         local ruleOptions = {
             source = config.source or {},
             extract = config.extract or {},
-            target = config.target or {},
             selectedSpoonName = options.selectedSpoonName,
         }
 

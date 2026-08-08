@@ -61,13 +61,5 @@ return function(context)
             or NameResolver.infer(source.repository, "repository")
     end
 
-    function NameResolver.inferFromTarget(target)
-        if not target then
-            return nil
-        end
-
-        return NameResolver.infer(target.selection_spoon, "selected Spoon name")
-    end
-
     return NameResolver
 end

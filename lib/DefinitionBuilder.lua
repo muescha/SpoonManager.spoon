@@ -37,18 +37,6 @@ return function(context)
         container[group .. "_" .. method] = value
     end
 
-    local function ensureNotFinalized(definition, method, value)
-        local selectedMethod, selectedValue = findFlatGroupValue(definition.config.target, "selection")
-
-        if selectedMethod then
-            error(string.format(
-                "%s already selected; cannot call %s. Start from the base definition instead.",
-                util.createLabel(selectedMethod, selectedValue),
-                util.createLabel(method, value)
-            ), 3)
-        end
-    end
-
     local function computeState(definition)
         if definition.command then
             return "command"
@@ -137,7 +125,6 @@ return function(context)
             local nextDef = util.copyTable(def)
             ensureState(nextDef, "config", "branch", branchName)
             requireCapability(nextDef, "branch", "branch", branchName)
-            ensureNotFinalized(nextDef, "branch", branchName)
             setExclusive(ensureSection(nextDef.config, "source"), "revision", "branch", branchName)
             return createBuilder(nextDef)
         end
@@ -148,7 +135,6 @@ return function(context)
             local nextDef = util.copyTable(def)
             ensureState(nextDef, "config", "ref", refName)
             requireCapability(nextDef, "ref", "ref", refName)
-            ensureNotFinalized(nextDef, "ref", refName)
             setExclusive(ensureSection(nextDef.config, "source"), "revision", "ref", refName)
             return createBuilder(nextDef)
         end
@@ -159,7 +145,6 @@ return function(context)
             local nextDef = util.copyTable(def)
             ensureState(nextDef, "config", "spoonZipPattern", pattern)
             requireCapability(nextDef, "spoonZipPattern", "spoonZipPattern", pattern)
-            ensureNotFinalized(nextDef, "spoonZipPattern", pattern)
             setExclusive(ensureSection(nextDef.config, "source"), "pattern", "spoonZipPattern", pattern)
             return createBuilder(nextDef)
         end
@@ -170,7 +155,6 @@ return function(context)
             local nextDef = util.copyTable(def)
             ensureState(nextDef, "config", "spoonFolderPattern", pattern)
             requireCapability(nextDef, "spoonFolderPattern", "spoonFolderPattern", pattern)
-            ensureNotFinalized(nextDef, "spoonFolderPattern", pattern)
             setExclusive(ensureSection(nextDef.config, "source"), "pattern", "spoonFolderPattern", pattern)
             return createBuilder(nextDef)
         end
@@ -181,7 +165,7 @@ return function(context)
             requireSpoonPattern(def)
 
             local nextDef = util.copyTable(def)
-            setExclusive(ensureSection(nextDef.config, "target"), "selection", "spoon", value)
+            setExclusive(ensureSection(nextDef.config, "source"), "path", "spoon", value)
             return createBuilder(nextDef)
         end
 
@@ -191,9 +175,10 @@ return function(context)
             local nextDef = util.copyTable(def)
             ensureState(nextDef, "config", "path", path)
             requireCapability(nextDef, "path", "path", path)
-            ensureNotFinalized(nextDef, "path", path)
 
             local source = ensureSection(nextDef.config, "source")
+            setExclusive(source, "path", "path", path)
+
             local patternMethod, patternValue = findFlatGroupValue(source, "pattern")
             if patternMethod then
                 error(string.format(
@@ -203,7 +188,6 @@ return function(context)
                 ), 3)
             end
 
-            setExclusive(source, "path", "path", path)
             return createBuilder(nextDef)
         end
 
@@ -231,7 +215,6 @@ return function(context)
             local nextDef = util.copyTable(def)
             ensureState(nextDef, "config", "releaseLatest")
             requireCapability(nextDef, "release", "releaseLatest")
-            ensureNotFinalized(nextDef, "releaseLatest")
             setExclusive(ensureSection(nextDef.config, "source"), "path", "releaseLatest", true)
             return createBuilder(nextDef)
         end
@@ -242,7 +225,6 @@ return function(context)
             local nextDef = util.copyTable(def)
             ensureState(nextDef, "config", "release", releaseName)
             requireCapability(nextDef, "release", "release", releaseName)
-            ensureNotFinalized(nextDef, "release", releaseName)
             setExclusive(ensureSection(nextDef.config, "source"), "path", "release", releaseName)
             return createBuilder(nextDef)
         end
