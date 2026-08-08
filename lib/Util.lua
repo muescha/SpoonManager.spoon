@@ -15,6 +15,23 @@ function Util.pathJoin(...)
     return path
 end
 
+-- Join URL segments without collapsing the "scheme://" slashes (unlike pathJoin).
+-- Uses select so nil segments (e.g. an unset path) are skipped, not truncated.
+function Util.joinUrl(...)
+    local url = ""
+    for i = 1, select("#", ...) do
+        local part = select(i, ...)
+        if part and part ~= "" then
+            if url == "" then
+                url = part
+            else
+                url = url:gsub("/+$", "") .. "/" .. part:gsub("^/+", "")
+            end
+        end
+    end
+    return url
+end
+
 function Util.copyTable(value)
     if type(value) ~= "table" then
         return value

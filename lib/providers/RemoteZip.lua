@@ -1,23 +1,6 @@
 return function(context)
     local util = context.util
 
-    -- Join URL segments without collapsing the "https://" scheme slashes.
-    -- Uses select so nil segments (e.g. an unset path) are skipped, not truncated.
-    local function joinUrl(...)
-        local url = ""
-        for i = 1, select("#", ...) do
-            local part = select(i, ...)
-            if part and part ~= "" then
-                if url == "" then
-                    url = part
-                else
-                    url = url:gsub("/+$", "") .. "/" .. part:gsub("^/+", "")
-                end
-            end
-        end
-        return url
-    end
-
     local RemoteZip = {
         name = "remoteZip",
         factoryName = "remoteZip",
@@ -60,7 +43,7 @@ return function(context)
 
         local url = source.url
         if source.zipFile then
-            url = joinUrl(source.url, source.selection_path, source.zipFile)
+            url = util.joinUrl(source.url, source.selection_path, source.zipFile)
         end
 
         return {
