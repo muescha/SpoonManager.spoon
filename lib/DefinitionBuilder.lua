@@ -24,7 +24,14 @@ return function(context)
     end
 
     local function setExclusive(container, group, method, value)
-        local existingMethod, existingValue = findFlatGroupValue(container, group)
+        local existingMethod, existingValue
+        if group == nil then
+            if container[method] ~= nil then
+                existingMethod, existingValue = method, container[method]
+            end
+        else
+            existingMethod, existingValue = findFlatGroupValue(container, group)
+        end
 
         if existingMethod then
             error(string.format(
@@ -34,7 +41,11 @@ return function(context)
             ), 3)
         end
 
-        container[group .. "_" .. method] = value
+        if group == nil then
+            container[method] = value
+        else
+            container[group .. "_" .. method] = value
+        end
     end
 
     local function computeState(definition)
@@ -236,16 +247,7 @@ return function(context)
             ensureState(nextDef, "config", "zipFile", fileName)
             requireCapability(nextDef, "zipFile", "zipFile", fileName)
 
-            local source = ensureSection(nextDef.config, "source")
-            if source.zipFile then
-                error(string.format(
-                    "%s already set; cannot call %s.",
-                    util.createLabel("zipFile", source.zipFile),
-                    util.createLabel("zipFile", fileName)
-                ), 3)
-            end
-
-            source.zipFile = fileName
+            setExclusive(ensureSection(nextDef.config, "source"), nil, "zipFile", fileName)
             return createBuilder(nextDef)
         end
 
