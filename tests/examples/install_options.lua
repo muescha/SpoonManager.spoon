@@ -6,7 +6,7 @@ return function(T)
                 .onLocalChanges(T.SpoonManager.options.localChanges.backup)
                 .command("install").explain()
 
-        T.assertEqual(explanation.config.options.onLocalChanges, T.SpoonManager.options.localChanges.backup)
+        T.assertEqual(explanation.config.installOptions.onLocalChanges, T.SpoonManager.options.localChanges.backup)
         T.assertEqual(explanation.command.options.onLocalChanges, T.SpoonManager.options.localChanges.backup)
         T.assertMatchesJson("examples/install_options.lua.on-local-changes.explain.json", explanation)
     end)

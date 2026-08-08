@@ -18,7 +18,7 @@
     }
   },
   "config": {
-    "options": {
+    "installOptions": {
       "localChanges_onLocalChanges": "backup",
       "onLocalChanges": "backup"
     },

@@ -260,8 +260,8 @@ return function(context)
 
             local nextDef = util.copyTable(def)
             ensureState(nextDef, "config", "onLocalChanges", behavior)
-            setExclusive(ensureSection(nextDef.config, "options"), "localChanges", "onLocalChanges", behavior)
-            nextDef.config.options.onLocalChanges = behavior
+            setExclusive(ensureSection(nextDef.config, "installOptions"), "localChanges", "onLocalChanges", behavior)
+            nextDef.config.installOptions.onLocalChanges = behavior
             return createBuilder(nextDef)
         end
 

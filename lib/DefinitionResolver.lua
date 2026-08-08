@@ -64,7 +64,7 @@ return function(context)
                 name = resolved.installName,
                 path = resolved.installName and paths.targetPath(resolved.installName) or nil,
             },
-            options = util.mergeTables(manager.installOptions, config.options or {}),
+            options = util.mergeTables(manager.installOptions, config.installOptions or {}),
             use = util.copyTable(config.use),
         }
 
