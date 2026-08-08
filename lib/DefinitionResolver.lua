@@ -73,9 +73,23 @@ return function(context)
         return true
     end
 
-    -- Run a provider's declarative resolveChecks (logical cross-field checks)
-    -- before handing the config to the provider's own resolution rules.
+    -- Untrusted path-ish fields sanitized for every provider (blanket policy);
+    -- covers configs that bypass the builder setters (from.config / a manifest).
+    local safePathFields = {
+        { ref = "source.selection_path", label = "Source path" },
+        { ref = "extract.useFolder", label = "Folder path" },
+    }
+
+    -- Run the blanket path-safety pass plus a provider's declarative resolveChecks
+    -- (logical cross-field checks) before handing the config to its resolution rules.
     local function runResolveChecks(provider, config)
+        for _, entry in ipairs(safePathFields) do
+            local value = readRef(config, entry.ref)
+            if value then
+                util.requireSafeRelPath(value, entry.label)
+            end
+        end
+
         for _, check in ipairs(provider.resolveChecks or {}) do
             if whenHolds(config, check.when) and not checkPasses(config, check) then
                 error(check.message, 0)
@@ -92,15 +106,6 @@ return function(context)
         local source = config.source or {}
         local extract = config.extract or {}
         local naming = config.naming or {}
-
-        -- Sanitize untrusted path-ish fields here so it also covers configs that
-        -- bypass the builder setters (from.config / a future manifest).
-        if source.selection_path then
-            util.requireSafeRelPath(source.selection_path, "Source path")
-        end
-        if extract.useFolder then
-            util.requireSafeRelPath(extract.useFolder, "Folder path")
-        end
         local selectedSpoonName = nameResolver.infer(source.selection_spoon, "selected Spoon name")
         local installName = nameResolver.infer(naming.withName, "explicit Spoon name")
             or selectedSpoonName
