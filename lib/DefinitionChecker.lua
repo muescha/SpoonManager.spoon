@@ -19,28 +19,31 @@ return function(context)
         return util.findFlatGroupValue(config[section] or {}, group) ~= nil
     end
 
+    -- Returns the ref that made the condition hold (truthy), else nil. The matched
+    -- ref lets a message reference the triggering field via the {when} placeholder.
     local function whenHolds(config, when)
         if when.field then
-            return readRef(config, when.field) ~= nil
+            return readRef(config, when.field) ~= nil and when.field or nil
         end
 
         if when.anyField then
             for _, ref in ipairs(when.anyField) do
                 if readRef(config, ref) ~= nil then
-                    return true
+                    return ref
                 end
             end
+            return nil
         end
 
         if when.isZip then
-            return util.isZipPath(readRef(config, when.isZip))
+            return util.isZipPath(readRef(config, when.isZip)) and when.isZip or nil
         end
 
         if when.notZip then
-            return not util.isZipPath(readRef(config, when.notZip))
+            return not util.isZipPath(readRef(config, when.notZip)) and when.notZip or nil
         end
 
-        return false
+        return nil
     end
 
     local function checkPasses(config, check)
@@ -80,6 +83,15 @@ return function(context)
         { ref = "source.zipFile", label = "ZIP file", check = util.requireZipPath },
     }
 
+    -- Expand {ref} placeholders in a check message to a setter label ".m('value')".
+    -- {when} resolves to the ref that triggered the check (e.g. the set release field).
+    local function expandMessage(message, config, whenRef)
+        return (message:gsub("{(.-)}", function(token)
+            local ref = token == "when" and whenRef or token
+            return util.createLabel(ref, readRef(config, ref))
+        end))
+    end
+
     -- Run the blanket input-safety pass plus a provider's declarative resolveChecks
     -- (logical cross-field checks) before handing the config to its resolution rules.
     function DefinitionChecker.run(provider, config)
@@ -91,8 +103,9 @@ return function(context)
         end
 
         for _, check in ipairs(provider.resolveChecks or {}) do
-            if whenHolds(config, check.when) and not checkPasses(config, check) then
-                error(check.message, 0)
+            local whenRef = whenHolds(config, check.when)
+            if whenRef and not checkPasses(config, check) then
+                error(expandMessage(check.message, config, whenRef), 0)
             end
         end
     end

@@ -188,19 +188,19 @@ return function(context)
             {
                 when = { field = "selection_spoon" },
                 forbid = { field = "zipFile" },
-                message = "GitHub spoon selection conflicts with .zipFile(...); "
-                    .. "use a Spoon pattern (.spoonZipPattern/.spoonFolderPattern) instead of .zipFile(...).",
+                message = "GitHub {when} conflicts with {zipFile}; "
+                    .. "use a Spoon pattern (.spoonZipPattern/.spoonFolderPattern) instead.",
             },
             {
                 when = { field = "selection_spoon" },
                 require = { group = "pattern" },
-                message = "GitHub spoon selection requires .spoonZipPattern(...) or .spoonFolderPattern(...); "
+                message = "GitHub {when} requires .spoonZipPattern(...) or .spoonFolderPattern(...); "
                     .. "or use from.spoonRepo(...)/from.spoonRepoZip(...).",
             },
             {
                 when = { anyField = { "selection_release", "selection_releaseLatest" } },
                 require = { field = "zipFile" },
-                message = "GitHub release sources require .zipFile(...).",
+                message = "GitHub {when} requires .zipFile(...).",
             },
         },
 
