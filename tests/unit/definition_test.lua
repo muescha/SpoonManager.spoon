@@ -246,6 +246,15 @@ return function(T)
         end, "GitHub release sources require %.zipFile%(%.%.%.%)%.")
     end)
 
+    T.test("definition resolver rejects spoon selection with zip file", function()
+        T.assertError(function()
+            T.SpoonManager.from.spoonRepoZip("owner/repo")
+                .spoon("A")
+                .zipFile("A.zip")
+                .resolve()
+        end, "GitHub spoon selection conflicts with %.zipFile%(%.%.%.%)")
+    end)
+
     T.test("definition resolver rejects unknown source type", function()
         T.assertError(function()
             T.SpoonManager.from.config({

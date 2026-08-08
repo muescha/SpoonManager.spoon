@@ -218,12 +218,27 @@ return function(context)
         return source
     end
 
+    -- Logical (cross-field) checks. Step 2's exclusive "selection" group already
+    -- keeps spoon/path/release/releaseLatest mutually exclusive; the only free
+    -- modifier left is zipFile, so the residual ambiguity is spoon + zipFile.
+    local function validateSource(source)
+        if source.selection_spoon and source.zipFile then
+            error(
+                "GitHub spoon selection conflicts with .zipFile(...); use a Spoon pattern "
+                    .. "(.spoonZipPattern/.spoonFolderPattern) instead of .zipFile(...).",
+                2
+            )
+        end
+    end
+
     function GitHub.resolve(config, options)
         local ruleOptions = {
             source = config.source or {},
             extract = config.extract or {},
             selectedSpoonName = options.selectedSpoonName,
         }
+
+        validateSource(ruleOptions.source)
 
         for _, rule in ipairs(resolutionRules) do
             local resolved = rule(ruleOptions)
