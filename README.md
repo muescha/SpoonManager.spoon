@@ -361,7 +361,7 @@ The exported config table keeps user-provided values close to the builder calls:
         repository = "Hammerspoon/Spoons",
         revision_branch = "master",
         pattern_spoonZipPattern = "Spoons/{name}.spoon.zip",
-        path_spoon = "Emojis",
+        selection_spoon = "Emojis",
     },
 }
 ```
@@ -748,7 +748,7 @@ repo.spoon("MySpoon")
 
 Creates a Spoon builder from a known Spoon name using a configured Spoon pattern.
 
-In exported configs, this stores the selected Spoon in `source.path_spoon`.
+In exported configs, this stores the selected Spoon in `source.selection_spoon`.
 
 With `from.default`, this resolves directly to the official Spoon ZIP:
 
@@ -1206,7 +1206,7 @@ Example output:
         baseUrl = "https://github.com",
         defaultBranch = "master",
         pattern_spoonZipPattern = "Spoons/{name}.spoon.zip",
-        path_spoon = "Emojis",
+        selection_spoon = "Emojis",
     },
     use = {
         start = true,
@@ -1289,7 +1289,7 @@ Before resolving, the output contains only `config`:
             type = "github",
             repository = "Hammerspoon/Spoons",
             pattern_spoonZipPattern = "Spoons/{name}.spoon.zip",
-            path_spoon = "Emojis",
+            selection_spoon = "Emojis",
         },
     },
 }

@@ -39,11 +39,11 @@ return function(T)
                 success = true,
                 action = action,
                 name = (
-                    source.path_spoon
+                    source.selection_spoon
                     or target.name_withName
                     or extract.folder
                     or source.zipFile
-                    or source.path_path
+                    or source.selection_path
                 ) or "unknown",
             }
         end
@@ -110,13 +110,13 @@ return function(T)
             T.assertTrue(installResult.success)
             T.assertEqual(#calls, 2)
             T.assertEqual(calls[1].action, "install")
-            T.assertEqual(calls[2].config.source.path_spoon, "TimeMachineProgress")
+            T.assertEqual(calls[2].config.source.selection_spoon, "TimeMachineProgress")
 
             local updateResult = manager.update()
             T.assertTrue(updateResult.success)
             T.assertEqual(#calls, 4)
             T.assertEqual(calls[3].action, "update")
-            T.assertEqual(calls[4].config.source.path_spoon, "TimeMachineProgress")
+            T.assertEqual(calls[4].config.source.selection_spoon, "TimeMachineProgress")
         end)
     end)
 
@@ -130,7 +130,7 @@ return function(T)
             manager.install()
 
             T.assertEqual(#calls, 1)
-            T.assertEqual(calls[1].config.source.path_spoon, "Emojis")
+            T.assertEqual(calls[1].config.source.selection_spoon, "Emojis")
         end)
     end)
 
@@ -143,13 +143,13 @@ return function(T)
 
             T.assertEqual(#calls, 2)
             T.assertEqual(#manager.definitions, 2)
-            T.assertEqual(manager.definitions[1].source.path_spoon, "Emojis")
-            T.assertEqual(manager.definitions[2].source.path_spoon, "TimeMachineProgress")
+            T.assertEqual(manager.definitions[1].source.selection_spoon, "Emojis")
+            T.assertEqual(manager.definitions[2].source.selection_spoon, "TimeMachineProgress")
 
             manager.update()
             T.assertEqual(#calls, 4)
             T.assertEqual(calls[3].action, "update")
-            T.assertEqual(calls[4].config.source.path_spoon, "TimeMachineProgress")
+            T.assertEqual(calls[4].config.source.selection_spoon, "TimeMachineProgress")
         end)
     end)
 
@@ -161,12 +161,12 @@ return function(T)
 
             T.assertEqual(#calls, 1)
             T.assertEqual(#manager.definitions, 1)
-            T.assertEqual(manager.definitions[1].source.path_spoon, "Emojis")
+            T.assertEqual(manager.definitions[1].source.selection_spoon, "Emojis")
 
             manager.update()
             T.assertEqual(#calls, 2)
             T.assertEqual(calls[2].action, "update")
-            T.assertEqual(calls[2].config.source.path_spoon, "Emojis")
+            T.assertEqual(calls[2].config.source.selection_spoon, "Emojis")
         end)
     end)
 
@@ -189,7 +189,7 @@ return function(T)
             )
 
             T.assertEqual(#manager.definitions, 1)
-            T.assertEqual(manager.definitions[1].source.path_spoon, "Emojis")
+            T.assertEqual(manager.definitions[1].source.selection_spoon, "Emojis")
             T.assertEqual(manager.definitions[1].use.start, false)
         end)
     end)

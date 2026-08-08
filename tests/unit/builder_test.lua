@@ -26,7 +26,7 @@ return function(T)
                     repository = "Hammerspoon/Spoons",
                     baseUrl = "https://github.com",
                     revision_branch = "master",
-                    path_path = "Source/WindowSigils.spoon",
+                    selection_path = "Source/WindowSigils.spoon",
                 },
                 target = {
                     name_withName = "WindowSigils",
@@ -50,7 +50,7 @@ return function(T)
                     baseUrl = "https://github.com",
                     revision_branch = "master",
                     pattern_spoonFolderPattern = "Source/{name}.spoon",
-                    path_spoon = "WindowSigils",
+                    selection_spoon = "WindowSigils",
                 },
             }
         )
@@ -71,7 +71,7 @@ return function(T)
                     baseUrl = "https://github.com",
                     revision_branch = "master",
                     pattern_spoonZipPattern = "Spoons/{name}.spoon.zip",
-                    path_spoon = "WindowSigils",
+                    selection_spoon = "WindowSigils",
                 },
             }
         )
@@ -112,7 +112,7 @@ return function(T)
                     provider = "github",
                     repository = "owner/TestSpoon.spoon",
                     baseUrl = "https://github.com",
-                    path_releaseLatest = true,
+                    selection_releaseLatest = true,
                     zipFile = "TestSpoon.zip",
                 },
                 target = {

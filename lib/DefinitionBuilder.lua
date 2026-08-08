@@ -165,7 +165,7 @@ return function(context)
             requireSpoonPattern(def)
 
             local nextDef = util.copyTable(def)
-            setExclusive(ensureSection(nextDef.config, "source"), "path", "spoon", value)
+            setExclusive(ensureSection(nextDef.config, "source"), "selection", "spoon", value)
             return createBuilder(nextDef)
         end
 
@@ -177,7 +177,7 @@ return function(context)
             requireCapability(nextDef, "path", "path", path)
 
             local source = ensureSection(nextDef.config, "source")
-            setExclusive(source, "path", "path", path)
+            setExclusive(source, "selection", "path", path)
 
             local patternMethod, patternValue = findFlatGroupValue(source, "pattern")
             if patternMethod then
@@ -215,7 +215,7 @@ return function(context)
             local nextDef = util.copyTable(def)
             ensureState(nextDef, "config", "releaseLatest")
             requireCapability(nextDef, "release", "releaseLatest")
-            setExclusive(ensureSection(nextDef.config, "source"), "path", "releaseLatest", true)
+            setExclusive(ensureSection(nextDef.config, "source"), "selection", "releaseLatest", true)
             return createBuilder(nextDef)
         end
 
@@ -225,7 +225,7 @@ return function(context)
             local nextDef = util.copyTable(def)
             ensureState(nextDef, "config", "release", releaseName)
             requireCapability(nextDef, "release", "release", releaseName)
-            setExclusive(ensureSection(nextDef.config, "source"), "path", "release", releaseName)
+            setExclusive(ensureSection(nextDef.config, "source"), "selection", "release", releaseName)
             return createBuilder(nextDef)
         end
 

@@ -27,8 +27,8 @@ return function(context)
 
         if source.zipFile then
             local path = source.zipFile
-            if source.path_path then
-                path = util.pathJoin(source.path_path, source.zipFile)
+            if source.selection_path then
+                path = util.pathJoin(source.selection_path, source.zipFile)
             end
 
             return {
@@ -38,10 +38,10 @@ return function(context)
             }
         end
 
-        if source.path_path then
+        if source.selection_path then
             return {
                 sourceKind = "folder",
-                localPath = util.pathJoin(util.localPath(source.root), source.path_path),
+                localPath = util.pathJoin(util.localPath(source.root), source.selection_path),
             }
         end
 

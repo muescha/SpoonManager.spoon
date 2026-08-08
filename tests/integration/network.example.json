@@ -29,7 +29,7 @@
           "repository": "Hammerspoon/Spoons",
           "baseUrl": "https://github.com",
           "revision_branch": "master",
-          "path_path": "Source/WindowSigils.spoon"
+          "selection_path": "Source/WindowSigils.spoon"
         },
         "target": {
           "name_withName": "WindowSigils"
@@ -53,7 +53,7 @@
           "baseUrl": "https://github.com",
           "revision_branch": "master",
           "pattern_spoonFolderPattern": "Source/{name}.spoon",
-          "path_spoon": "WindowSigils"
+          "selection_spoon": "WindowSigils"
         }
       },
       "expect": {
@@ -74,7 +74,7 @@
           "baseUrl": "https://github.com",
           "revision_branch": "master",
           "pattern_spoonZipPattern": "Spoons/{name}.spoon.zip",
-          "path_spoon": "WindowSigils"
+          "selection_spoon": "WindowSigils"
         }
       },
       "expect": {
@@ -115,7 +115,7 @@
           "provider": "github",
           "repository": "fork-my-spoons/gitlab-merge-requests.spoon",
           "baseUrl": "https://github.com",
-          "path_releaseLatest": true,
+          "selection_releaseLatest": true,
           "zipFile": "gitlab-merge-requests.spoon.zip"
         }
       },
@@ -135,7 +135,7 @@
           "provider": "github",
           "repository": "fork-my-spoons/gitlab-merge-requests.spoon",
           "baseUrl": "https://github.com",
-          "path_release": "v1.1",
+          "selection_release": "v1.1",
           "zipFile": "gitlab-merge-requests.spoon.zip"
         }
       },

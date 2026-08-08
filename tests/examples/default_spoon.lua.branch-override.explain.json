@@ -19,11 +19,11 @@
     "source": {
       "baseUrl": "https://github.com",
       "defaultBranch": "master",
-      "path_spoon": "Emojis",
       "pattern_spoonZipPattern": "Spoons/{name}.spoon.zip",
       "provider": "github",
       "repository": "Hammerspoon/Spoons",
       "revision_branch": "main",
+      "selection_spoon": "Emojis",
       "type": "github"
     }
   },

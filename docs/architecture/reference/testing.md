@@ -54,7 +54,7 @@ test("default spoon zip", function()
     assertEqual(config.source.type, "github")
     assertEqual(config.source.revision_branch, "master")
     assertEqual(config.source.pattern_spoonZipPattern, "Spoons/{name}.spoon.zip")
-    assertEqual(config.source.path_spoon, "Emojis")
+    assertEqual(config.source.selection_spoon, "Emojis")
 end)
 ```
 
@@ -85,7 +85,7 @@ The golden file is readable by itself:
     "baseUrl": "https://github.com",
     "revision_branch": "master",
     "pattern_spoonZipPattern": "Spoons/{name}.spoon.zip",
-    "path_spoon": "Emojis"
+    "selection_spoon": "Emojis"
   },
   "resolved": {
     "installName": "Emojis",
@@ -193,7 +193,7 @@ Example normalized installed snapshot:
         "baseUrl": "https://github.com",
         "revision_branch": "master",
         "pattern_spoonZipPattern": "Spoons/{name}.spoon.zip",
-        "path_spoon": "Emojis"
+        "selection_spoon": "Emojis"
       }
     },
     "resolved": {
@@ -347,7 +347,7 @@ More cases:
 - `spoon(...)` then `path(...)`
 - `path(...)` then `path(...)`
 - `withName(...)` then `withName(...)`
-- `spoon(...)` then `path(...)` (the source `path` group is mutually exclusive)
+- `spoon(...)` then `path(...)` (the source `selection` group is mutually exclusive)
 
 ### DefinitionResolver Commands
 
@@ -478,7 +478,7 @@ return function(test, SpoonManager)
                 .spoon("TimeMachineProgress")
                 .toConfig()
 
-        assertEqual(config.source.path_spoon, "TimeMachineProgress")
+        assertEqual(config.source.selection_spoon, "TimeMachineProgress")
     end)
 end
 ```

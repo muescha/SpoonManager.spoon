@@ -33,7 +33,7 @@ Example:
             repository = "Hammerspoon/Spoons",
             revision_branch = "master",
             pattern_spoonFolderPattern = "Source/{name}.spoon",
-            path_spoon = "Emojis",
+            selection_spoon = "Emojis",
         },
     },
     resolved = {

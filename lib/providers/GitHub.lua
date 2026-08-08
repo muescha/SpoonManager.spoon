@@ -48,8 +48,8 @@ return function(context)
     end
 
     local function resolveRelease(ruleOptions)
-        local release = ruleOptions.source.path_release
-            or (ruleOptions.source.path_releaseLatest and "latest")
+        local release = ruleOptions.source.selection_release
+            or (ruleOptions.source.selection_releaseLatest and "latest")
 
         if not release then
             return nil
@@ -77,8 +77,8 @@ return function(context)
             return nil
         end
 
-        local path = ruleOptions.source.path_path
-            and util.pathJoin(ruleOptions.source.path_path, ruleOptions.source.zipFile)
+        local path = ruleOptions.source.selection_path
+            and util.pathJoin(ruleOptions.source.selection_path, ruleOptions.source.zipFile)
             or ruleOptions.source.zipFile
 
         return {
@@ -89,20 +89,20 @@ return function(context)
     end
 
     local function resolvePath(ruleOptions)
-        if not ruleOptions.source.path_path then
+        if not ruleOptions.source.selection_path then
             return nil
         end
 
         return {
             sourceKind = "zip",
-            extractFolder = ruleOptions.source.path_path,
+            extractFolder = ruleOptions.source.selection_path,
             url = archiveUrl(ruleOptions.source),
         }
     end
 
     local function resolveSpoonZipPattern(ruleOptions)
         if not (
-            ruleOptions.source.path_spoon
+            ruleOptions.source.selection_spoon
             and ruleOptions.source.pattern_spoonZipPattern
         ) then
             return nil
@@ -122,7 +122,7 @@ return function(context)
 
     local function resolveSpoonFolderPattern(ruleOptions)
         if not (
-            ruleOptions.source.path_spoon
+            ruleOptions.source.selection_spoon
             and ruleOptions.source.pattern_spoonFolderPattern
         ) then
             return nil

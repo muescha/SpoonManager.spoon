@@ -18,7 +18,7 @@ return function(T)
                 .path("Source/DeepFolder.spoon")
                 .command("install").explain()
 
-        T.assertEqual(explanation.config.source.path_path, "Source/DeepFolder.spoon")
+        T.assertEqual(explanation.config.source.selection_path, "Source/DeepFolder.spoon")
         T.assertEqual(explanation.command.source.kind, "folder")
         T.assertEqual(explanation.command.source.path, "/Users/test/Projects/SpoonRepo/Source/DeepFolder.spoon")
         T.assertEqual(explanation.command.target.name, "DeepFolder")

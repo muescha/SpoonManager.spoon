@@ -54,7 +54,7 @@ return function(context)
 
         return NameResolver.infer(source.name, "source name")
             or NameResolver.infer(source.zipFile, "ZIP file")
-            or NameResolver.infer(source.path_path, "source path")
+            or NameResolver.infer(source.selection_path, "source path")
             or NameResolver.infer(source.file, "source file")
             or NameResolver.infer(source.root, "source root")
             or NameResolver.infer(source.url, "URL")

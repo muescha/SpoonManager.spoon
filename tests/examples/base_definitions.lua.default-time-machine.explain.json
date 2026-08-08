@@ -19,10 +19,10 @@
     "source": {
       "baseUrl": "https://github.com",
       "defaultBranch": "master",
-      "path_spoon": "TimeMachineProgress",
       "pattern_spoonZipPattern": "Spoons/{name}.spoon.zip",
       "provider": "github",
       "repository": "Hammerspoon/Spoons",
+      "selection_spoon": "TimeMachineProgress",
       "type": "github"
     }
   },
