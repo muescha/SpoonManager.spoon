@@ -144,24 +144,24 @@ end
 -- extract folders, which may arrive from a config/manifest and reach pathJoin.
 -- Build a field error message from a reason clause. With a sourceRef, prefix with
 -- the setter label ".method('value')"; without one, use the plain label and append
--- ": value". So createMessage(" must point to a .zip file", "ZIP file", v, ref).
+-- ": value". So createMessage("must point to a .zip file", "ZIP file", v, ref).
 local function createMessage(reason, label, value, sourceRef)
     if sourceRef then
-        return Util.createLabel(sourceRef, value) .. reason
+        return Util.createLabel(sourceRef, value) .. " " .. reason
     end
 
-    return label .. reason .. ": " .. tostring(value)
+    return label .. " " .. reason .. ": " .. tostring(value)
 end
 
 function Util.requireSafeRelPath(value, label, sourceRef)
     Util.requireString(value, label)
 
     if value:find("%.%.") then
-        error(createMessage(" must not contain '..'", label or "Path", value, sourceRef), 3)
+        error(createMessage("must not contain '..'", label or "Path", value, sourceRef), 3)
     end
 
     if value:find("\\", 1, true) then
-        error(createMessage(" must not contain a backslash", label or "Path", value, sourceRef), 3)
+        error(createMessage("must not contain a backslash", label or "Path", value, sourceRef), 3)
     end
 
     return value
@@ -173,7 +173,7 @@ function Util.requireSafeFileName(value, label, sourceRef)
     Util.requireString(value, label)
 
     if value:find("[/\\]") then
-        error(createMessage(" must be a file name, not a path", label or "File name", value, sourceRef), 3)
+        error(createMessage("must be a file name, not a path", label or "File name", value, sourceRef), 3)
     end
 
     return value
@@ -233,7 +233,7 @@ function Util.requireZipPath(value, label, sourceRef)
     Util.requireString(value, label or "ZIP source")
 
     if not Util.isZipPath(value) then
-        error(createMessage(" must point to a .zip file", label or "ZIP source", value, sourceRef), 3)
+        error(createMessage("must point to a .zip file", label or "ZIP source", value, sourceRef), 3)
     end
 
     return value
