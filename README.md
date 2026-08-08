@@ -651,6 +651,46 @@ spoon.SpoonManager.from.default
     .install()
 ```
 
+### Provider support
+
+Not every builder method works with every source. Each provider declares which
+methods it supports (its `capabilities`), and calling an unsupported method
+raises an error such as `localZip source does not support .zipFile`.
+
+The `from.*` factories map to these four providers:
+
+| Factory | Provider |
+|---------|----------|
+| `from.github`, `from.spoonRepo`, `from.spoonRepoZip`, `from.default` | `github` |
+| `from.localFolder` | `localFolder` |
+| `from.localZip` | `localZip` |
+| `from.remoteZip` | `remoteZip` |
+
+Provider-gated builder methods:
+
+| Method | `github` | `localFolder` | `localZip` | `remoteZip` |
+|--------|:--------:|:-------------:|:----------:|:-----------:|
+| `.branch(name)` | ✓ | — | — | — |
+| `.ref(name)` | ✓ | — | — | — |
+| `.path(path)` | ✓ | ✓ | — | — |
+| `.zipFile(name)` | ✓ | ✓ | — | — |
+| `.release(name)` | ✓ | — | — | — |
+| `.releaseLatest()` | ✓ | — | — | — |
+| `.spoonZipPattern(pattern)` | ✓ | — | — | — |
+| `.spoonFolderPattern(pattern)` | ✓ | — | — | — |
+| `.spoon(name)` | ✓ \* | — | — | — |
+| `.useFolder(path)` | ✓ | ✓ | ✓ | ✓ |
+
+\* `.spoon(name)` has no capability flag of its own; it needs a Spoon pattern to
+resolve (`.spoonZipPattern(...)`/`.spoonFolderPattern(...)`, or a preset such as
+`from.spoonRepo`/`from.spoonRepoZip`), so in practice it is usable only with the
+`github` provider.
+
+Provider-independent methods work on every source: `.withName(name)`,
+`.use(options)`, `.conflictStrategy(behavior)`, and the lifecycle calls
+`.add()`, `.install()`, `.update()`, `.resolve()`, `.command(action)`,
+`.toConfig()`, and `.explain()`.
+
 ### `builder.branch(name)`
 
 Returns a new builder using the given branch name.
