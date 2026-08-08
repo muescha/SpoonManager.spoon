@@ -813,12 +813,19 @@ spoon.SpoonManager.from.github("muescha/SpoonRepo")
     .install()
 ```
 
-Without `spoonZipPattern(...)` or `spoonFolderPattern(...)`, `.spoon(name)` is rejected:
+`.spoon(name)` only stores the selection; the pattern is applied when the
+builder resolves, so `.spoon(...)` and the pattern may be set in either order.
+Without `spoonZipPattern(...)` or `spoonFolderPattern(...)`, resolving is
+rejected (at `.resolve()`, `.command(...)`, `.install()`, or `.update()`):
 
 ```lua
 spoon.SpoonManager.from.github("muescha/SpoonRepo")
-    .spoon("MySpoon") -- error
+    .spoon("MySpoon")
+    .install() -- error: GitHub spoon selection requires .spoonZipPattern(...) or .spoonFolderPattern(...)
 ```
+
+Combining `.spoon(...)` with `.zipFile(...)` is likewise rejected, because a raw
+ZIP would bypass the Spoon pattern.
 
 Use `.path(...)` for an explicit repository folder, or call `.install()` directly
 when the repository root itself is the Spoon:
