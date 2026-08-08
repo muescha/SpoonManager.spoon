@@ -89,9 +89,9 @@ return function(context)
             return nil
         end
 
-        -- Hidden feature (principle of least astonishment): without a .zipFile(...),
-        -- .useFolder() composes onto .path() as a deeper folder inside the archive,
-        -- so path("a").useFolder("b") extracts "a/b". (With .zipFile(...) the path is
+        -- Principle of least astonishment: without a .zipFile(...), .useFolder()
+        -- composes onto .path() as a deeper folder inside the archive, so
+        -- path("a").useFolder("b") extracts "a/b". (With .zipFile(...) the path is
         -- only a URL prefix and .useFolder() is handled by resolveZipFile instead.)
         local extractFolder = ruleOptions.extract.useFolder
             and util.pathJoin(ruleOptions.source.selection_path, ruleOptions.extract.useFolder)

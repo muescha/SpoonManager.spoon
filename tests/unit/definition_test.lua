@@ -340,7 +340,7 @@ return function(T)
     T.test("definition resolver composes github path with use folder", function()
         local config =
             T.SpoonManager.from.github("owner/repo")
-                .path("workingdir/myspoons")
+                .path("out/myspoons")
                 .useFolder("Spoon1.spoon")
                 .toConfig()
         local resolved = T.context.definitionResolver.resolveFromDefinition({
@@ -348,7 +348,7 @@ return function(T)
         })
 
         T.assertEqual(resolved.sourceKind, "zip")
-        T.assertEqual(resolved.extractFolder, "workingdir/myspoons/Spoon1.spoon")
+        T.assertEqual(resolved.extractFolder, "out/myspoons/Spoon1.spoon")
     end)
 
     T.test("definition resolver allows github path with zip file and use folder", function()

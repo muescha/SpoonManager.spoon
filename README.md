@@ -909,6 +909,27 @@ spoon.SpoonManager.from.github("muescha/SpoonRepo")
     .install()
 ```
 
+#### Composing `.path()` with `.useFolder()`
+
+For GitHub sources without a `.zipFile(...)`, `.path()` points at a directory in
+the repository and `.useFolder()` selects a folder inside it. They compose, so
+`.path("out/myspoons").useFolder("Spoon1.spoon")` extracts `out/myspoons/Spoon1.spoon`.
+
+This lets a shared base builder point at a directory and derive several Spoons
+from it — a manual alternative to `.spoonFolderPattern(...)` + `.spoon(...)`:
+
+```lua
+local root =
+    spoon.SpoonManager.from.github("muescha/SpoonRepo")
+        .path("out/myspoons")
+
+root.useFolder("Spoon1.spoon").install()
+root.useFolder("Spoon2.spoon").install()
+```
+
+With a `.zipFile(...)`, `.path()` is instead only a directory prefix for the ZIP
+URL, and `.useFolder()` selects a folder inside the downloaded ZIP.
+
 ### `builder.releaseLatest()`
 
 Returns a new builder for the latest stable GitHub release.
