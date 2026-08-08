@@ -90,7 +90,6 @@ return function(context)
             method = "branch",
             validate = util.requireString,
             label = "Branch name",
-            capability = "branch",
             section = "source",
             group = "revision",
         },
@@ -98,7 +97,6 @@ return function(context)
             method = "ref",
             validate = util.requireString,
             label = "Ref name",
-            capability = "ref",
             section = "source",
             group = "revision",
         },
@@ -106,7 +104,6 @@ return function(context)
             method = "spoonZipPattern",
             validate = util.requireZipPath,
             label = "Spoon ZIP pattern",
-            capability = "spoonZipPattern",
             section = "source",
             group = "pattern",
         },
@@ -114,7 +111,6 @@ return function(context)
             method = "spoonFolderPattern",
             validate = util.requireString,
             label = "Spoon folder pattern",
-            capability = "spoonFolderPattern",
             section = "source",
             group = "pattern",
         },
@@ -122,6 +118,7 @@ return function(context)
             method = "spoon",
             validate = util.requireString,
             label = "Spoon name",
+            capability = false,
             section = "source",
             group = "selection",
         },
@@ -129,14 +126,12 @@ return function(context)
             method = "release",
             validate = util.requireString,
             label = "Release name",
-            capability = "release",
             section = "source",
             group = "selection",
         },
         {
             method = "releaseLatest",
             fixedValue = true,
-            capability = "release",
             section = "source",
             group = "selection",
         },
@@ -144,24 +139,24 @@ return function(context)
             method = "zipFile",
             validate = requireFileName,
             label = "ZIP file",
-            capability = "zipFile",
             section = "source",
         },
         {
             method = "useFolder",
             validate = util.requireSafeRelPath,
             label = "Folder path",
-            capability = "useFolder",
             section = "extract",
         },
         {
             method = "withName",
             validate = util.requireString,
             label = "Spoon name",
+            capability = false,
             section = "naming",
         },
         {
             method = "conflictStrategy",
+            capability = false,
             section = "installOptions",
             validate = function(value)
                 assert(manager._isConflictStrategy(value), "Invalid conflict strategy: " .. tostring(value))
@@ -202,8 +197,9 @@ return function(context)
 
                 local nextDef = util.copyTable(def)
                 ensureState(nextDef, "config", spec.method, value)
-                if spec.capability then
-                    requireCapability(nextDef, spec.capability, spec.method, value)
+                -- Capability defaults to the method name; set capability = false to skip.
+                if spec.capability ~= false then
+                    requireCapability(nextDef, spec.method, spec.method, value)
                 end
                 setExclusive(ensureSection(nextDef.config, spec.section), spec.group, spec.method, value)
                 return createBuilder(nextDef)

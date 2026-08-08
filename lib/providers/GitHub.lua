@@ -154,6 +154,7 @@ return function(context)
             path = true,
             zipFile = true,
             release = true,
+            releaseLatest = true,
             useFolder = true,
             spoonZipPattern = true,
             spoonFolderPattern = true,
