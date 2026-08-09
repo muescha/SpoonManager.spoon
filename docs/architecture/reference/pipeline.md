@@ -140,6 +140,7 @@ sequenceDiagram
   U->>B: from.github(...).spoon(...)
   B->>B: build config
   B->>Rz: resolve()
+  Rz->>Rz: DefinitionChecker.run (validate config + provider resolveChecks)
   Rz-->>B: resolved (sourceKind, url, name)
   B->>Cmd: command("install" / "update")
   Cmd-->>B: executable task

@@ -855,7 +855,7 @@ rejected (at `.resolve()`, `.command(...)`, `.install()`, or `.update()`):
 ```lua
 spoon.SpoonManager.from.github("muescha/SpoonRepo")
     .spoon("MySpoon")
-    .install() -- error: GitHub spoon selection requires .spoonZipPattern(...) or .spoonFolderPattern(...)
+    .install() -- error: GitHub .spoon('MySpoon') requires .spoonZipPattern(...) or .spoonFolderPattern(...)
 ```
 
 Combining `.spoon(...)` with `.zipFile(...)` is likewise rejected, because a raw
@@ -1683,6 +1683,7 @@ SpoonManager.spoon/
 ├── init.lua
 └── lib/
     ├── DefinitionBuilder.lua
+    ├── DefinitionChecker.lua
     ├── DefinitionResolver.lua
     ├── Installer.lua
     ├── NameResolver.lua
@@ -1700,6 +1701,7 @@ SpoonManager.spoon/
 The modules have narrow responsibilities:
 
 - `DefinitionBuilder.lua`: builder methods for one installable Spoon
+- `DefinitionChecker.lua`: run a provider's declarative resolve checks and blanket input safety before resolution
 - `DefinitionResolver.lua`: resolve a definition into resolved data and an executable command
 - `Installer.lua`: install, update, local-change checks, and `hs.spoons.use()`
 - `NameResolver.lua`: Spoon name inference and name logging
