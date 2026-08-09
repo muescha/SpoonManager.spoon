@@ -1,6 +1,9 @@
 # Testing Strategy
 
-This note describes how SpoonManager should add tests without losing the examples-first feel of the builder API.
+This note describes how SpoonManager adds tests without losing the examples-first
+feel of the builder API. The strategy is implemented: a tiny plain-Lua runner
+(`tests/run.lua`), a Hammerspoon stub, focused assertions, and golden JSON
+snapshots. The layout and case lists below reflect the current test suite.
 
 ## Goals
 
@@ -336,7 +339,7 @@ SpoonManager.from.github("owner/repo")
 Expected error:
 
 ```text
-branch('main') already set; cannot call ref('v1.2.0').
+.branch('main') already set; cannot call .ref('v1.2.0').
 ```
 
 More cases:
@@ -348,6 +351,20 @@ More cases:
 - `path(...)` then `path(...)`
 - `withName(...)` then `withName(...)`
 - `spoon(...)` then `path(...)` (the source `selection` group is mutually exclusive)
+
+### Resolve-Time Checks
+
+Logical, cross-field checks now run at resolve time (in `DefinitionChecker`,
+driven by per-provider `resolveChecks`), so they also cover `from.config()` /
+manifest configs that bypass the builder setters. Messages interpolate the
+offending values.
+
+Useful cases:
+
+- `.spoon(...)` without a Spoon pattern -> `.spoon('A') requires .spoonZipPattern(...) or .spoonFolderPattern(...)`
+- `.spoon(...)` combined with `.zipFile(...)` -> `.spoon('A') conflicts with .zipFile('x.zip')`
+- `.releaseLatest()` / `.release(...)` without `.zipFile(...)` -> `.releaseLatest() requires .zipFile(...)`
+- GitHub `.path(...)` plus `.useFolder(...)` (no `.zipFile()`) composes into `path/useFolder` (not rejected)
 
 ### DefinitionResolver Commands
 
@@ -384,8 +401,9 @@ Useful cases:
 - GitHub Spoon ZIP pattern -> `zip`
 - GitHub Spoon folder pattern -> `zip`
 - local folder with `path(...)` -> `folder`
-- local ZIP -> `zip`
-- remote ZIP -> `zip`
+- local ZIP (direct `.zip`) -> `zip`
+- remote ZIP (direct `.zip`) -> `zip`
+- remote/local ZIP from a base URL/folder plus `.path(...)`/`.zipFile(...)` -> `zip`
 
 ### Installer Behavior
 
@@ -428,42 +446,53 @@ Validation tests make error messages stable and helpful.
 Useful cases:
 
 - non-string builder arguments are rejected
-- remote ZIP URL must end in `.zip`
-- local ZIP path must end in `.zip`
+- remote ZIP URL must end in `.zip`, or be a base URL plus `.zipFile(...)`
+- local ZIP path must end in `.zip`, or be a base folder plus `.zipFile(...)`
 - release ZIP file must end in `.zip`
+- `zipFile` must be a bare file name (no path separators)
+- `path` / `useFolder` must not contain `..` (traversal), including from `from.config()`
+- extractor rejects a Spoon folder that resolves outside the extraction dir (zip-slip)
 - definition without an inferable name asks for `withName("Name")`
-- unsupported source types fail clearly
+- unsupported source types, and unsupported methods per provider, fail clearly
 
 ## Example Tests As Documentation
 
-The test files should be named by user-facing capability, not by internal module only.
+The test files are named by user-facing capability where possible, not by
+internal module only.
 
-Suggested layout:
+Current layout:
 
 ```text
 tests/
 ├── run.lua
 ├── helpers/
-│   ├── hammerspoon_stub.lua
 │   ├── assertions.lua
-│   └── fixtures.lua
-├── examples/
+│   ├── hammerspoon_stub.lua
+│   ├── json.lua
+│   └── load_spoonmanager.lua
+├── examples/                       # <name>.lua + <name>.lua.<case>.explain.json snapshots
+│   ├── base_definitions.lua
+│   ├── config_sources.lua
 │   ├── default_spoon.lua
-│   ├── default_spoon.lua.explain.json
 │   ├── github_folder.lua
-│   ├── github_folder.lua.explain.json
+│   ├── github_patterns.lua
 │   ├── github_release.lua
-│   ├── github_release.lua.latest.explain.json
-│   ├── github_release.lua.tag.explain.json
-│   ├── local_folder.lua
-│   └── local_zip.lua
+│   ├── github_repository.lua
+│   ├── install_options.lua
+│   ├── local_sources.lua
+│   └── zip_sources.lua
 ├── unit/
-│   ├── name_resolver_test.lua
+│   ├── builder_test.lua
 │   ├── definition_test.lua
-│   ├── resolver_test.lua
-│   └── registry_test.lua
+│   ├── definition_checker_test.lua
+│   ├── definition_resolver_test.lua
+│   ├── name_resolver_test.lua
+│   ├── json_test.lua
+│   ├── manager_test.lua
+│   └── util_test.lua
 └── integration/
-    └── installer_test.lua
+    ├── local_zip_folder.lua
+    └── network.lua
 ```
 
 The `tests/examples/` folder is important. Those files should be readable as "things you can do with SpoonManager".
@@ -487,15 +516,13 @@ Later, README examples can be generated or checked against these example tests.
 
 ## Network Tests
 
-Network tests should be opt-in.
+Network tests are opt-in and separate from the default runner. `lua tests/run.lua`
+does **not** load `tests/integration/network.lua`; the default run never calls
+GitHub, GitLab, or any remote host.
 
-Default test runs should not call GitHub, GitLab, or any remote host.
-
-Possible opt-in command:
-
-```sh
-SPOONMANAGER_NETWORK_TESTS=1 lua tests/run.lua
-```
+Network integration tests use their own config-driven runner, described in
+[`network-integration-tests.md`](network-integration-tests.md) (placeholders,
+run-result JSON, and `/tmp`-scoped install roots).
 
 Network tests can verify:
 
@@ -503,7 +530,7 @@ Network tests can verify:
 - GitHub archive URL exists
 - official Spoon ZIP URL exists
 
-They should not be required for normal development.
+They are not required for normal development.
 
 ## Suggested Order
 
