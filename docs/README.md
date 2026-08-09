@@ -44,6 +44,7 @@ Grouped by role:
 - [repository-structure-and-hosting.md](architecture/planned/repository-structure-and-hosting.md)
 - [discovery-website-and-gui.md](architecture/planned/discovery-website-and-gui.md)
 - [local-changes-and-forking.md](architecture/planned/local-changes-and-forking.md)
+- [error-strategy.md](architecture/planned/error-strategy.md)
 
 ### Roadmap — overview and matrices
 
