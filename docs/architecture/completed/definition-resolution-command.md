@@ -13,6 +13,12 @@ This is a historical design note. Some config keys shown below were renamed in l
 - `config.options` → `config.installOptions`.
 - `onLocalChanges` → `conflictStrategy`, including the `options.localChanges` enum → `options.conflictStrategy`.
 
+Beyond key renames, some behavior and structure changed after this note was written:
+
+- Logical, cross-field checks (e.g. a Spoon selection needs a pattern) now run at **resolve time** in a declarative check engine (`lib/DefinitionChecker.lua`, driven by per-provider `resolveChecks` data), not eagerly in the builder. This also covers configs loaded via `from.config()`/manifests that bypass the builder setters. Check messages interpolate the offending values (e.g. `.spoon('Emojis') conflicts with .zipFile('x.zip')`).
+- The "one generic helper" for setter groups is realized: the builder setters are generated from a declarative `setterSpecs` table, and each method's provider capability defaults to the method name.
+- Install-name precedence is centralized in `NameResolver.inferNames(config)` (the split `inferFromSource` was removed).
+
 ## Goals
 
 - Keep configs readable and predictable.

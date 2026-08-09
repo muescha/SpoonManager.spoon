@@ -13,6 +13,14 @@ This is a historical design note. Some config keys shown below were renamed in l
 - `config.options` → `config.installOptions`.
 - `onLocalChanges` → `conflictStrategy`, including the `options.localChanges` enum → `options.conflictStrategy`.
 
+Beyond key renames, some behavior changed after this note was written — read the sections below with these in mind:
+
+- **Provider `capabilities` now list every builder method** (the README "Provider support" table mirrors them one-to-one), not only the origin-specific ones shown below. `.spoon()`, `.withName()`, and `.conflictStrategy()` are capabilities too; `.spoon()` is GitHub-only.
+- **`remoteZip`/`localZip` accept a base URL/folder plus `.path()`/`.zipFile()`** to address the actual ZIP (analogous to `localFolder`). So the statements below that `path()`/`zipFile()` are "not valid after `remoteZip()`", and the `remoteZip().zipFile()` example shown as ambiguous, **no longer hold**: they are valid when the base is not itself a `.zip`; a base that already ends in `.zip` still rejects them.
+- **Logical checks run at resolve time** in a declarative engine (`lib/DefinitionChecker.lua` + per-provider `resolveChecks`): spoon-needs-pattern, spoon-conflicts-with-`zipFile`, release-needs-`zipFile`. On GitHub, `.path()` + `.useFolder()` (without `.zipFile()`) now **compose** into `path/useFolder` instead of being rejected.
+- **Untrusted inputs are hardened**: `selection_path`/`useFolder` reject `..`, `zipFile` rejects path separators, `pathJoin`/`joinUrl` reject `..` segments, and the extractor verifies the located folder stays inside the extraction dir (zip-slip guard).
+- The GitHub URL builders were renamed for clarity: `repositoryFileUrl` (a file in the repo), `repositoryZipUrl` (the whole repo), and the no-selector fallback rule is `resolveRepositoryOnly`.
+
 ## Problem
 
 The earlier builder was flexible enough to express combinations that were either ignored or ambiguous.
