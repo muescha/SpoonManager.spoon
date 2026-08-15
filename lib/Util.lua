@@ -292,16 +292,13 @@ function Util.createLabel(method, value)
         return "." .. method .. "()"
     end
 
-    if type(value) == "table" then
-        local args = {}
-        for _, entry in ipairs(value) do
-            args[#args + 1] = "'" .. tostring(entry):gsub("'", "\\'") .. "'"
-        end
-        return "." .. method .. "(" .. table.concat(args, ", ") .. ")"
+    local values = type(value) == "table" and value or { value }
+    local args = {}
+    for _, entry in ipairs(values) do
+        args[#args + 1] = "'" .. tostring(entry):gsub("'", "\\'") .. "'"
     end
 
-    local escaped = tostring(value):gsub("'", "\\'")
-    return "." .. method .. "('" .. escaped .. "')"
+    return "." .. method .. "(" .. table.concat(args, ", ") .. ")"
 end
 
 function Util.findFlatGroupValue(container, group)
