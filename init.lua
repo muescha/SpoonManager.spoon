@@ -222,7 +222,15 @@ function obj._installDefinition(definition, action)
 end
 
 local function debugStacktrace()
-    print(debug.traceback())
+    local ok, trace = pcall(function()
+        if type(debug) == "table" and type(debug.traceback) == "function" then
+            return debug.traceback()
+        end
+
+        return "debug.traceback unavailable"
+    end)
+
+    print(ok and trace or "debug.traceback failed")
 end
 
 local function debugInfo(definition)

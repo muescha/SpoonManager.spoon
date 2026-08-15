@@ -339,6 +339,49 @@ return function(T)
         manager.clear()
     end)
 
+    T.test("manager debug stacktrace does not break update", function()
+        local manager = T.SpoonManager
+        local originalInstallDefinition = manager._installDefinition
+        local originalTraceback = debug.traceback
+
+        manager.clear()
+        debug.traceback = function()
+            error("traceback failed")
+        end
+        manager._installDefinition = function(definitionConfig, action)
+            return {
+                success = true,
+                result = {
+                    success = true,
+                    action = action,
+                    skipped = true,
+                    name = "Emojis",
+                },
+            }, nil, {
+                config = definitionConfig,
+                task = {
+                    action = action,
+                    name = "Emojis",
+                    options = {},
+                },
+            }
+        end
+
+        local ok, result = pcall(function()
+            return manager.from.default
+                .spoon("Emojis")
+                .update()
+        end)
+
+        manager._installDefinition = originalInstallDefinition
+        debug.traceback = originalTraceback
+
+        T.assertTrue(ok, result)
+        T.assertTrue(result.success)
+        T.assertEqual(#manager.definitions, 1)
+        manager.clear()
+    end)
+
     T.test("manager stores one definition per spoon name", function()
         withRecordedInstaller(function(manager)
             manager.install(
