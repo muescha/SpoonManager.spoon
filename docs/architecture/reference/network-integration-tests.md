@@ -169,7 +169,7 @@ broken and the expected behavior is a structured error result.
 ```
 
 Expected failures count as passed tests when the error text contains the configured
-string. The result artifact records this under `checks.expectedFailure`.
+string. The result artifact records this as an `expected-failure` event.
 
 For safety, the runner only accepts install roots below `/tmp/` or inside the
 network config directory. It rejects paths containing `..` and refuses to use the
@@ -209,13 +209,18 @@ The result artifact has this general shape:
     "result": "...result.json",
     "log": "...log.json"
   },
-  "spoonExplain": {
-    "config": {},
-    "resolved": {},
-    "command": {}
-  },
-  "runs": {
-    "install": {
+  "events": [
+    {
+      "step": "explain",
+      "success": true,
+      "definition": {
+        "config": {},
+        "resolved": {},
+        "command": {}
+      }
+    },
+    {
+      "step": "install",
       "success": true,
       "result": {
         "action": "install",
@@ -229,15 +234,16 @@ The result artifact has this general shape:
         "result": {
           "fingerprints": {}
         }
+      },
+      "checks": {
+        "expectedFiles": {
+          "success": true,
+          "files": ["init.lua"]
+        }
       }
-    }
-  },
-  "checks": {
-    "expectedFiles": {
-      "success": true,
-      "files": ["init.lua"]
     },
-    "alreadyInstalledSkip": {
+    {
+      "step": "install-again",
       "success": true,
       "result": {
         "action": "install",
@@ -248,14 +254,20 @@ The result artifact has this general shape:
           "skipped": true,
           "reason": "already-installed"
         }
+      },
+      "checks": {
+        "skipped": {
+          "success": true,
+          "reason": "already-installed"
+        }
       }
     }
-  }
+  ]
 }
 ```
 
 On failure, `success` is false and `error` contains the short message plus traceback.
-Failed run/check details are stored under `runs.*.error` or `checks.*.error`.
+Failed event details are stored on the event that failed.
 The runner keeps processing later enabled tests and reports all failures in test order at the end.
 
 The log artifact has this shape:

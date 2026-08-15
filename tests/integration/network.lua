@@ -520,9 +520,7 @@ local function buildRunnerResult(test, paths)
             expect = test.expect,
         },
         paths = paths,
-        spoonExplain = nil,
-        runs = {},
-        checks = {},
+        events = {},
     }
 end
 
@@ -596,49 +594,73 @@ for _, test in ipairs(config.tests or {}) do
             local SpoonManager = dofile(repoRoot .. "/init.lua")
             local definition = buildDefinition(SpoonManager, test)
             definition.command("install")
-            runnerResult.spoonExplain = definition.explain()
-            json.write(explainPath, runnerResult.spoonExplain)
+            local explain = definition.explain()
+            table.insert(runnerResult.events, {
+                step = "explain",
+                success = true,
+                definition = explain,
+            })
+            json.write(explainPath, explain)
 
             local result, installErr = definition.install()
             if not result then
-                runnerResult.runs.install = {
+                table.insert(runnerResult.events, {
+                    step = "install",
                     success = false,
                     error = errorBlock(installErr or "install failed", installErr),
-                }
+                })
                 error(installErr or "install failed")
             end
-            runnerResult.runs.install = {
+            table.insert(runnerResult.events, {
+                step = "install",
                 success = true,
                 result = result,
-            }
-            runnerResult.checks.expectedFiles = expectedFilesCheck(test, result)
+                checks = {
+                    expectedFiles = expectedFilesCheck(test, result),
+                },
+            })
 
             local skipped, skipErr = definition.install()
             if not skipped then
-                runnerResult.checks.alreadyInstalledSkip = {
+                table.insert(runnerResult.events, {
+                    step = "install-again",
                     success = false,
                     error = errorBlock(skipErr or "second install failed", skipErr),
-                }
+                })
                 error(skipErr or "second install failed")
             end
             if not skipped.result.skipped then
-                runnerResult.checks.alreadyInstalledSkip = {
+                table.insert(runnerResult.events, {
+                    step = "install-again",
                     success = false,
                     result = skipped,
+                    checks = {
+                        skipped = {
+                            success = false,
+                        },
+                    },
                     error = errorBlock("second install should have skipped an already installed Spoon"),
-                }
+                })
                 error("second install should have skipped an already installed Spoon")
             end
 
-            runnerResult.checks.alreadyInstalledSkip = {
+            table.insert(runnerResult.events, {
+                step = "install-again",
                 success = true,
                 result = skipped,
-            }
+                checks = {
+                    skipped = {
+                        success = true,
+                        reason = skipped.result.reason,
+                    },
+                },
+            })
             if expectedFailure(test) then
-                runnerResult.checks.expectedFailure = {
+                table.insert(runnerResult.events, {
+                    step = "expected-failure",
                     success = false,
                     error = errorBlock("expected failure but install succeeded"),
-                }
+                })
                 error("expected failure but install succeeded")
             end
             runnerResult.success = true
@@ -683,10 +705,11 @@ for _, test in ipairs(config.tests or {}) do
                 })
                 if matchedExpectedFailure then
                     runnerResult.success = true
-                    runnerResult.checks.expectedFailure = {
+                    table.insert(runnerResult.events, {
+                        step = "expected-failure",
                         success = true,
                         messageContains = expected.messageContains,
-                    }
+                    })
                     runnerResult.error = nil
                 else
                     runnerResult.success = false
