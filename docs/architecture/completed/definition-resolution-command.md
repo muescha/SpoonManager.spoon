@@ -195,7 +195,7 @@ Example:
         installName = "Emojis",
     },
     fingerprints = {
-        localHash = "sha256:...",
+        targetFolderHash = "sha256:...",
         sourceRevision = "abc123",
     },
 }

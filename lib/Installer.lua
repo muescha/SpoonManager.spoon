@@ -18,6 +18,22 @@ return function(context)
         }
     end
 
+    local function storedTargetFolderHash(installed)
+        if not installed then
+            return nil
+        end
+
+        if installed.fingerprints and installed.fingerprints.targetFolderHash then
+            return installed.fingerprints.targetFolderHash
+        end
+
+        if installed.fingerprints and installed.fingerprints.localHash then
+            return installed.fingerprints.localHash
+        end
+
+        return installed.checksum
+    end
+
     function Installer.prepareDefinition(definition, action)
         local def = definition.config and util.copyTable(definition) or {
             config = util.copyTable(definition),
@@ -66,7 +82,8 @@ return function(context)
 
         local behavior = run.options.conflictStrategy or manager.options.conflictStrategy.abort
 
-        if not installed or not installed.checksum then
+        local knownTargetFolderHash = storedTargetFolderHash(installed)
+        if not installed or not knownTargetFolderHash then
             if behavior == manager.options.conflictStrategy.overwrite then
                 return true
             end
@@ -84,7 +101,7 @@ return function(context)
         end
 
         local currentChecksum = util.hashDirectory(destination, nil, logger)
-        if currentChecksum == installed.checksum then
+        if currentChecksum == knownTargetFolderHash then
             return true
         end
 
@@ -115,9 +132,13 @@ return function(context)
         return hs.spoons.use(run.name, arg, false)
     end
 
-    function Installer.installedSourceHash(installed)
+    function Installer.storedSourceHash(installed)
         if not installed then
             return nil
+        end
+
+        if installed.fingerprints and installed.fingerprints.stagedSourceHash then
+            return installed.fingerprints.stagedSourceHash
         end
 
         if installed.fingerprints and installed.fingerprints.sourceHash then
@@ -127,15 +148,15 @@ return function(context)
         return installed.checksum
     end
 
-    function Installer.skipUnchangedUpdate(definition, destination, sourceHash)
+    function Installer.skipUnchangedUpdate(definition, destination, stagedSourceHash)
         local run = task(definition)
         local installed = registry.read()[run.name]
         if not installed then
             return nil, "Spoon is not installed by SpoonManager. Use install() first."
         end
 
-        local installedSourceHash = Installer.installedSourceHash(installed)
-        if sourceHash and sourceHash == installedSourceHash then
+        local storedSourceHash = Installer.storedSourceHash(installed)
+        if stagedSourceHash and stagedSourceHash == storedSourceHash then
             Installer.applyUse(definition)
             return {
                 success = true,
@@ -145,18 +166,18 @@ return function(context)
                 name = run.name,
                 path = destination,
                 fingerprints = {
-                    sourceHash = sourceHash,
-                    installedSourceHash = installedSourceHash,
+                    stagedSourceHash = stagedSourceHash,
+                    storedSourceHash = storedSourceHash,
                 },
                 use = run.use,
             }
         end
 
-        local localHash = util.hashDirectory(destination, nil, logger)
-        if sourceHash and localHash == sourceHash then
+        local targetFolderHash = util.hashDirectory(destination, nil, logger)
+        if stagedSourceHash and targetFolderHash == stagedSourceHash then
             registry.persistInstall(definition, destination, {
-                localHash = localHash,
-                sourceHash = sourceHash,
+                targetFolderHash = targetFolderHash,
+                stagedSourceHash = stagedSourceHash,
             })
             Installer.applyUse(definition)
             return {
@@ -167,9 +188,9 @@ return function(context)
                 name = run.name,
                 path = destination,
                 fingerprints = {
-                    localHash = localHash,
-                    sourceHash = sourceHash,
-                    installedSourceHash = installedSourceHash,
+                    stagedSourceHash = stagedSourceHash,
+                    storedSourceHash = storedSourceHash,
+                    targetFolderHash = targetFolderHash,
                 },
                 use = run.use,
             }
@@ -188,9 +209,9 @@ return function(context)
             return nil, validationError
         end
 
-        local sourceHash = util.hashDirectory(stage.folder, nil, logger)
+        local stagedSourceHash = util.hashDirectory(stage.folder, nil, logger)
         if action == "update" then
-            local skipped, skipErr = Installer.skipUnchangedUpdate(definition, destination, sourceHash)
+            local skipped, skipErr = Installer.skipUnchangedUpdate(definition, destination, stagedSourceHash)
             if skipped or skipErr then
                 return skipped, skipErr
             end
@@ -206,10 +227,10 @@ return function(context)
             return nil, "Could not install Spoon folder"
         end
 
-        local localHash = util.hashDirectory(destination, nil, logger)
+        local targetFolderHash = util.hashDirectory(destination, nil, logger)
         registry.persistInstall(definition, destination, {
-            localHash = localHash,
-            sourceHash = sourceHash,
+            targetFolderHash = targetFolderHash,
+            stagedSourceHash = stagedSourceHash,
         })
         Installer.applyUse(definition)
 
@@ -219,8 +240,8 @@ return function(context)
             name = run.name,
             path = destination,
             fingerprints = {
-                localHash = localHash,
-                sourceHash = sourceHash,
+                stagedSourceHash = stagedSourceHash,
+                targetFolderHash = targetFolderHash,
             },
             use = run.use,
         }

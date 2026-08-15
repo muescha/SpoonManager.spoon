@@ -1293,15 +1293,16 @@ spoon.SpoonManager.from.default
 
 Updates this builder synchronously.
 
-Unlike `install()`, `update()` fetches the external source again. Before replacing an existing Spoon, it checks whether the local files still match the checksum stored from the last SpoonManager install or update.
+Unlike `install()`, `update()` fetches the external source again. Before replacing an existing Spoon, it checks whether the local files still match the `targetFolderHash` stored from the last SpoonManager install or update.
 
 If the freshly fetched source has the same source hash as the last successful
 install or update, `update()` skips the copy and returns `reason =
 "source-unchanged"`. `update()` is for managed Spoons; if a Spoon is not recorded
 in SpoonManager's registry, use `install()` first.
 
-Update results include `fingerprints.sourceHash` and, when computed,
-`fingerprints.localHash` / `fingerprints.installedSourceHash` so you can debug why
+Update results include `fingerprints.stagedSourceHash` and
+`fingerprints.storedSourceHash`. When SpoonManager hashes the installed target
+folder, results also include `fingerprints.targetFolderHash` so you can debug why
 an update copied or skipped.
 
 After a successful update, SpoonManager stores the builder config as a managed builder config.
@@ -1652,7 +1653,7 @@ After a successful install or update, SpoonManager stores install metadata here:
 ~/.hammerspoon/.config/SpoonManager/installed.json
 ```
 
-It contains the original config, the resolved install data, the effective command, and a checksum of the installed Spoon folder. That checksum is used to detect local changes before `update()`.
+It contains the original config, the resolved install data, the effective command, and the `targetFolderHash` of the installed Spoon folder. That hash is used to detect local changes before `update()`.
 
 Shape:
 
@@ -1668,8 +1669,8 @@ Shape:
         command = {},
         use = {},
         fingerprints = {
-            localHash = "sha256:...",
-            sourceHash = "sha256:...",
+            stagedSourceHash = "sha256:...",
+            targetFolderHash = "sha256:...",
         },
     },
 }

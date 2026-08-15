@@ -7,7 +7,7 @@ sketched in `registry-history-status.md`.
 
 Existing primitives this relies on:
 
-- `fingerprints.localHash` and `fingerprints.sourceRevision` in the installed
+- `fingerprints.targetFolderHash` and `fingerprints.sourceRevision` in the installed
   record.
 - the `localChanges` field in the status object.
 - the README principle "protect existing local changes by default".

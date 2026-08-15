@@ -130,7 +130,7 @@ Examples of fields to normalize before snapshot comparison:
 installedAt
 updatedAt
 path
-fingerprints.localHash
+fingerprints.targetFolderHash
 temporary directories
 ```
 
@@ -205,7 +205,7 @@ Example normalized installed snapshot:
       "url": "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/Emojis.spoon.zip"
     },
     "fingerprints": {
-      "localHash": "<sha256>"
+      "targetFolderHash": "<sha256>"
     }
   }
 }
@@ -434,8 +434,8 @@ Useful cases:
 - creates `.config/SpoonManager/installed.json`
 - stores original `definition`
 - stores `resolved`
-- stores effective execution `source`
-- stores `fingerprints.localHash`
+- stores effective task `source`
+- stores `fingerprints.targetFolderHash`
 - preserves `installedAt` and updates `updatedAt`
 - reads unknown or missing registry as an empty table
 

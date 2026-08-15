@@ -330,6 +330,55 @@ return function(T)
         T.assertFalse(prepared.use)
     end)
 
+    T.test("registry stores clear fingerprint names", function()
+        local written
+
+        withPatched({
+            {
+                table = T.context.registry,
+                key = "read",
+                value = function()
+                    return {
+                        Emojis = {
+                            installedAt = "2026-08-01T00:00:00Z",
+                        },
+                    }
+                end,
+            },
+            {
+                table = T.context.registry,
+                key = "write",
+                value = function(registry)
+                    written = registry
+                    return true
+                end,
+            },
+        }, function()
+            local ok, err = T.context.registry.persistInstall({
+                task = {
+                    name = "Emojis",
+                    use = {
+                        start = true,
+                    },
+                },
+                config = {},
+                resolved = {},
+                command = {},
+            }, "/tmp/hammerspoon-test/Spoons/Emojis.spoon", {
+                stagedSourceHash = "source-hash",
+                targetFolderHash = "target-hash",
+            })
+
+            T.assertTrue(ok, err)
+            T.assertEqual(written.Emojis.checksum, "target-hash")
+            T.assertEqual(written.Emojis.fingerprints.stagedSourceHash, "source-hash")
+            T.assertEqual(written.Emojis.fingerprints.targetFolderHash, "target-hash")
+            T.assertFalse(written.Emojis.fingerprints.sourceHash)
+            T.assertFalse(written.Emojis.fingerprints.localHash)
+            T.assertEqual(written.Emojis.use.start, true)
+        end)
+    end)
+
     T.test("update aborts on unmanaged local changes by default", function()
         local destination = "/tmp/hammerspoon-test/Spoons/Emojis.spoon"
 
@@ -428,7 +477,7 @@ return function(T)
                     return {
                         Emojis = {
                             fingerprints = {
-                                sourceHash = "source-hash",
+                                stagedSourceHash = "source-hash",
                             },
                         },
                     }
@@ -469,8 +518,8 @@ return function(T)
             T.assertTrue(result, err)
             T.assertTrue(result.skipped)
             T.assertEqual(result.reason, "source-unchanged")
-            T.assertEqual(result.fingerprints.sourceHash, "source-hash")
-            T.assertEqual(result.fingerprints.installedSourceHash, "source-hash")
+            T.assertEqual(result.fingerprints.stagedSourceHash, "source-hash")
+            T.assertEqual(result.fingerprints.storedSourceHash, "source-hash")
             T.assertFalse(copied)
             T.assertEqual(#used, 1)
             T.assertEqual(used[1].name, "Emojis")
@@ -519,8 +568,8 @@ return function(T)
                     persisted = {
                         name = definition.name,
                         destination = destination,
-                        localHash = fingerprints.localHash,
-                        sourceHash = fingerprints.sourceHash,
+                        targetFolderHash = fingerprints.targetFolderHash,
+                        stagedSourceHash = fingerprints.stagedSourceHash,
                     }
                     return true
                 end,
@@ -546,14 +595,14 @@ return function(T)
             T.assertTrue(result, err)
             T.assertTrue(result.skipped)
             T.assertEqual(result.reason, "source-unchanged")
-            T.assertEqual(result.fingerprints.localHash, "stable-hash")
-            T.assertEqual(result.fingerprints.sourceHash, "stable-hash")
-            T.assertEqual(result.fingerprints.installedSourceHash, "old-path-dependent-source-hash")
+            T.assertEqual(result.fingerprints.stagedSourceHash, "stable-hash")
+            T.assertEqual(result.fingerprints.storedSourceHash, "old-path-dependent-source-hash")
+            T.assertEqual(result.fingerprints.targetFolderHash, "stable-hash")
             T.assertFalse(copied)
             T.assertEqual(persisted.name, "Emojis")
             T.assertEqual(persisted.destination, "/tmp/hammerspoon-test/Spoons/Emojis.spoon")
-            T.assertEqual(persisted.localHash, "stable-hash")
-            T.assertEqual(persisted.sourceHash, "stable-hash")
+            T.assertEqual(persisted.targetFolderHash, "stable-hash")
+            T.assertEqual(persisted.stagedSourceHash, "stable-hash")
         end)
     end)
 
@@ -579,9 +628,9 @@ return function(T)
                         return "new-source-hash"
                     end
                     if hashCalls == 4 then
-                        return "new-local-hash"
+                        return "new-target-hash"
                     end
-                    return "old-local-hash"
+                    return "old-target-hash"
                 end,
             },
             {
@@ -590,7 +639,7 @@ return function(T)
                 value = function()
                     return {
                         Emojis = {
-                            checksum = "old-local-hash",
+                            checksum = "old-target-hash",
                             fingerprints = {
                                 sourceHash = "old-source-hash",
                             },
@@ -618,8 +667,8 @@ return function(T)
 
             T.assertTrue(result, err)
             T.assertTrue(copied)
-            T.assertEqual(result.fingerprints.sourceHash, "new-source-hash")
-            T.assertEqual(result.fingerprints.localHash, "new-local-hash")
+            T.assertEqual(result.fingerprints.stagedSourceHash, "new-source-hash")
+            T.assertEqual(result.fingerprints.targetFolderHash, "new-target-hash")
         end)
     end)
 
