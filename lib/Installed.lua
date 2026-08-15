@@ -22,7 +22,14 @@ return function(context)
 
     local function create(selection)
         selection = selection or {}
-        local api = {}
+        local api = {
+            kind = "installed",
+            scope = selection.names and "spoon" or "all",
+            name = selection.names and selection.names[1] or nil,
+        }
+        if selection.names then
+            api.registered = registry.read()[api.name] ~= nil
+        end
 
         function api.list()
             local installed = registry.read()
