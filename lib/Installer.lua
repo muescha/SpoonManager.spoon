@@ -13,7 +13,7 @@ return function(context)
         return definition.task or error("Prepared definition requires task section", 3)
     end
 
-    local function publicResult(definition, result)
+    local function actionOutput(definition, result)
         local def = util.copyTable(definition)
         def.result = util.copyTable(result)
         return {
@@ -256,7 +256,7 @@ return function(context)
         local run = task(def)
         if action == "install" and util.fileExists(paths.targetPath(run.name)) then
             Installer.applyUse(def)
-            return publicResult(def, {
+            return actionOutput(def, {
                 success = true,
                 action = "install",
                 skipped = true,
@@ -279,7 +279,7 @@ return function(context)
             return nil, err, def
         end
 
-        return publicResult(def, result), nil, def
+        return actionOutput(def, result), nil, def
     end
 
     return Installer
