@@ -82,7 +82,36 @@ This makes it harder to answer simple debugging questions:
    additive. Do not create a second unrelated result schema that drops or
    renames the pipeline sections.
 
-2. `registryMeta` should be a definition section.
+2. The installed registry should store the full BOM definition.
+
+   `installed.json` should be a map from installed name to the complete
+   definition/BOM snapshot:
+
+   ```lua
+   {
+       Emojis = {
+           config = { ... },
+           resolved = { ... },
+           command = { ... },
+           task = { ... },
+           stage = { ... },
+           registryMeta = { ... },
+           result = { ... },
+       },
+   }
+   ```
+
+   Do not store a curated durable subset and do not wrap the definition in an
+   extra `definition = { ... }` section. The registry entry itself is the saved
+   BOM.
+
+   The registry should intentionally keep everything that helps explain what
+   happened, including temporary paths and runtime/debug details. This makes
+   persistence simpler, makes later debugging easier, and lets future features
+   extract the durable parts they need from the saved BOM instead of requiring
+   today to predict every future consumer.
+
+3. `registryMeta` should be a definition section.
 
    Registry-related metadata belongs on the runtime definition as a section, not
    as loose top-level result fields and not as a separate mapped structure.
@@ -98,10 +127,7 @@ This makes it harder to answer simple debugging questions:
    }
    ```
 
-   The installed registry can still persist only the durable subset it needs.
-   The in-memory definition may carry more diagnostic state for the current run.
-
-3. Explain artifacts are snapshots.
+4. Explain artifacts are snapshots.
 
    An explain event should record the definition exactly as it exists at that
    point in the pipeline. It should not trigger a second resolve/command
@@ -111,7 +137,7 @@ This makes it harder to answer simple debugging questions:
    If the current definition has `config`, `resolved`, and `command`, explain
    records those sections. This keeps explain passive and honest.
 
-4. Result artifacts should show the full run flow.
+5. Result artifacts should show the full run flow.
 
    Network `result.json` should make the sequence of events understandable. It
    should include the full install/update output for each step, not only a
@@ -150,7 +176,7 @@ This makes it harder to answer simple debugging questions:
    The artifact may add test-only metadata such as `paths`, `checks`, and
    `events`, but it should not remap SpoonManager output into a different shape.
 
-5. Public action results should expose the definition 1:1.
+6. Public action results should expose the definition 1:1.
 
    `publicResult()` or its replacement should not remove `resolved`, `command`,
    `task`, or future sections such as `registryMeta`.
@@ -196,7 +222,7 @@ This makes it harder to answer simple debugging questions:
    The important rule is not the wrapper name. The important rule is that the
    prepared definition comes out intact.
 
-6. Stage helpers should live at the owner boundary.
+7. Stage helpers should live at the owner boundary.
 
    Tests and network artifacts should not need to call manager-only helpers such
    as `_prepareDefinition()` just to inspect a pipeline stage.
@@ -223,10 +249,11 @@ This makes it harder to answer simple debugging questions:
 
    Keep the wrapper minimal and return the prepared definition intact.
 
-3. Move registry diagnostics into `definition.registryMeta`.
+3. Persist the full BOM definition in `installed.json`.
 
-   Keep the persisted `installed.json` shape stable unless a specific registry
-   migration is needed. The first change can be runtime-only.
+   Replace curated registry writes with storing the complete definition snapshot
+   under the installed name. Keep `registryMeta` as one section inside that
+   definition.
 
 4. Update network result artifacts.
 
