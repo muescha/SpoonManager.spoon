@@ -129,18 +129,60 @@ return function(context)
         return hs.spoons.use(definition.name, arg, false)
     end
 
-    function Installer.installFromStage(definition, stage)
+    function Installer.installedSourceHash(installed)
+        if not installed then
+            return nil
+        end
+
+        if installed.fingerprints and installed.fingerprints.sourceHash then
+            return installed.fingerprints.sourceHash
+        end
+
+        return installed.checksum
+    end
+
+    function Installer.skipUnchangedUpdate(definition, destination, sourceHash)
+        local installed = registry.read()[definition.name]
+        if not installed then
+            return nil, "Spoon is not installed by SpoonManager. Use install() first."
+        end
+
+        if sourceHash and sourceHash == Installer.installedSourceHash(installed) then
+            Installer.applyUse(definition)
+            return {
+                success = true,
+                action = "update",
+                skipped = true,
+                reason = "source-unchanged",
+                name = definition.name,
+                path = destination,
+                use = definition.use,
+            }
+        end
+
+        return false
+    end
+
+    function Installer.installFromStage(definition, stage, action)
         local destination = paths.targetPath(definition.name)
         util.ensureDir(paths.installRoot(), logger)
-
-        local ok, err = Installer.checkLocalChanges(definition, destination)
-        if not ok then
-            return nil, err
-        end
 
         local valid, validationError = spoonExtractor.validateInstalledFolder(stage.folder)
         if not valid then
             return nil, validationError
+        end
+
+        local sourceHash = Installer.checksumDirectory(stage.folder)
+        if action == "update" then
+            local skipped, skipErr = Installer.skipUnchangedUpdate(definition, destination, sourceHash)
+            if skipped or skipErr then
+                return skipped, skipErr
+            end
+        end
+
+        local ok, err = Installer.checkLocalChanges(definition, destination)
+        if not ok then
+            return nil, err
         end
 
         local _, copied = util.copyPath(stage.folder, destination, logger)
@@ -148,7 +190,6 @@ return function(context)
             return nil, "Could not install Spoon folder"
         end
 
-        local sourceHash = Installer.checksumDirectory(stage.folder)
         registry.persistInstall(definition, destination, Installer.checksumDirectory, {
             sourceHash = sourceHash,
         })
@@ -163,18 +204,18 @@ return function(context)
         }
     end
 
-    function Installer.installFromFolder(definition, sourceFolder)
+    function Installer.installFromFolder(definition, sourceFolder, action)
         local stage, err = sourceStage.fromFolder(sourceFolder)
         if not stage then
             return nil, err
         end
 
-        local result, installErr = Installer.installFromStage(definition, stage)
+        local result, installErr = Installer.installFromStage(definition, stage, action)
         sourceStage.cleanup(stage)
         return result, installErr
     end
 
-    function Installer.installFromZipFile(definition, zipFile)
+    function Installer.installFromZipFile(definition, zipFile, action)
         local stage, err = sourceStage.fromZipFile(zipFile, {
             folder = definition.command.source.folder,
         })
@@ -182,12 +223,12 @@ return function(context)
             return nil, err
         end
 
-        local result, installErr = Installer.installFromStage(definition, stage)
+        local result, installErr = Installer.installFromStage(definition, stage, action)
         sourceStage.cleanup(stage)
         return result, installErr
     end
 
-    function Installer.installFromRemoteZip(definition, url)
+    function Installer.installFromRemoteZip(definition, url, action)
         local stage, err = sourceStage.fromRemoteZip(url, {
             folder = definition.command.source.folder,
         })
@@ -195,7 +236,7 @@ return function(context)
             return nil, err
         end
 
-        local result, installErr = Installer.installFromStage(definition, stage)
+        local result, installErr = Installer.installFromStage(definition, stage, action)
         sourceStage.cleanup(stage)
         return result, installErr
     end
@@ -232,11 +273,11 @@ return function(context)
         local result, err
 
         if source.kind == "folder" then
-            result, err = Installer.installFromFolder(def, source.path)
+            result, err = Installer.installFromFolder(def, source.path, action)
         elseif source.kind == "zip" and source.path then
-            result, err = Installer.installFromZipFile(def, source.path)
+            result, err = Installer.installFromZipFile(def, source.path, action)
         elseif source.kind == "zip" and source.url then
-            result, err = Installer.installFromRemoteZip(def, source.url)
+            result, err = Installer.installFromRemoteZip(def, source.url, action)
         else
             return nil, "Unsupported source kind: " .. tostring(source.kind), def
         end

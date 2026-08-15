@@ -1241,6 +1241,11 @@ Updates this builder synchronously.
 
 Unlike `install()`, `update()` fetches the external source again. Before replacing an existing Spoon, it checks whether the local files still match the checksum stored from the last SpoonManager install or update.
 
+If the freshly fetched source has the same source hash as the last successful
+install or update, `update()` skips the copy and returns `reason =
+"source-unchanged"`. `update()` is for managed Spoons; if a Spoon is not recorded
+in SpoonManager's registry, use `install()` first.
+
 After a successful update, SpoonManager stores the builder config as a managed builder config.
 
 Example:
@@ -1606,6 +1611,7 @@ Shape:
         use = {},
         fingerprints = {
             localHash = "sha256:...",
+            sourceHash = "sha256:...",
         },
     },
 }

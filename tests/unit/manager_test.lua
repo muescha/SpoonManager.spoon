@@ -310,4 +310,127 @@ return function(T)
             T.assertTrue(ok, err)
         end)
     end)
+
+    T.test("update skips when staged source is unchanged", function()
+        local copied = false
+        local used = {}
+
+        withPatched({
+            {
+                table = T.context.util,
+                key = "fileExists",
+                value = function(path)
+                    return path == "/stage/Emojis.spoon/init.lua"
+                end,
+            },
+            {
+                table = T.context.installer,
+                key = "checksumDirectory",
+                value = function()
+                    return "source-hash"
+                end,
+            },
+            {
+                table = T.context.registry,
+                key = "read",
+                value = function()
+                    return {
+                        Emojis = {
+                            fingerprints = {
+                                sourceHash = "source-hash",
+                            },
+                        },
+                    }
+                end,
+            },
+            {
+                table = T.context.util,
+                key = "copyPath",
+                value = function()
+                    copied = true
+                    return nil, false
+                end,
+            },
+            {
+                table = hs.spoons,
+                key = "use",
+                value = function(name, options)
+                    table.insert(used, {
+                        name = name,
+                        options = options,
+                    })
+                    return true
+                end,
+            },
+        }, function()
+            local result, err = T.context.installer.installFromStage({
+                name = "Emojis",
+                options = {
+                    conflictStrategy = T.SpoonManager.options.conflictStrategy.abort,
+                },
+                use = {
+                    start = true,
+                },
+            }, {
+                folder = "/stage/Emojis.spoon",
+            }, "update")
+
+            T.assertTrue(result, err)
+            T.assertTrue(result.skipped)
+            T.assertEqual(result.reason, "source-unchanged")
+            T.assertFalse(copied)
+            T.assertEqual(#used, 1)
+            T.assertEqual(used[1].name, "Emojis")
+            T.assertEqual(used[1].options.start, true)
+        end)
+    end)
+
+    T.test("update does not install untracked spoon", function()
+        local copied = false
+
+        withPatched({
+            {
+                table = T.context.util,
+                key = "fileExists",
+                value = function(path)
+                    return path == "/stage/Emojis.spoon/init.lua"
+                end,
+            },
+            {
+                table = T.context.installer,
+                key = "checksumDirectory",
+                value = function()
+                    return "source-hash"
+                end,
+            },
+            {
+                table = T.context.registry,
+                key = "read",
+                value = function()
+                    return {}
+                end,
+            },
+            {
+                table = T.context.util,
+                key = "copyPath",
+                value = function()
+                    copied = true
+                    return nil, false
+                end,
+            },
+        }, function()
+            local result, err = T.context.installer.installFromStage({
+                name = "Emojis",
+                options = {
+                    conflictStrategy = T.SpoonManager.options.conflictStrategy.abort,
+                },
+            }, {
+                folder = "/stage/Emojis.spoon",
+            }, "update")
+
+            T.assertFalse(result)
+            T.assertEqual(err, "Spoon is not installed by SpoonManager. Use install() first.")
+            T.assertFalse(copied)
+        end)
+    end)
 end
