@@ -19,6 +19,16 @@
 - Protect local user changes before overwriting an installed Spoon. Default behavior is abort.
 - Persist install metadata separately from builder definitions so future updates know the source.
 
+## Refactor Workflow
+
+- Prefer atomic, logically balanced refactor commits. When moving behavior, do
+  not add the new structure in one commit and wire callers in a later commit if
+  the change can be made coherently in one step. The same commit should show
+  what leaves the old location and where the equivalent behavior appears.
+- Avoid temporary double bookkeeping unless it is necessary for a safe
+  migration. If it is necessary, make the temporary overlap explicit in the
+  commit message or nearby documentation.
+
 ## Syntax Check
 
 - Lua is installed via `mise`, not necessarily on `PATH`.
