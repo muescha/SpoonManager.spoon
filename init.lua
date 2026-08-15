@@ -221,6 +221,20 @@ function obj._installDefinition(definition, action)
     return context.installer.installDefinition(definition, action)
 end
 
+local function debugInfo(message, definition)
+    obj.logger.df(
+        "%s: toConfig=%s config=%s resolved=%s command=%s task=%s name=%s\nStacktrace:\n%s",
+        message,
+        tostring(type(definition) == "table" and definition.toConfig ~= nil),
+        tostring(type(definition) == "table" and definition.config ~= nil),
+        tostring(type(definition) == "table" and definition.resolved ~= nil),
+        tostring(type(definition) == "table" and definition.command ~= nil),
+        tostring(type(definition) == "table" and definition.task ~= nil),
+        tostring(type(definition) == "table" and definition.name or nil),
+        debug.traceback("", 3)
+    )
+end
+
 local function definitionConfig(definition)
     if definition.toConfig then
         return definition.toConfig()
@@ -254,6 +268,7 @@ local function definitionInstallName(definition)
 end
 
 function obj._rememberDefinition(definition, installName)
+    debugInfo("_rememberDefinition stores config-only definition", definition)
     local config = definitionConfig(definition)
     installName = installName or definitionInstallName(config)
 
@@ -271,6 +286,7 @@ function obj._rememberDefinition(definition, installName)
 end
 
 local function installAndRememberDefinition(definition, action)
+    debugInfo("installAndRememberDefinition passes config-only definition into installer", definition)
     local config = definitionConfig(definition)
     local result, err, prepared = obj._installDefinition(config, action)
     config = prepared or config
