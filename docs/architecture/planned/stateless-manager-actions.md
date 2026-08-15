@@ -2,6 +2,34 @@
 
 **Status: Planned.**
 
+## Handoff
+
+Start a new Codex task with:
+
+```text
+Implement docs/architecture/planned/stateless-manager-actions.md.
+
+Work in atomic refactor commits. Keep each commit logically balanced: when a
+piece of behavior is removed from one side, wire the replacement on the other
+side in the same commit.
+
+Main goals:
+
+1. Make SpoonManager actions stateless.
+2. Remove the in-memory managed definition list API and state.
+3. Keep definition.install() and definition.update() as shortcuts for manager
+   actions.
+4. Normalize varargs and explicit list input into one internal list shape.
+5. Return one result format everywhere, using runs = { ... } for individual
+   executions.
+6. Add SpoonManager.installed as a registry view, including both whole-registry
+   actions and selection methods such as installed.spoon("Emojis").update().
+7. Keep the persisted install registry; do not remove installed metadata.
+
+Run the normal Lua test suite after each meaningful refactor slice:
+/Users/muescha/.local/share/mise/installs/lua/5.4.4/bin/lua tests/run.lua
+```
+
 This note records a possible simplification of the public SpoonManager action
 model: `install` and `update` should execute the definitions passed to the
 current call instead of relying on hidden manager runtime state.
