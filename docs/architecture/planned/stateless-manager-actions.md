@@ -407,6 +407,43 @@ rewires its caller in the same commit.
    return the same result structure, with the individual executions stored in a
    section such as `runs = { ... }`.
 
+5. Start with a flat `SpoonManager.installed` registry API.
+
+   `installed` should be a registry view for already installed Spoons. It should
+   start as a small flat API:
+
+   ```lua
+   spoon.SpoonManager.installed.list()
+   spoon.SpoonManager.installed.update()
+   spoon.SpoonManager.installed.outdated()
+   spoon.SpoonManager.installed.doctor()
+   spoon.SpoonManager.installed.delete("Emojis")
+   ```
+
+   This keeps the public meaning clear:
+
+   ```lua
+   spoon.SpoonManager.update(definition)
+   ```
+
+   updates explicit caller-provided definitions, while:
+
+   ```lua
+   spoon.SpoonManager.installed.update()
+   ```
+
+   loads definitions from the installed registry and updates those entries.
+
+   More query-like selection can be added later if needed:
+
+   ```lua
+   spoon.SpoonManager.installed.spoon("Emojis").update()
+   spoon.SpoonManager.installed.outdated().update()
+   ```
+
+   The first implementation should not start with that extra builder/collection
+   layer unless a concrete workflow needs it.
+
 ## Non-Goals
 
 1. Do not remove the persisted install registry.
