@@ -129,30 +129,25 @@ function Util.fileExists(path)
     return hs.fs.attributes(path) ~= nil
 end
 
-function Util.hashDirectory(path, options, logger)
-    if not Util.fileExists(path) then
-        return nil
-    end
-
+local function ignoredNames(options)
     options = options or {}
-    local command = {
-        "/usr/bin/find",
-        Util.shellQuote(path),
-    }
-
-    local ignoredNames = {
+    local names = {
         ".DS_Store",
         "__MACOSX",
         "._*",
         ".git",
     }
 
-    for _, name in ipairs(options.ignoreFolders or {}) do
-        ignoredNames[#ignoredNames + 1] = name
+    for _, name in ipairs(options.excludeFolders or options.ignoreFolders or {}) do
+        names[#names + 1] = name
     end
 
+    return names
+end
+
+local function appendFindNamePrune(command, names)
     command[#command + 1] = "\\("
-    for index, name in ipairs(ignoredNames) do
+    for index, name in ipairs(names) do
         if index > 1 then
             command[#command + 1] = "-o"
         end
@@ -160,6 +155,19 @@ function Util.hashDirectory(path, options, logger)
         command[#command + 1] = Util.shellQuote(name)
     end
     command[#command + 1] = "\\)"
+end
+
+function Util.hashDirectory(path, options, logger)
+    if not Util.fileExists(path) then
+        return nil
+    end
+
+    local command = {
+        "/usr/bin/find",
+        Util.shellQuote(path),
+    }
+
+    appendFindNamePrune(command, ignoredNames(options))
     command[#command + 1] = "-prune"
     command[#command + 1] = "-o"
     command[#command + 1] = "-type f"
@@ -172,6 +180,25 @@ function Util.hashDirectory(path, options, logger)
     command[#command + 1] = "/usr/bin/awk '{ print $1 }'"
 
     return Util.execute(table.concat(command, " "), logger, "Could not hash %s", path)
+end
+
+function Util.removeIgnoredNames(path, options, logger)
+    if not Util.fileExists(path) then
+        return true
+    end
+
+    local command = {
+        "/usr/bin/find",
+        Util.shellQuote(path),
+    }
+
+    appendFindNamePrune(command, ignoredNames(options))
+    command[#command + 1] = "-prune"
+    command[#command + 1] = "-exec"
+    command[#command + 1] = "/bin/rm -rf {} +"
+
+    local _, ok = Util.execute(table.concat(command, " "), logger, "Could not remove ignored names in %s", path)
+    return ok
 end
 
 function Util.localPath(path)
@@ -222,6 +249,18 @@ function Util.requireSafeFileName(value, label, sourceRef)
     end
 
     return value
+end
+
+function Util.requireSafeFileNames(values, label, sourceRef)
+    if type(values) ~= "table" then
+        error(string.format("%s must be a table, got %s", label or "File names", type(values)), 3)
+    end
+
+    for _, value in ipairs(values) do
+        Util.requireSafeFileName(value, label, sourceRef)
+    end
+
+    return values
 end
 
 function Util.requireString(value, label)

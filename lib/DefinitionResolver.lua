@@ -30,6 +30,10 @@ return function(context)
             selectedSpoonName = selectedSpoonName,
         }))
 
+        if source.excludeFolders then
+            resolved.source.excludeFolders = util.copyTable(source.excludeFolders)
+        end
+
         return resolved
     end
 

@@ -433,4 +433,55 @@ return function(T)
             T.assertFalse(copied)
         end)
     end)
+
+    T.test("source stage excludes configured folders", function()
+        local removedOptions
+
+        withPatched({
+            {
+                table = hs,
+                key = "execute",
+                value = function(command)
+                    if command == "/usr/bin/mktemp -d" then
+                        return "/stage\n", true
+                    end
+                    return "", true
+                end,
+            },
+            {
+                table = T.context.util,
+                key = "copyPath",
+                value = function()
+                    return "", true
+                end,
+            },
+            {
+                table = T.context.util,
+                key = "removeIgnoredNames",
+                value = function(path, options)
+                    removedOptions = {
+                        path = path,
+                        excludeFolders = options.excludeFolders,
+                    }
+                    return true
+                end,
+            },
+        }, function()
+            local stage, err = T.context.sourceStage.fromFolderSource({
+                kind = "folder",
+                location = {
+                    kind = "path",
+                    path = "/source/EmmyLua.spoon",
+                },
+                excludeFolders = {
+                    "annotations",
+                },
+            })
+
+            T.assertTrue(stage, err)
+            T.assertEqual(stage.folder, "/stage/source.spoon")
+            T.assertEqual(removedOptions.path, "/stage/source.spoon")
+            T.assertEqual(removedOptions.excludeFolders[1], "annotations")
+        end)
+    end)
 end

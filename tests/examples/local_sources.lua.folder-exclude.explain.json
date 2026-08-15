@@ -1,0 +1,47 @@
+{
+  "command": {
+    "action": "install",
+    "name": "EmmyLua",
+    "options": {
+      "conflictStrategy": "abort"
+    },
+    "source": {
+      "excludeFolders": [
+        "annotations"
+      ],
+      "kind": "folder",
+      "location": {
+        "kind": "path",
+        "path": "/Users/test/Projects/EmmyLua.spoon"
+      }
+    },
+    "target": {
+      "name": "EmmyLua",
+      "path": "/tmp/hammerspoon-test/Spoons/EmmyLua.spoon",
+      "type": "spoon"
+    }
+  },
+  "config": {
+    "source": {
+      "excludeFolders": [
+        "annotations"
+      ],
+      "root": "~/Projects/EmmyLua.spoon",
+      "type": "localFolder"
+    }
+  },
+  "resolved": {
+    "installName": "EmmyLua",
+    "source": {
+      "excludeFolders": [
+        "annotations"
+      ],
+      "kind": "folder",
+      "location": {
+        "kind": "path",
+        "path": "/Users/test/Projects/EmmyLua.spoon"
+      }
+    }
+  },
+  "state": "command"
+}

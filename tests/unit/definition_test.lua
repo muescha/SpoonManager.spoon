@@ -394,6 +394,20 @@ return function(T)
         end, "%.zipFile%('%.%./%.%./other%.zip'%) must be a file name, not a path")
     end)
 
+    T.test("definition resolver rejects path separators in excluded folders", function()
+        T.assertError(function()
+            T.SpoonManager.from.config({
+                source = {
+                    type = "localFolder",
+                    root = "~/Projects/EmmyLua.spoon",
+                    excludeFolders = {
+                        "../annotations",
+                    },
+                },
+            }).resolve()
+        end, "%.excludeFolders%('%.%./annotations'%) must be a file name, not a path")
+    end)
+
     T.test("definition resolver rejects a non-zip zip file", function()
         T.assertError(function()
             T.SpoonManager.from.config({

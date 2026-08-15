@@ -79,6 +79,13 @@ return function(context)
         util.requireSafeFileName(value, label)
     end
 
+    local function requireFolderNames(values, label)
+        assert(#values > 0, ".excludeFolders(...) needs at least one folder")
+        for _, value in ipairs(values) do
+            util.requireSafeFileName(value, label)
+        end
+    end
+
     -- Declarative specs for the near-identical builder setters. Each stores a value
     -- into a config section with a validator, an optional capability check, and an
     -- exclusivity group (nil = single-field guard). `fixedValue` is for no-arg calls.
@@ -216,6 +223,19 @@ return function(context)
                 ), 3)
             end
 
+            return createBuilder(nextDef)
+        end
+
+        api.excludeFolders = function(...)
+            local folders = { ... }
+            requireFolderNames(folders, "Excluded folder")
+
+            local nextDef = util.copyTable(def)
+            ensureState(nextDef, "config", "excludeFolders", table.concat(folders, ", "))
+            requireCapability(nextDef, "excludeFolders", "excludeFolders", table.concat(folders, ", "))
+
+            local source = ensureSection(nextDef.config, "source")
+            source.excludeFolders = util.copyTable(folders)
             return createBuilder(nextDef)
         end
 

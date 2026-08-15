@@ -81,6 +81,7 @@ return function(context)
         { ref = "extract.useFolder", label = "Folder path", check = util.requireSafeRelPath },
         { ref = "source.zipFile", label = "ZIP file", check = util.requireSafeFileName },
         { ref = "source.zipFile", label = "ZIP file", check = util.requireZipPath },
+        { ref = "source.excludeFolders", label = "Excluded folder", check = util.requireSafeFileNames },
     }
 
     -- Expand {ref} placeholders in a check message to a setter label ".m('value')".

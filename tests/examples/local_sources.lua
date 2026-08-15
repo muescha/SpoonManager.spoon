@@ -39,6 +39,18 @@ return function(T)
         T.assertMatchesJson("examples/local_sources.lua.folder-with-name.explain.json", explanation)
     end)
 
+    T.test("example: local folder with excluded folders", function()
+        local explanation =
+            T.SpoonManager.from.localFolder("~/Projects/EmmyLua.spoon")
+                .excludeFolders("annotations")
+                .command("install").explain()
+
+        T.assertEqual(explanation.config.source.excludeFolders[1], "annotations")
+        T.assertEqual(explanation.command.source.excludeFolders[1], "annotations")
+        T.assertEqual(explanation.command.target.name, "EmmyLua")
+        T.assertMatchesJson("examples/local_sources.lua.folder-exclude.explain.json", explanation)
+    end)
+
     T.test("example: local zip", function()
         local explanation =
             T.SpoonManager.from.localZip("~/Downloads/DeepFolder.spoon.zip")

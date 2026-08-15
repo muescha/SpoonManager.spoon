@@ -16,17 +16,21 @@ return function(context)
         }
     end
 
-    function SourceStage.copyFolderIntoStage(stage, sourceFolder)
+    function SourceStage.copyFolderIntoStage(stage, sourceFolder, options)
         stage.folder = util.pathJoin(stage.root, "source.spoon")
         local _, copied = util.copyPath(sourceFolder, stage.folder, logger)
         if not copied then
             return nil, "Could not copy source folder into stage"
         end
 
+        if not util.removeIgnoredNames(stage.folder, options, logger) then
+            return nil, "Could not exclude folders from stage"
+        end
+
         return stage
     end
 
-    function SourceStage.copyZipSelectionIntoStage(stage, zipFile, selection)
+    function SourceStage.copyZipSelectionIntoStage(stage, zipFile, selection, options)
         if not util.isZipPath(zipFile) then
             return nil, "ZIP source must point to a .zip file"
         end
@@ -40,6 +44,10 @@ return function(context)
         local _, copied = util.copyPath(sourceFolder, stage.folder, logger)
         if not copied then
             return nil, "Could not copy extracted Spoon into stage"
+        end
+
+        if not util.removeIgnoredNames(stage.folder, options, logger) then
+            return nil, "Could not exclude folders from stage"
         end
 
         return stage
@@ -57,7 +65,9 @@ return function(context)
             return nil, fetchErr
         end
 
-        local result, stageErr = SourceStage.copyFolderIntoStage(stage, artifact.path)
+        local result, stageErr = SourceStage.copyFolderIntoStage(stage, artifact.path, {
+            excludeFolders = source.excludeFolders,
+        })
         if not result then
             SourceStage.cleanup(stage)
             return nil, stageErr
@@ -86,7 +96,9 @@ return function(context)
             return nil, fetchErr
         end
 
-        local result, stageErr = SourceStage.copyZipSelectionIntoStage(stage, artifact.path, selection)
+        local result, stageErr = SourceStage.copyZipSelectionIntoStage(stage, artifact.path, selection, {
+            excludeFolders = source.excludeFolders,
+        })
         if not result then
             SourceStage.cleanup(stage)
             return nil, stageErr

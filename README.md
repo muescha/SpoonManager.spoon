@@ -80,6 +80,16 @@ spoon.SpoonManager.from.localFolder("~/Projects/DeepFolder.spoon")
     .install()
 ```
 
+Exclude folders from the staged source before install/update:
+
+```lua
+spoon.SpoonManager.from.localFolder("~/Projects/EmmyLua.spoon")
+    .excludeFolders("annotations")
+    .install()
+```
+
+Excluded folders are not copied into the stage, so they are not installed and do not affect update fingerprints. SpoonManager always excludes common macOS/VCS noise such as `.DS_Store`, `._*`, `__MACOSX`, and `.git`.
+
 Install from a local ZIP:
 
 ```lua
@@ -707,6 +717,7 @@ Provider-gated builder methods:
 | `.spoonFolderPattern(pattern)` | ✓ | — | — | — |
 | `.spoon(name)` | ✓ \* | — | — | — |
 | `.useFolder(path)` | ✓ | ✓ | ✓ | ✓ |
+| `.excludeFolders(name, ...)` | ✓ | ✓ | ✓ | ✓ |
 | `.withName(name)` | ✓ | ✓ | ✓ | ✓ |
 | `.conflictStrategy(behavior)` | ✓ | ✓ | ✓ | ✓ |
 
@@ -986,6 +997,24 @@ Example:
 spoon.SpoonManager.from.github("muescha/MySpoon.spoon")
     .releaseLatest()
     .zipFile("MySpoon.zip")
+    .install()
+```
+
+### `builder.excludeFolders(name, ...)`
+
+Returns a new builder that removes matching folder names from the staged source before install or update.
+
+Use this for folders that belong to the downloaded source but should not become part of the installed Spoon and should not affect update fingerprints.
+
+Folder names must be plain names without path separators. SpoonManager also removes common macOS/VCS noise from the stage by default: `.DS_Store`, `._*`, `__MACOSX`, and `.git`.
+
+In exported configs, this stores the selected folders in `source.excludeFolders`.
+
+Example:
+
+```lua
+spoon.SpoonManager.from.localFolder("~/Projects/EmmyLua.spoon")
+    .excludeFolders("annotations")
     .install()
 ```
 

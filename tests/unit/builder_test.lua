@@ -135,6 +135,24 @@ return function(T)
         )
     end)
 
+    T.test("builder stores excluded source folders", function()
+        assertBuilderConfig(
+            "excluded source folders builder config",
+            T.SpoonManager.from.localFolder("~/Projects/EmmyLua.spoon")
+                .excludeFolders("annotations", "docs"),
+            {
+                source = {
+                    type = "localFolder",
+                    root = "~/Projects/EmmyLua.spoon",
+                    excludeFolders = {
+                        "annotations",
+                        "docs",
+                    },
+                },
+            }
+        )
+    end)
+
     T.test("builder creates named remote zip definition", function()
         assertBuilderConfig(
             "named remote zip builder config",

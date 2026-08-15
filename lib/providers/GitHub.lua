@@ -175,6 +175,7 @@ return function(context)
             release = true,
             releaseLatest = true,
             useFolder = true,
+            excludeFolders = true,
             spoonZipPattern = true,
             spoonFolderPattern = true,
             spoon = true,
