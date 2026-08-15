@@ -41,30 +41,6 @@ return function(context)
         return stage
     end
 
-    function SourceStage.fromRemoteZip(url, selection)
-        local stage, err = SourceStage.create()
-        if not stage then
-            return nil, err
-        end
-
-        local artifact, fetchErr = sourceFetcher.fetch({
-            kind = "url",
-            url = url,
-        }, stage)
-        if not artifact then
-            SourceStage.cleanup(stage)
-            return nil, fetchErr
-        end
-
-        local result, stageErr = SourceStage.stageZipFile(stage, artifact.path, selection)
-        if not result then
-            SourceStage.cleanup(stage)
-            return nil, stageErr
-        end
-
-        return stage
-    end
-
     function SourceStage.fromFolderSource(source)
         local stage, err = SourceStage.create()
         if not stage then
