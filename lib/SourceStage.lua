@@ -3,6 +3,29 @@ return function(context)
     local util = context.util
     local logger = context.logger
     local spoonExtractor = context.spoonExtractor
+    local sourceFetcher = context.sourceFetcher
+
+    local function sourceLocation(source)
+        if source.location then
+            return source.location
+        end
+
+        if source.path then
+            return {
+                kind = "path",
+                path = source.path,
+            }
+        end
+
+        if source.url then
+            return {
+                kind = "url",
+                url = source.url,
+            }
+        end
+
+        return {}
+    end
 
     function SourceStage.create()
         local root = util.trim(hs.execute("/usr/bin/mktemp -d"))
@@ -15,17 +38,41 @@ return function(context)
         }
     end
 
+    function SourceStage.stageFolder(stage, sourceFolder)
+        stage.folder = util.pathJoin(stage.root, "source.spoon")
+        local _, copied = util.copyPath(sourceFolder, stage.folder, logger)
+        if not copied then
+            return nil, "Could not copy source folder into stage"
+        end
+
+        return stage
+    end
+
+    function SourceStage.stageZipFile(stage, zipFile, selection)
+        local sourceFolder, extractErr = spoonExtractor.extractZipToSpoon(zipFile, selection, stage.root)
+        if not sourceFolder then
+            return nil, extractErr
+        end
+
+        stage.folder = util.pathJoin(stage.root, "source.spoon")
+        local _, copied = util.copyPath(sourceFolder, stage.folder, logger)
+        if not copied then
+            return nil, "Could not copy extracted Spoon into stage"
+        end
+
+        return stage
+    end
+
     function SourceStage.fromFolder(sourceFolder)
         local stage, err = SourceStage.create()
         if not stage then
             return nil, err
         end
 
-        stage.folder = util.pathJoin(stage.root, "source.spoon")
-        local _, copied = util.copyPath(sourceFolder, stage.folder, logger)
-        if not copied then
+        local result, stageErr = SourceStage.stageFolder(stage, sourceFolder)
+        if not result then
             SourceStage.cleanup(stage)
-            return nil, "Could not copy source folder into stage"
+            return nil, stageErr
         end
 
         return stage
@@ -37,17 +84,10 @@ return function(context)
             return nil, err
         end
 
-        local sourceFolder, extractErr = spoonExtractor.extractZipToSpoon(zipFile, selection, stage.root)
-        if not sourceFolder then
+        local result, stageErr = SourceStage.stageZipFile(stage, zipFile, selection)
+        if not result then
             SourceStage.cleanup(stage)
-            return nil, extractErr
-        end
-
-        stage.folder = util.pathJoin(stage.root, "source.spoon")
-        local _, copied = util.copyPath(sourceFolder, stage.folder, logger)
-        if not copied then
-            SourceStage.cleanup(stage)
-            return nil, "Could not copy extracted Spoon into stage"
+            return nil, stageErr
         end
 
         return stage
@@ -59,49 +99,68 @@ return function(context)
             return nil, err
         end
 
-        local zipFile = util.pathJoin(stage.root, "download.zip")
-        local ok, downloadErr = spoonExtractor.downloadToFile(url, zipFile)
-        if not ok then
+        local artifact, fetchErr = sourceFetcher.fetch({
+            kind = "url",
+            url = url,
+        }, stage)
+        if not artifact then
             SourceStage.cleanup(stage)
-            return nil, downloadErr
+            return nil, fetchErr
         end
 
-        local sourceFolder, extractErr = spoonExtractor.extractZipToSpoon(zipFile, selection, stage.root)
-        if not sourceFolder then
+        local result, stageErr = SourceStage.stageZipFile(stage, artifact.path, selection)
+        if not result then
             SourceStage.cleanup(stage)
-            return nil, extractErr
-        end
-
-        stage.folder = util.pathJoin(stage.root, "source.spoon")
-        local _, copied = util.copyPath(sourceFolder, stage.folder, logger)
-        if not copied then
-            SourceStage.cleanup(stage)
-            return nil, "Could not copy extracted Spoon into stage"
+            return nil, stageErr
         end
 
         return stage
     end
 
     function SourceStage.fromFolderSource(source)
-        local location = source.location or {}
-        return SourceStage.fromFolder(location.path or source.path)
+        local stage, err = SourceStage.create()
+        if not stage then
+            return nil, err
+        end
+
+        local artifact, fetchErr = sourceFetcher.fetch(sourceLocation(source), stage)
+        if not artifact then
+            SourceStage.cleanup(stage)
+            return nil, fetchErr
+        end
+
+        local result, stageErr = SourceStage.stageFolder(stage, artifact.path)
+        if not result then
+            SourceStage.cleanup(stage)
+            return nil, stageErr
+        end
+
+        return stage
     end
 
     function SourceStage.fromZipSource(source)
-        local location = source.location or {}
         local selection = source.selection or {
             folder = source.folder,
         }
 
-        if location.path or source.path then
-            return SourceStage.fromZipFile(location.path or source.path, selection)
+        local stage, err = SourceStage.create()
+        if not stage then
+            return nil, err
         end
 
-        if location.url or source.url then
-            return SourceStage.fromRemoteZip(location.url or source.url, selection)
+        local artifact, fetchErr = sourceFetcher.fetch(sourceLocation(source), stage)
+        if not artifact then
+            SourceStage.cleanup(stage)
+            return nil, fetchErr
         end
 
-        return nil, "Unsupported source kind: " .. tostring(source.kind)
+        local result, stageErr = SourceStage.stageZipFile(stage, artifact.path, selection)
+        if not result then
+            SourceStage.cleanup(stage)
+            return nil, stageErr
+        end
+
+        return stage
     end
 
     function SourceStage.fromCommand(command)
