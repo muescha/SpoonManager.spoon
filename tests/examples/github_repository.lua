@@ -1,8 +1,9 @@
 return function(T)
     T.test("example: github repository root", function()
         local explanation =
-            T.SpoonManager.from.github("muescha/DeepFolder.spoon")
-                .command("install").explain()
+            T.explainCommand(
+                T.SpoonManager.from.github("muescha/DeepFolder.spoon"),
+            "install")
 
         T.assertEqual(explanation.config.source.repository, "muescha/DeepFolder.spoon")
         T.assertEqual(explanation.command.source.kind, "zip")
@@ -13,9 +14,10 @@ return function(T)
 
     T.test("example: github repository root with ref", function()
         local explanation =
-            T.SpoonManager.from.github("muescha/DeepFolder.spoon")
-                .ref("v1.2.3")
-                .command("update").explain()
+            T.explainCommand(
+                T.SpoonManager.from.github("muescha/DeepFolder.spoon")
+                .ref("v1.2.3"),
+            "update")
 
         T.assertEqual(explanation.config.source.revision_ref, "v1.2.3")
         T.assertEqual(explanation.command.action, "update")

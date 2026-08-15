@@ -48,7 +48,7 @@ A strategy switch applied at the **boundary**, not at the error site.
   keep matching on text.
 
 - **The boundary** — the entry points that run resolve/install
-  (`.install()`, `.update()`, `.command()`, `.resolve()`), which *do* have
+  (`.install()`, `.update()`), which *do* have
   manager access — wrap the call in `pcall` and, on a tagged error, act per
   `SM.errorStrategy`:
 

@@ -12,6 +12,34 @@ local T = assertions.new({
 
 T.SpoonManager, T.context = loadSpoonManager(repoRoot)
 
+function T.configOf(definition)
+    if definition.toConfig then
+        return definition.toConfig()
+    end
+
+    if definition.config then
+        return T.context.util.copyTable(definition.config)
+    end
+
+    return T.context.util.copyTable(definition)
+end
+
+function T.explainResolved(definition)
+    local def = {
+        config = T.configOf(definition),
+    }
+    def.resolved = T.context.definitionResolver.resolveFromDefinition(def)
+    def.state = "resolved"
+    return def
+end
+
+function T.explainCommand(definition, action)
+    local prepared = T.SpoonManager._prepareDefinition(definition, action or "install")
+    prepared.task = nil
+    prepared.state = "command"
+    return T.context.definitionResolver.explain(prepared)
+end
+
 local testFiles = {
     "tests/examples/base_definitions.lua",
     "tests/examples/config_sources.lua",

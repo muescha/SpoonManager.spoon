@@ -1,10 +1,11 @@
 return function(T)
     T.test("example: github folder", function()
         local explanation =
-            T.SpoonManager.from.github("muescha/SpoonRepo")
+            T.explainCommand(
+                T.SpoonManager.from.github("muescha/SpoonRepo")
                 .branch("main")
-                .path("Source/DeepFolder.spoon")
-                .command("install").explain()
+                .path("Source/DeepFolder.spoon"),
+            "install")
 
         T.assertEqual(explanation.config.source.type, "github")
         T.assertEqual(explanation.config.source.repository, "muescha/SpoonRepo")
@@ -18,10 +19,11 @@ return function(T)
 
     T.test("example: github folder with inferred name", function()
         local explanation =
-            T.SpoonManager.from.github("muescha/SpoonRepo")
+            T.explainCommand(
+                T.SpoonManager.from.github("muescha/SpoonRepo")
                 .branch("main")
-                .path("Source/DeepFolder.spoon")
-                .command("install").explain()
+                .path("Source/DeepFolder.spoon"),
+            "install")
 
         T.assertEqual(explanation.config.source.selection_path, "Source/DeepFolder.spoon")
         T.assertEqual(explanation.command.target.name, "DeepFolder")
@@ -30,10 +32,11 @@ return function(T)
 
     T.test("example: github folder with ref", function()
         local explanation =
-            T.SpoonManager.from.github("muescha/SpoonRepo")
+            T.explainCommand(
+                T.SpoonManager.from.github("muescha/SpoonRepo")
                 .ref("v1.2.3")
-                .path("Source/DeepFolder.spoon")
-                .command("update").explain()
+                .path("Source/DeepFolder.spoon"),
+            "update")
 
         T.assertEqual(explanation.config.source.revision_ref, "v1.2.3")
         T.assertEqual(explanation.command.action, "update")

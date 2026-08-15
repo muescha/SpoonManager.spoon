@@ -234,6 +234,10 @@ local function definitionConfig(definition)
     return Util.copyTable(definition)
 end
 
+function obj._prepareDefinition(definition, action)
+    return context.installer.prepareDefinition(definitionConfig(definition), action)
+end
+
 local function definitionInstallName(definition)
     if definition.name then
         return definition.name

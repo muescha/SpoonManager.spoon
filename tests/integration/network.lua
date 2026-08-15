@@ -594,8 +594,7 @@ for _, test in ipairs(config.tests or {}) do
             stubHammerspoon(installPath, logs)
             local SpoonManager = dofile(repoRoot .. "/init.lua")
             local definition = buildDefinition(SpoonManager, test)
-            definition.command("install")
-            local explain = definition.explain()
+            local explain = SpoonManager._prepareDefinition(definition, "install")
             table.insert(runnerResult.events, {
                 step = "explain",
                 success = true,

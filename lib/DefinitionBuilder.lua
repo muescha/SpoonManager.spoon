@@ -179,18 +179,6 @@ return function(context)
             return definitionResolver.explain(def)
         end
 
-        api.resolve = function()
-            def = definitionResolver.withResolved(def)
-            def.state = computeState(def)
-            return api
-        end
-
-        api.command = function(action)
-            def = definitionResolver.withCommand(def, action)
-            def.state = computeState(def)
-            return api
-        end
-
         for _, spec in ipairs(setterSpecs) do
             api[spec.method] = function(...)
                 local value = spec.collect and spec.collect(...) or select(1, ...)

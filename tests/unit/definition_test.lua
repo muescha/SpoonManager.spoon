@@ -1,5 +1,5 @@
 return function(T)
-    T.test("definition stages enrich state only when requested", function()
+    T.test("definition resolver helpers enrich state only when requested", function()
         local definition = T.SpoonManager.from.github("owner/repo")
             .path("Source/A.spoon")
 
@@ -7,12 +7,12 @@ return function(T)
         T.assertFalse(plain.resolved)
         T.assertFalse(plain.command)
 
-        local resolved = definition.resolve().explain()
+        local resolved = T.explainResolved(definition)
         T.assertTrue(resolved.resolved)
         T.assertFalse(resolved.command)
         T.assertEqual(resolved.resolved.installName, "A")
 
-        local commanded = definition.command("install").explain()
+        local commanded = T.explainCommand(definition, "install")
         T.assertTrue(commanded.resolved)
         T.assertTrue(commanded.command)
         T.assertEqual(commanded.command.target.name, "A")
@@ -29,7 +29,7 @@ return function(T)
         T.assertEqual(plain.config.naming.withName, "B.spoon")
         T.assertFalse(plain.resolved)
 
-        local commanded = definition.command("install").explain()
+        local commanded = T.explainCommand(definition, "install")
         T.assertEqual(commanded.config.source.selection_spoon, "A.spoon")
         T.assertEqual(commanded.config.naming.withName, "B.spoon")
         T.assertEqual(commanded.resolved.installName, "B")
@@ -37,38 +37,11 @@ return function(T)
         T.assertEqual(commanded.command.source.location.url, "https://github.com/owner/repo/raw/main/dist/A.spoon.zip")
     end)
 
-    T.test("definition rejects source changes after resolve", function()
-        T.assertError(function()
-            T.SpoonManager.from.github("owner/repo")
-                .path("Source/A.spoon")
-                .resolve()
-                .branch("main")
-        end, "definition already has resolved values; cannot call %.branch%('main'%)")
-    end)
-
-    T.test("definition tracks explicit state through the stages", function()
+    T.test("definition exposes config state only in the public builder", function()
         local definition = T.SpoonManager.from.github("owner/repo").path("Source/A.spoon")
         T.assertEqual(definition.explain().state, "config")
-        T.assertEqual(definition.resolve().explain().state, "resolved")
-        T.assertEqual(definition.command("install").explain().state, "command")
-    end)
-
-    T.test("definition rejects target changes after command", function()
-        T.assertError(function()
-            T.SpoonManager.from.github("owner/repo")
-                .path("Source/A.spoon")
-                .command("install")
-                .withName("B")
-        end, "definition already has command values; cannot call %.withName%('B'%)")
-    end)
-
-    T.test("definition rejects rebuilding command with another action", function()
-        T.assertError(function()
-            T.SpoonManager.from.github("owner/repo")
-                .path("Source/A.spoon")
-                .command("install")
-                .command("update")
-        end, "definition already has command values for install; cannot build command for update%.")
+        T.assertFalse(definition.resolve)
+        T.assertFalse(definition.command)
     end)
 
     T.test("definition rejects duplicate revision group", function()
@@ -105,9 +78,9 @@ return function(T)
 
     T.test("definition resolver rejects spoon selection without pattern", function()
         T.assertError(function()
-            T.SpoonManager.from.github("owner/repo")
+            T.explainResolved(T.SpoonManager.from.github("owner/repo")
                 .spoon("A")
-                .resolve()
+            )
         end, "GitHub %.spoon%('A'%) requires %.spoonZipPattern%(%.%.%.%) or %.spoonFolderPattern%(%.%.%.%)")
     end)
 
@@ -283,72 +256,70 @@ return function(T)
 
     T.test("definition resolver rejects release without zip file", function()
         T.assertError(function()
-            T.SpoonManager.from.github("owner/repo")
+            T.explainResolved(T.SpoonManager.from.github("owner/repo")
                 .releaseLatest()
-                .resolve()
+            )
         end, "GitHub %.releaseLatest%(%) requires %.zipFile%(%.%.%.%)%.")
     end)
 
     T.test("definition resolver rejects spoon selection with zip file", function()
         T.assertError(function()
-            T.SpoonManager.from.spoonRepoZip("owner/repo")
+            T.explainResolved(T.SpoonManager.from.spoonRepoZip("owner/repo")
                 .spoon("A")
                 .zipFile("A.zip")
-                .resolve()
+            )
         end, "GitHub %.spoon%('A'%) conflicts with %.zipFile%('A%.zip'%)")
     end)
 
     T.test("definition resolver rejects remote zip extras on a direct zip url", function()
         T.assertError(function()
-            T.SpoonManager.from.remoteZip("https://example.com/WindowGrid.spoon.zip")
+            T.explainResolved(T.SpoonManager.from.remoteZip("https://example.com/WindowGrid.spoon.zip")
                 .zipFile("Other.zip")
-                .resolve()
+            )
         end, "already points at a %.zip")
 
         T.assertError(function()
-            T.SpoonManager.from.remoteZip("https://example.com/WindowGrid.spoon.zip")
+            T.explainResolved(T.SpoonManager.from.remoteZip("https://example.com/WindowGrid.spoon.zip")
                 .path("subfolder")
-                .resolve()
+            )
         end, "already points at a %.zip")
     end)
 
     T.test("definition resolver rejects a remote base url without zip file", function()
         T.assertError(function()
-            T.SpoonManager.from.remoteZip("https://example.com/")
-                .resolve()
+            T.explainResolved(T.SpoonManager.from.remoteZip("https://example.com/"))
         end, "remoteZip needs a %.zip")
     end)
 
     T.test("definition resolver rejects local zip extras on a direct zip path", function()
         T.assertError(function()
-            T.SpoonManager.from.localZip("~/Downloads/WindowGrid.spoon.zip")
+            T.explainResolved(T.SpoonManager.from.localZip("~/Downloads/WindowGrid.spoon.zip")
                 .zipFile("Other.zip")
-                .resolve()
+            )
         end, "already points at a %.zip")
     end)
 
     T.test("definition resolver rejects a local zip folder without zip file", function()
         T.assertError(function()
-            T.SpoonManager.from.localZip("~/Downloads")
-                .resolve()
+            T.explainResolved(T.SpoonManager.from.localZip("~/Downloads"))
         end, "localZip needs a %.zip")
     end)
 
     T.test("definition resolver rejects path traversal in source path", function()
         T.assertError(function()
-            T.SpoonManager.from.config({
+            T.explainResolved(T.SpoonManager.from.config({
                 source = {
                     type = "github",
                     repository = "owner/repo",
                     selection_path = "../../etc",
                 },
-            }).resolve()
+            }))
         end, "%.path%('%.%./%.%./etc'%) must not contain '%.%.'")
     end)
 
     T.test("definition resolver rejects path traversal in use folder", function()
         T.assertError(function()
-            T.SpoonManager.from.config({
+            T.explainResolved(T.SpoonManager.from.config({
                 source = {
                     type = "remoteZip",
                     url = "https://example.com/A.zip",
@@ -356,7 +327,7 @@ return function(T)
                 extract = {
                     useFolder = "../secret",
                 },
-            }).resolve()
+            }))
         end, "%.useFolder%('%.%./secret'%) must not contain '%.%.'")
     end)
 
@@ -392,19 +363,19 @@ return function(T)
 
     T.test("definition resolver rejects path separators in zip file", function()
         T.assertError(function()
-            T.SpoonManager.from.config({
+            T.explainResolved(T.SpoonManager.from.config({
                 source = {
                     type = "github",
                     repository = "owner/repo",
                     zipFile = "../../other.zip",
                 },
-            }).resolve()
+            }))
         end, "%.zipFile%('%.%./%.%./other%.zip'%) must be a file name, not a path")
     end)
 
     T.test("definition resolver rejects path separators in excluded folders", function()
         T.assertError(function()
-            T.SpoonManager.from.config({
+            T.explainResolved(T.SpoonManager.from.config({
                 source = {
                     type = "localFolder",
                     root = "~/Projects/EmmyLua.spoon",
@@ -412,29 +383,29 @@ return function(T)
                         "../annotations",
                     },
                 },
-            }).resolve()
+            }))
         end, "%.excludeFolders%('%.%./annotations'%) must be a file name, not a path")
     end)
 
     T.test("definition resolver rejects a non-zip zip file", function()
         T.assertError(function()
-            T.SpoonManager.from.config({
+            T.explainResolved(T.SpoonManager.from.config({
                 source = {
                     type = "github",
                     repository = "owner/repo",
                     zipFile = "A.tar.gz",
                 },
-            }).resolve()
+            }))
         end, "%.zipFile%('A%.tar%.gz'%) must point to a %.zip file")
     end)
 
     T.test("definition resolver rejects unknown source type", function()
         T.assertError(function()
-            T.SpoonManager.from.config({
+            T.explainResolved(T.SpoonManager.from.config({
                 source = {
                     type = "unknown",
                 },
-            }).resolve()
+            }))
         end, "Unsupported source type: unknown")
     end)
 end

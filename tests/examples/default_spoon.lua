@@ -1,9 +1,10 @@
 return function(T)
     T.test("example: default spoon", function()
         local explanation =
-            T.SpoonManager.from.default
-                .spoon("Emojis")
-                .command("install").explain()
+            T.explainCommand(
+                T.SpoonManager.from.default
+                .spoon("Emojis"),
+            "install")
 
         T.assertEqual(explanation.config.source.type, "github")
         T.assertEqual(explanation.config.source.repository, "Hammerspoon/Spoons")
@@ -17,10 +18,11 @@ return function(T)
 
     T.test("example: default spoon with branch override", function()
         local explanation =
-            T.SpoonManager.from.default
+            T.explainCommand(
+                T.SpoonManager.from.default
                 .branch("main")
-                .spoon("Emojis")
-                .command("install").explain()
+                .spoon("Emojis"),
+            "install")
 
         T.assertEqual(explanation.config.source.defaultBranch, "master")
         T.assertEqual(explanation.config.source.revision_branch, "main")

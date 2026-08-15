@@ -1,11 +1,12 @@
 return function(T)
     T.test("example: github spoon zip pattern", function()
         local explanation =
-            T.SpoonManager.from.github("muescha/SpoonRepo")
+            T.explainCommand(
+                T.SpoonManager.from.github("muescha/SpoonRepo")
                 .branch("main")
                 .spoonZipPattern("dist/{name}.spoon.zip")
-                .spoon("DeepFolder")
-                .command("install").explain()
+                .spoon("DeepFolder"),
+            "install")
 
         T.assertEqual(explanation.config.source.pattern_spoonZipPattern, "dist/{name}.spoon.zip")
         T.assertEqual(explanation.config.source.selection_spoon, "DeepFolder")
@@ -17,11 +18,12 @@ return function(T)
 
     T.test("example: github spoon folder pattern", function()
         local explanation =
-            T.SpoonManager.from.github("muescha/SpoonRepo")
+            T.explainCommand(
+                T.SpoonManager.from.github("muescha/SpoonRepo")
                 .branch("main")
                 .spoonFolderPattern("Source/{name}.spoon")
-                .spoon("DeepFolder")
-                .command("install").explain()
+                .spoon("DeepFolder"),
+            "install")
 
         T.assertEqual(explanation.config.source.pattern_spoonFolderPattern, "Source/{name}.spoon")
         T.assertEqual(explanation.config.source.pattern_spoonFolderPattern, T.SpoonManager.options.patterns.spoonRepo)
@@ -34,11 +36,12 @@ return function(T)
 
     T.test("example: spoon repo sugar", function()
         local explanation =
-            T.SpoonManager.from.spoonRepo("muescha/SpoonRepo", {
+            T.explainCommand(
+                T.SpoonManager.from.spoonRepo("muescha/SpoonRepo", {
                 branch = "main",
             })
-                .spoon("DeepFolder")
-                .command("install").explain()
+                .spoon("DeepFolder"),
+            "install")
 
         T.assertEqual(explanation.config.source.pattern_spoonFolderPattern, "Source/{name}.spoon")
         T.assertEqual(explanation.config.source.selection_spoon, "DeepFolder")
@@ -50,11 +53,12 @@ return function(T)
 
     T.test("example: spoon repo zip sugar", function()
         local explanation =
-            T.SpoonManager.from.spoonRepoZip("muescha/SpoonRepo", {
+            T.explainCommand(
+                T.SpoonManager.from.spoonRepoZip("muescha/SpoonRepo", {
                 branch = "main",
             })
-                .spoon("DeepFolder")
-                .command("install").explain()
+                .spoon("DeepFolder"),
+            "install")
 
         T.assertEqual(explanation.config.source.pattern_spoonZipPattern, "Spoons/{name}.spoon.zip")
         T.assertEqual(explanation.config.source.pattern_spoonZipPattern, T.SpoonManager.options.patterns.spoonRepoZip)

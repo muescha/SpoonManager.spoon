@@ -1,10 +1,11 @@
 return function(T)
     T.test("example: github latest release", function()
         local explanation =
-            T.SpoonManager.from.github("muescha/DeepFolder.spoon")
+            T.explainCommand(
+                T.SpoonManager.from.github("muescha/DeepFolder.spoon")
                 .releaseLatest()
-                .zipFile("DeepFolder.zip")
-                .command("install").explain()
+                .zipFile("DeepFolder.zip"),
+            "install")
 
         T.assertEqual(explanation.config.source.selection_releaseLatest, true)
         T.assertEqual(explanation.config.source.zipFile, "DeepFolder.zip")
@@ -16,11 +17,12 @@ return function(T)
 
     T.test("example: github latest release with explicit name", function()
         local explanation =
-            T.SpoonManager.from.github("muescha/DeepFolder.spoon")
+            T.explainCommand(
+                T.SpoonManager.from.github("muescha/DeepFolder.spoon")
                 .releaseLatest()
                 .zipFile("latest.zip")
-                .withName("DeepFolder")
-                .command("install").explain()
+                .withName("DeepFolder"),
+            "install")
 
         T.assertEqual(explanation.config.naming.withName, "DeepFolder")
         T.assertEqual(explanation.command.source.location.url, "https://github.com/muescha/DeepFolder.spoon/releases/latest/download/latest.zip")
@@ -30,10 +32,11 @@ return function(T)
 
     T.test("example: github tagged release", function()
         local explanation =
-            T.SpoonManager.from.github("muescha/DeepFolder.spoon")
+            T.explainCommand(
+                T.SpoonManager.from.github("muescha/DeepFolder.spoon")
                 .release("v1.2.3")
-                .zipFile("DeepFolder.zip")
-                .command("install").explain()
+                .zipFile("DeepFolder.zip"),
+            "install")
 
         T.assertEqual(explanation.config.source.selection_release, "v1.2.3")
         T.assertEqual(explanation.command.source.location.url, "https://github.com/muescha/DeepFolder.spoon/releases/download/v1.2.3/DeepFolder.zip")
@@ -42,11 +45,12 @@ return function(T)
 
     T.test("example: github tagged release with explicit name", function()
         local explanation =
-            T.SpoonManager.from.github("muescha/DeepFolder.spoon")
+            T.explainCommand(
+                T.SpoonManager.from.github("muescha/DeepFolder.spoon")
                 .release("v1.2.3")
                 .zipFile("latest.zip")
-                .withName("DeepFolder")
-                .command("install").explain()
+                .withName("DeepFolder"),
+            "install")
 
         T.assertEqual(explanation.config.source.selection_release, "v1.2.3")
         T.assertEqual(explanation.config.naming.withName, "DeepFolder")

@@ -67,11 +67,11 @@ The same test can also compare the complete explanation against a golden JSON fi
 
 ```lua
 test("default spoon zip explanation snapshot", function()
-    local explanation =
+    local explanation = SpoonManager._prepareDefinition(
         SpoonManager.from.default
-            .spoon("Emojis")
-            .command("install")
-            .explain()
+            .spoon("Emojis"),
+        "install"
+    )
 
     assertMatchesJson("examples/default_spoon.lua.explain.json", explanation)
 end)
@@ -119,7 +119,7 @@ Golden JSON snapshots make sense for stable public or semi-public structures:
 - `definition.toConfig()`
 - resolver `resolved` output
 - resolver `command` output
-- `definition.command("install").explain()` output
+- prepared definition output from `SpoonManager._prepareDefinition(...)`
 - selected `installed.json` records after normalizing dynamic values
 
 They are less useful for unstable runtime data unless the test normalizes dynamic fields first.

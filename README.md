@@ -733,8 +733,8 @@ are rejected, and a non-`.zip` base requires `.zipFile(...)`.
 
 `.withName(name)` and `.conflictStrategy(behavior)` are declared by every
 provider, so they work on any source. `.use(options)` and the lifecycle calls
-`.add()`, `.install()`, `.update()`, `.resolve()`, `.command(action)`,
-`.toConfig()`, and `.explain()` are not capability-gated and always available.
+`.add()`, `.install()`, `.update()`, `.toConfig()`, and `.explain()` are not
+capability-gated and always available.
 
 ### `builder.branch(name)`
 
@@ -861,7 +861,7 @@ spoon.SpoonManager.from.github("muescha/SpoonRepo")
 `.spoon(name)` only stores the selection; the pattern is applied when the
 builder resolves, so `.spoon(...)` and the pattern may be set in either order.
 Without `spoonZipPattern(...)` or `spoonFolderPattern(...)`, resolving is
-rejected (at `.resolve()`, `.command(...)`, `.install()`, or `.update()`):
+rejected (at `.install()` or `.update()`):
 
 ```lua
 spoon.SpoonManager.from.github("muescha/SpoonRepo")
@@ -1381,55 +1381,6 @@ Example output:
 }
 ```
 
-### `builder.resolve()`
-
-Returns a new builder with the `resolved` stage calculated.
-
-You usually do not need this for normal installs. `install()` and `update()` resolve automatically. Use `resolve()` when you want to preview or debug what SpoonManager inferred before it builds an executable command.
-
-The resolved stage contains derived values such as:
-
-```text
-resolved.installName    = final Spoon name after inference or withName(...)
-resolved.sourceKind     = executable source kind, either zip or folder
-resolved.url            = direct ZIP URL, when the source resolves to a ZIP
-resolved.extractFolder  = folder to extract from an archive
-```
-
-Example:
-
-```lua
-local resolved =
-    spoon.SpoonManager.from.default
-        .spoon("Emojis")
-        .resolve()
-        .explain()
-
-print(hs.inspect(resolved.resolved))
-```
-
-Example output:
-
-```lua
-{
-    installName = "Emojis",
-    sourceKind = "zip",
-    url = "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/Emojis.spoon.zip",
-}
-```
-
-After `resolve()`, the builder is frozen for further builder changes. Start from the base builder when you want another variation:
-
-```lua
-local base = spoon.SpoonManager.from.default
-
-local emojis =
-    base.spoon("Emojis").resolve()
-
-local windowSigils =
-    base.spoon("WindowSigils")
-```
-
 ### `builder.explain()`
 
 Returns the current builder state without calculating new values.
@@ -1445,7 +1396,9 @@ local current =
 print(hs.inspect(current))
 ```
 
-`explain()` is intentionally passive. It does not infer names, build URLs, or create commands.
+`explain()` is intentionally passive. It does not infer names, build URLs, or
+create commands. `install()` and `update()` prepare those runtime values
+internally from the stored config.
 
 Before resolving, the output contains only `config`:
 
@@ -1462,23 +1415,7 @@ Before resolving, the output contains only `config`:
 }
 ```
 
-To inspect later stages, request them explicitly first:
-
-```lua
-local resolved =
-    spoon.SpoonManager.from.default
-        .spoon("Emojis")
-        .resolve()
-        .explain()
-
-local command =
-    spoon.SpoonManager.from.default
-        .spoon("Emojis")
-        .command("install")
-        .explain()
-```
-
-After one of these stages has been calculated, the builder is frozen for further builder changes. Start from the base builder when you want a variation:
+Start from the base builder when you want a variation:
 
 ```lua
 local base = spoon.SpoonManager.from.default
@@ -1490,7 +1427,7 @@ local windowSigils =
     base.spoon("WindowSigils")
 ```
 
-The stages are only calculated once and then reused:
+The runtime stages are calculated internally for each install/update action:
 
 ```text
 config

@@ -1,8 +1,9 @@
 return function(T)
     T.test("example: remote zip", function()
         local explanation =
-            T.SpoonManager.from.remoteZip("https://example.com/downloads/DeepFolder.spoon.zip")
-                .command("install").explain()
+            T.explainCommand(
+                T.SpoonManager.from.remoteZip("https://example.com/downloads/DeepFolder.spoon.zip"),
+            "install")
 
         T.assertEqual(explanation.config.source.type, "remoteZip")
         T.assertEqual(explanation.command.source.kind, "zip")
@@ -14,9 +15,10 @@ return function(T)
 
     T.test("example: remote zip with explicit name", function()
         local explanation =
-            T.SpoonManager.from.remoteZip("https://example.com/downloads/latest.zip")
-                .withName("DeepFolder")
-                .command("install").explain()
+            T.explainCommand(
+                T.SpoonManager.from.remoteZip("https://example.com/downloads/latest.zip")
+                .withName("DeepFolder"),
+            "install")
 
         T.assertEqual(explanation.config.naming.withName, "DeepFolder")
         T.assertEqual(explanation.command.source.location.url, "https://example.com/downloads/latest.zip")

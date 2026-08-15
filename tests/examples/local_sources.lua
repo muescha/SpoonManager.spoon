@@ -1,8 +1,9 @@
 return function(T)
     T.test("example: local folder spoon", function()
         local explanation =
-            T.SpoonManager.from.localFolder("~/Projects/DeepFolder.spoon")
-                .command("install").explain()
+            T.explainCommand(
+                T.SpoonManager.from.localFolder("~/Projects/DeepFolder.spoon"),
+            "install")
 
         T.assertEqual(explanation.config.source.type, "localFolder")
         T.assertEqual(explanation.config.source.root, "~/Projects/DeepFolder.spoon")
@@ -15,9 +16,10 @@ return function(T)
 
     T.test("example: local folder repository selection", function()
         local explanation =
-            T.SpoonManager.from.localFolder("~/Projects/SpoonRepo")
-                .path("Source/DeepFolder.spoon")
-                .command("install").explain()
+            T.explainCommand(
+                T.SpoonManager.from.localFolder("~/Projects/SpoonRepo")
+                .path("Source/DeepFolder.spoon"),
+            "install")
 
         T.assertEqual(explanation.config.source.selection_path, "Source/DeepFolder.spoon")
         T.assertEqual(explanation.command.source.kind, "folder")
@@ -29,9 +31,10 @@ return function(T)
 
     T.test("example: local folder with explicit name", function()
         local explanation =
-            T.SpoonManager.from.localFolder("~/Projects/experimental")
-                .withName("DeepFolder")
-                .command("install").explain()
+            T.explainCommand(
+                T.SpoonManager.from.localFolder("~/Projects/experimental")
+                .withName("DeepFolder"),
+            "install")
 
         T.assertEqual(explanation.config.naming.withName, "DeepFolder")
         T.assertEqual(explanation.command.source.location.path, "/Users/test/Projects/experimental")
@@ -41,9 +44,10 @@ return function(T)
 
     T.test("example: local folder with excluded folders", function()
         local explanation =
-            T.SpoonManager.from.localFolder("~/Projects/EmmyLua.spoon")
-                .excludeFolders("annotations")
-                .command("install").explain()
+            T.explainCommand(
+                T.SpoonManager.from.localFolder("~/Projects/EmmyLua.spoon")
+                .excludeFolders("annotations"),
+            "install")
 
         T.assertEqual(explanation.config.source.excludeFolders[1], "annotations")
         T.assertEqual(explanation.command.source.excludeFolders[1], "annotations")
@@ -53,8 +57,9 @@ return function(T)
 
     T.test("example: local zip", function()
         local explanation =
-            T.SpoonManager.from.localZip("~/Downloads/DeepFolder.spoon.zip")
-                .command("install").explain()
+            T.explainCommand(
+                T.SpoonManager.from.localZip("~/Downloads/DeepFolder.spoon.zip"),
+            "install")
 
         T.assertEqual(explanation.config.source.type, "localZip")
         T.assertEqual(explanation.config.source.file, "~/Downloads/DeepFolder.spoon.zip")
@@ -67,9 +72,10 @@ return function(T)
 
     T.test("example: local zip with explicit name", function()
         local explanation =
-            T.SpoonManager.from.localZip("~/Downloads/latest.zip")
-                .withName("DeepFolder")
-                .command("install").explain()
+            T.explainCommand(
+                T.SpoonManager.from.localZip("~/Downloads/latest.zip")
+                .withName("DeepFolder"),
+            "install")
 
         T.assertEqual(explanation.config.naming.withName, "DeepFolder")
         T.assertEqual(explanation.command.source.location.path, "/Users/test/Downloads/latest.zip")
@@ -79,9 +85,10 @@ return function(T)
 
     T.test("example: local zip folder selection", function()
         local explanation =
-            T.SpoonManager.from.localZip("~/Downloads/DeepFolder.spoon.zip")
-                .useFolder("bundles/DeepFolder.spoon")
-                .command("install").explain()
+            T.explainCommand(
+                T.SpoonManager.from.localZip("~/Downloads/DeepFolder.spoon.zip")
+                .useFolder("bundles/DeepFolder.spoon"),
+            "install")
 
         T.assertEqual(explanation.config.extract.useFolder, "bundles/DeepFolder.spoon")
         T.assertEqual(explanation.command.source.kind, "zip")
