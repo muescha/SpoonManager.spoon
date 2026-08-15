@@ -47,7 +47,7 @@ return function(context)
             return nil, err
         end
 
-        local artifact, fetchErr = sourceFetcher.fetch(source.location or {}, stage)
+        local artifact, fetchErr = sourceFetcher.fetch(source.location, stage)
         if not artifact then
             SourceStage.cleanup(stage)
             return nil, fetchErr
@@ -70,7 +70,7 @@ return function(context)
             return nil, err
         end
 
-        local artifact, fetchErr = sourceFetcher.fetch(source.location or {}, stage)
+        local artifact, fetchErr = sourceFetcher.fetch(source.location, stage)
         if not artifact then
             SourceStage.cleanup(stage)
             return nil, fetchErr

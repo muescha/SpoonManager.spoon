@@ -4,6 +4,8 @@ return function(context)
     local util = context.util
 
     function SourceFetcher.fetch(location, stage)
+        location = location or {}
+
         if location.kind == "path" then
             return {
                 kind = "path",
