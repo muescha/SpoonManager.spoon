@@ -1464,6 +1464,71 @@ local managedSpoons = {
 spoon.SpoonManager.update(managedSpoons)
 ```
 
+### `SpoonManager.installed.list()`
+
+Returns the installed registry as sorted BOM snapshots.
+
+`installed.list()` reads `installed.json`; it does not inspect the filesystem and
+does not update anything.
+
+Example:
+
+```lua
+local installed = spoon.SpoonManager.installed.list()
+
+for _, definition in ipairs(installed) do
+    print(definition.task.name)
+end
+```
+
+### `SpoonManager.installed.spoon(name)`
+
+Returns a selection view for one installed Spoon.
+
+Example:
+
+```lua
+local emojis = spoon.SpoonManager.installed.spoon("Emojis").list()
+```
+
+If the Spoon is not in `installed.json`, `list()` returns an empty list.
+
+### `SpoonManager.installed.update()`
+
+Updates every Spoon recorded in `installed.json`.
+
+This is the registry-backed replacement for an argument-less
+`SpoonManager.update()`: the input comes from persisted install metadata, not
+from hidden in-memory state.
+
+Example:
+
+```lua
+spoon.SpoonManager.installed.update()
+```
+
+An empty registry is a no-op and returns:
+
+```lua
+{
+    success = true,
+    action = "update",
+    runs = {},
+}
+```
+
+### `SpoonManager.installed.spoon(name).update()`
+
+Updates one Spoon from the installed registry.
+
+Example:
+
+```lua
+spoon.SpoonManager.installed.spoon("Emojis").update()
+```
+
+If the Spoon is not in `installed.json`, `update()` raises an error.
+
 ### Results
 
 Single builder actions return:
@@ -1623,6 +1688,7 @@ SpoonManager.spoon/
     ├── DefinitionBuilder.lua
     ├── DefinitionChecker.lua
     ├── DefinitionResolver.lua
+    ├── Installed.lua
     ├── Installer.lua
     ├── NameResolver.lua
     ├── Paths.lua
@@ -1641,6 +1707,7 @@ The modules have narrow responsibilities:
 - `DefinitionBuilder.lua`: builder methods for one installable Spoon
 - `DefinitionChecker.lua`: run a provider's declarative resolve checks and blanket input safety before resolution
 - `DefinitionResolver.lua`: resolve a definition into resolved data and an executable command
+- `Installed.lua`: `SpoonManager.installed` registry-backed listing and update selections
 - `Installer.lua`: install, update, local-change checks, and `hs.spoons.use()`
 - `NameResolver.lua`: Spoon name inference and name logging
 - `Paths.lua`: install and metadata paths
