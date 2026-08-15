@@ -213,9 +213,9 @@ return function(T)
         end, "ZIP file must point to a %.zip file")
     end)
 
-    -- Backup for the early zipFile pre-check: the installer independently rejects a
-    -- non-zip resolved source (reached directly here, bypassing the resolve checks).
-    T.test("installer rejects a non zip resolved source", function()
+    -- Backup for the early zipFile pre-check: staging rejects a non-zip resolved
+    -- source reached directly here, bypassing the resolve checks.
+    T.test("staging rejects a non zip resolved source", function()
         local result, err =
             T.context.installer.installDefinition({
                 name = "A",

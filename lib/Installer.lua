@@ -9,11 +9,6 @@ return function(context)
     local definitionResolver = context.definitionResolver
     local util = context.util
 
-    local function sourceLocationValue(source)
-        local location = source.location or {}
-        return location.url or location.path
-    end
-
     function Installer.checksumDirectory(path)
         if not util.fileExists(path) then
             return nil
@@ -61,13 +56,6 @@ return function(context)
 
         if not definition.name then
             return nil, "Spoon definition requires a Spoon name. Add .withName(\"Name\")."
-        end
-
-        if definition.command.source.kind == "zip" then
-            local zipSource = sourceLocationValue(definition.command.source)
-            if not util.isZipPath(zipSource) then
-                return nil, "ZIP source must point to a .zip file"
-            end
         end
 
         if definition.options and definition.options.conflictStrategy and not manager._isConflictStrategy(definition.options.conflictStrategy) then

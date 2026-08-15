@@ -27,6 +27,10 @@ return function(context)
     end
 
     function SourceStage.stageZipFile(stage, zipFile, selection)
+        if not util.isZipPath(zipFile) then
+            return nil, "ZIP source must point to a .zip file"
+        end
+
         local sourceFolder, extractErr = spoonExtractor.extractZipToSpoon(zipFile, selection, stage.root)
         if not sourceFolder then
             return nil, extractErr
@@ -64,6 +68,12 @@ return function(context)
 
     function SourceStage.fromZipSource(source)
         local selection = source.selection or {}
+        local location = source.location or {}
+        local zipSource = location.url or location.path
+
+        if not util.isZipPath(zipSource) then
+            return nil, "ZIP source must point to a .zip file"
+        end
 
         local stage, err = SourceStage.create()
         if not stage then
