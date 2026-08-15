@@ -28,12 +28,11 @@ return function(context)
             kind = "installed",
             scope = selection.names and "spoon" or "all",
             name = selection.names and selection.names[1] or nil,
+            count = #names,
+            names = util.copyTable(names),
         }
         if selection.names then
             api.registered = installed[api.name] ~= nil
-        else
-            api.count = #names
-            api.names = util.copyTable(names)
         end
 
         function api.list()
