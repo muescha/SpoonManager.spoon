@@ -166,7 +166,8 @@ return function(T)
         local command = T.context.definitionResolver.commandFromResolved(definition, "install", resolved)
 
         T.assertEqual(command.source.kind, "folder")
-        T.assertEqual(command.source.path, "/Users/test/Projects/SpoonRepo/Source/A.spoon")
+        T.assertEqual(command.source.location.kind, "path")
+        T.assertEqual(command.source.location.path, "/Users/test/Projects/SpoonRepo/Source/A.spoon")
         T.assertEqual(command.target.name, "A")
     end)
 

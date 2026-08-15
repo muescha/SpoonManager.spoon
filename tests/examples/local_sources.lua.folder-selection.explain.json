@@ -7,7 +7,10 @@
     },
     "source": {
       "kind": "folder",
-      "path": "/Users/test/Projects/SpoonRepo/Source/DeepFolder.spoon"
+      "location": {
+        "kind": "path",
+        "path": "/Users/test/Projects/SpoonRepo/Source/DeepFolder.spoon"
+      }
     },
     "target": {
       "name": "DeepFolder",
@@ -24,8 +27,13 @@
   },
   "resolved": {
     "installName": "DeepFolder",
-    "localPath": "/Users/test/Projects/SpoonRepo/Source/DeepFolder.spoon",
-    "sourceKind": "folder"
+    "source": {
+      "kind": "folder",
+      "location": {
+        "kind": "path",
+        "path": "/Users/test/Projects/SpoonRepo/Source/DeepFolder.spoon"
+      }
+    }
   },
   "state": "command"
 }

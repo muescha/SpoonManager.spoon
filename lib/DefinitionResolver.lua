@@ -41,6 +41,26 @@ return function(context)
         return def
     end
 
+    function DefinitionResolver.sourceFromResolved(resolved)
+        if resolved.source then
+            return util.copyTable(resolved.source)
+        end
+
+        local source = {
+            kind = resolved.sourceKind,
+        }
+
+        if resolved.sourceKind == "zip" then
+            source.url = resolved.url
+            source.path = resolved.localPath
+            source.folder = resolved.extractFolder
+        elseif resolved.sourceKind == "folder" then
+            source.path = resolved.localPath
+        end
+
+        return source
+    end
+
     function DefinitionResolver.commandFromResolved(definition, action, resolved)
         if definition.command and (not action or definition.command.action == action) then
             return util.copyTable(definition.command)
@@ -51,9 +71,7 @@ return function(context)
         local command = {
             action = action or "install",
             name = resolved.installName,
-            source = {
-                kind = resolved.sourceKind,
-            },
+            source = DefinitionResolver.sourceFromResolved(resolved),
             target = {
                 type = "spoon",
                 name = resolved.installName,
@@ -62,14 +80,6 @@ return function(context)
             options = util.mergeTables(manager.installOptions, config.installOptions or {}),
             use = util.copyTable(config.use),
         }
-
-        if resolved.sourceKind == "zip" then
-            command.source.url = resolved.url
-            command.source.path = resolved.localPath
-            command.source.folder = resolved.extractFolder
-        elseif resolved.sourceKind == "folder" then
-            command.source.path = resolved.localPath
-        end
 
         return command
     end

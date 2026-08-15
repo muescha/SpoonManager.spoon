@@ -83,20 +83,22 @@ return function(context)
     end
 
     function SourceStage.fromFolderSource(source)
-        return SourceStage.fromFolder(source.path)
+        local location = source.location or {}
+        return SourceStage.fromFolder(location.path or source.path)
     end
 
     function SourceStage.fromZipSource(source)
-        local selection = {
+        local location = source.location or {}
+        local selection = source.selection or {
             folder = source.folder,
         }
 
-        if source.path then
-            return SourceStage.fromZipFile(source.path, selection)
+        if location.path or source.path then
+            return SourceStage.fromZipFile(location.path or source.path, selection)
         end
 
-        if source.url then
-            return SourceStage.fromRemoteZip(source.url, selection)
+        if location.url or source.url then
+            return SourceStage.fromRemoteZip(location.url or source.url, selection)
         end
 
         return nil, "Unsupported source kind: " .. tostring(source.kind)

@@ -34,22 +34,39 @@ return function(context)
             end
 
             return {
-                sourceKind = "zip",
-                localPath = util.pathJoin(util.localPath(source.root), path),
-                extractFolder = extract.useFolder,
+                source = {
+                    kind = "zip",
+                    location = {
+                        kind = "path",
+                        path = util.pathJoin(util.localPath(source.root), path),
+                    },
+                    selection = {
+                        folder = extract.useFolder,
+                    },
+                },
             }
         end
 
         if source.selection_path then
             return {
-                sourceKind = "folder",
-                localPath = util.pathJoin(util.localPath(source.root), source.selection_path),
+                source = {
+                    kind = "folder",
+                    location = {
+                        kind = "path",
+                        path = util.pathJoin(util.localPath(source.root), source.selection_path),
+                    },
+                },
             }
         end
 
         return {
-            sourceKind = "folder",
-            localPath = util.localPath(source.root),
+            source = {
+                kind = "folder",
+                location = {
+                    kind = "path",
+                    path = util.localPath(source.root),
+                },
+            },
         }
     end
 

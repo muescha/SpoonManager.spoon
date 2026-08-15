@@ -7,7 +7,10 @@
     },
     "source": {
       "kind": "folder",
-      "path": "/Users/test/Projects/experimental"
+      "location": {
+        "kind": "path",
+        "path": "/Users/test/Projects/experimental"
+      }
     },
     "target": {
       "name": "DeepFolder",
@@ -26,8 +29,13 @@
   },
   "resolved": {
     "installName": "DeepFolder",
-    "localPath": "/Users/test/Projects/experimental",
-    "sourceKind": "folder"
+    "source": {
+      "kind": "folder",
+      "location": {
+        "kind": "path",
+        "path": "/Users/test/Projects/experimental"
+      }
+    }
   },
   "state": "command"
 }
