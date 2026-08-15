@@ -148,7 +148,10 @@ return function(context)
             return nil, "Could not install Spoon folder"
         end
 
-        registry.persistInstall(definition, destination, Installer.checksumDirectory)
+        local sourceHash = Installer.checksumDirectory(stage.folder)
+        registry.persistInstall(definition, destination, Installer.checksumDirectory, {
+            sourceHash = sourceHash,
+        })
         Installer.applyUse(definition)
 
         return {

@@ -27,8 +27,9 @@ return function(context)
         return true
     end
 
-    function Registry.persistInstall(definition, destination, checksum)
+    function Registry.persistInstall(definition, destination, checksum, metadata)
         local registry = Registry.read()
+        metadata = metadata or {}
         local localHash = checksum(destination)
         local now = os.date("!%Y-%m-%dT%H:%M:%SZ")
         local previous = registry[definition.name] or {}
@@ -44,6 +45,7 @@ return function(context)
             command = definition.command,
             fingerprints = {
                 localHash = localHash,
+                sourceHash = metadata.sourceHash,
             },
             use = definition.use,
         }
