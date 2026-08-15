@@ -49,15 +49,18 @@ return function(T)
 
             return {
                 success = true,
-                action = action,
-                name = (
-                    source.selection_spoon
-                    or naming.withName
-                    or extract.useFolder
-                    or source.zipFile
-                    or source.selection_path
-                ) or "unknown",
-                result = {},
+                definition = {
+                    result = {
+                        action = action,
+                        name = (
+                            source.selection_spoon
+                            or naming.withName
+                            or extract.useFolder
+                            or source.zipFile
+                            or source.selection_path
+                        ) or "unknown",
+                    },
+                },
             }
         end
 
@@ -152,10 +155,12 @@ return function(T)
         manager._installDefinition = function()
             return {
                 success = true,
-                name = "Emojis",
-                result = {
-                    skipped = true,
-                    reason = "source-unchanged",
+                definition = {
+                    result = {
+                        name = "Emojis",
+                        skipped = true,
+                        reason = "source-unchanged",
+                    },
                 },
             }
         end
@@ -263,6 +268,12 @@ return function(T)
         manager._installDefinition = function(definitionConfig, action)
             return {
                 success = true,
+                definition = {
+                    result = {
+                        action = action,
+                        name = "Emojis",
+                    },
+                },
             }, nil, {
                 config = definitionConfig,
                 task = {
