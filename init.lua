@@ -221,8 +221,13 @@ function obj._installDefinition(definition, action)
     return context.installer.installDefinition(definition, action)
 end
 
+local function debugStacktrace()
+    print(debug.traceback())
+end
+
 local function debugInfo(definition)
     print(hs.inspect and hs.inspect(definition) or tostring(definition))
+    debugStacktrace()
 end
 
 local function definitionConfig(definition)
