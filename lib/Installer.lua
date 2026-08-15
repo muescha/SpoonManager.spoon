@@ -171,15 +171,17 @@ return function(context)
         return result, installErr
     end
 
-    function Installer.installFromZipFile(definition, zipFile, tmpdir)
-        local sourceFolder, err = spoonExtractor.extractZipToSpoon(zipFile, {
+    function Installer.installFromZipFile(definition, zipFile)
+        local stage, err = sourceStage.fromZipFile(zipFile, {
             folder = definition.command.source.folder,
-        }, tmpdir)
-        if not sourceFolder then
+        })
+        if not stage then
             return nil, err
         end
 
-        return Installer.installFromFolder(definition, sourceFolder)
+        local result, installErr = Installer.installFromStage(definition, stage)
+        sourceStage.cleanup(stage)
+        return result, installErr
     end
 
     function Installer.installFromRemoteZip(definition, url)
@@ -234,9 +236,7 @@ return function(context)
         if source.kind == "folder" then
             result, err = Installer.installFromFolder(def, source.path)
         elseif source.kind == "zip" and source.path then
-            local tmpdir = util.trim(hs.execute("/usr/bin/mktemp -d"))
-            result, err = Installer.installFromZipFile(def, source.path, tmpdir)
-            util.removePath(tmpdir, logger)
+            result, err = Installer.installFromZipFile(def, source.path)
         elseif source.kind == "zip" and source.url then
             result, err = Installer.installFromRemoteZip(def, source.url)
         else

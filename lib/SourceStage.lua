@@ -2,6 +2,7 @@ return function(context)
     local SourceStage = {}
     local util = context.util
     local logger = context.logger
+    local spoonExtractor = context.spoonExtractor
 
     function SourceStage.create()
         local root = util.trim(hs.execute("/usr/bin/mktemp -d"))
@@ -25,6 +26,28 @@ return function(context)
         if not copied then
             SourceStage.cleanup(stage)
             return nil, "Could not copy source folder into stage"
+        end
+
+        return stage
+    end
+
+    function SourceStage.fromZipFile(zipFile, selection)
+        local stage, err = SourceStage.create()
+        if not stage then
+            return nil, err
+        end
+
+        local sourceFolder, extractErr = spoonExtractor.extractZipToSpoon(zipFile, selection, stage.root)
+        if not sourceFolder then
+            SourceStage.cleanup(stage)
+            return nil, extractErr
+        end
+
+        stage.folder = util.pathJoin(stage.root, "source.spoon")
+        local _, copied = util.copyPath(sourceFolder, stage.folder, logger)
+        if not copied then
+            SourceStage.cleanup(stage)
+            return nil, "Could not copy extracted Spoon into stage"
         end
 
         return stage
