@@ -27,11 +27,7 @@ return function(context)
             return installed.fingerprints.targetFolderHash
         end
 
-        if installed.fingerprints and installed.fingerprints.localHash then
-            return installed.fingerprints.localHash
-        end
-
-        return installed.checksum
+        return nil
     end
 
     function Installer.prepareDefinition(definition, action)
@@ -141,11 +137,7 @@ return function(context)
             return installed.fingerprints.stagedSourceHash
         end
 
-        if installed.fingerprints and installed.fingerprints.sourceHash then
-            return installed.fingerprints.sourceHash
-        end
-
-        return installed.checksum
+        return nil
     end
 
     function Installer.skipUnchangedUpdate(definition, destination, stagedSourceHash)

@@ -370,9 +370,9 @@ return function(T)
             })
 
             T.assertTrue(ok, err)
-            T.assertEqual(written.Emojis.checksum, "target-hash")
             T.assertEqual(written.Emojis.fingerprints.stagedSourceHash, "source-hash")
             T.assertEqual(written.Emojis.fingerprints.targetFolderHash, "target-hash")
+            T.assertFalse(written.Emojis.checksum)
             T.assertFalse(written.Emojis.fingerprints.sourceHash)
             T.assertFalse(written.Emojis.fingerprints.localHash)
             T.assertEqual(written.Emojis.use.start, true)
@@ -427,7 +427,9 @@ return function(T)
                 value = function()
                     return {
                         Emojis = {
-                            checksum = "same",
+                            fingerprints = {
+                                targetFolderHash = "same",
+                            },
                         },
                     }
                 end,
@@ -553,9 +555,9 @@ return function(T)
                 value = function()
                     return {
                         Emojis = {
-                            checksum = "old-path-dependent-local-hash",
                             fingerprints = {
-                                sourceHash = "old-path-dependent-source-hash",
+                                stagedSourceHash = "old-path-dependent-source-hash",
+                                targetFolderHash = "old-path-dependent-target-hash",
                             },
                         },
                     }
@@ -639,9 +641,9 @@ return function(T)
                 value = function()
                     return {
                         Emojis = {
-                            checksum = "old-target-hash",
                             fingerprints = {
-                                sourceHash = "old-source-hash",
+                                stagedSourceHash = "old-source-hash",
+                                targetFolderHash = "old-target-hash",
                             },
                         },
                     }

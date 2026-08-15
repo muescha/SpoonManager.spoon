@@ -34,21 +34,18 @@ return function(context)
         local task = definition.task or {}
         local name = task.name or definition.name
         local previous = registry[name] or {}
-        local targetFolderHash = fingerprints.targetFolderHash or fingerprints.localHash
-        local stagedSourceHash = fingerprints.stagedSourceHash or fingerprints.sourceHash
 
         registry[name] = {
             name = name,
             installedAt = previous.installedAt or now,
             updatedAt = now,
             path = destination,
-            checksum = targetFolderHash,
             config = definition.config,
             resolved = definition.resolved,
             command = definition.command,
             fingerprints = {
-                stagedSourceHash = stagedSourceHash,
-                targetFolderHash = targetFolderHash,
+                stagedSourceHash = fingerprints.stagedSourceHash,
+                targetFolderHash = fingerprints.targetFolderHash,
             },
             use = task.use or definition.use,
         }

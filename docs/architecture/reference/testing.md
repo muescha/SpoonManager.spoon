@@ -416,7 +416,7 @@ Useful cases:
 - install from ZIP containing `Name.spoon/`
 - install from ZIP containing one root folder with `init.lua`
 - `install()` skips when target already exists
-- `update()` checks the stored checksum
+- `update()` checks the stored `targetFolderHash`
 - unmanaged existing Spoon aborts by default
 - unmanaged existing Spoon can be backed up
 - locally changed managed Spoon aborts by default
