@@ -18,6 +18,27 @@ return function(context)
         }
     end
 
+    local function publicResult(definition, command, result, action)
+        local details = util.copyTable(result)
+        details.success = nil
+        details.action = nil
+        details.name = nil
+        details.path = nil
+
+        return {
+            success = result.success,
+            action = action,
+            name = result.name,
+            path = result.path,
+            task = {
+                config = definition.config,
+                resolved = definition.resolved,
+                command = command,
+            },
+            result = details,
+        }
+    end
+
     function Installer.prepareDefinition(definition, action)
         local def = definition.config and util.copyTable(definition) or {
             config = util.copyTable(definition),
@@ -230,18 +251,15 @@ return function(context)
         local run = task(def)
         if action == "install" and util.fileExists(paths.targetPath(run.name)) then
             Installer.applyUse(def)
-            return {
+            return publicResult(def, command, {
                 success = true,
                 action = "install",
                 skipped = true,
                 reason = "already-installed",
                 name = run.name,
                 path = paths.targetPath(run.name),
-                config = def.config,
-                command = command,
-                resolved = def.resolved,
                 use = run.use,
-            }, nil, def
+            }, action), nil, def
         end
 
         local stage, stageErr = sourceStage.fromCommand(command)
@@ -252,13 +270,11 @@ return function(context)
         local result, err = Installer.installFromStage(def, stage, action)
         sourceStage.cleanup(stage)
 
-        if result then
-            result.action = action
-            result.config = def.config
-            result.command = command
-            result.resolved = def.resolved
+        if not result then
+            return nil, err, def
         end
-        return result, err, def
+
+        return publicResult(def, command, result, action), nil, def
     end
 
     return Installer

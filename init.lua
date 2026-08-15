@@ -288,7 +288,7 @@ function obj._installAndRememberDefinition(definition, action)
             return installAndRememberDefinition(definition, action)
         end,
         function(result)
-            return result and not result.skipped
+            return result and result.result and not result.result.skipped
         end
     )
 end
@@ -342,7 +342,7 @@ local function runDefinitions(action, ...)
     for _, definition in ipairs(definitions) do
         local installed, err = installAndRememberDefinition(definition, action)
         if installed then
-            if installed.skipped then
+            if installed.result and installed.result.skipped then
                 table.insert(result.skipped, installed)
             else
                 table.insert(result.installed, installed)

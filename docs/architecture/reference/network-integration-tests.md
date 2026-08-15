@@ -503,7 +503,7 @@ The runner:
 9. Write the path resolved from `pathTemplates.explain`.
 10. Run `definition.install()` synchronously.
 11. Verify expected files below the temporary install path.
-12. Run the same install again and assert `result.skipped == true`.
+12. Run the same install again and assert `result.result.skipped == true`.
 13. Write the path resolved from `pathTemplates.result`.
 14. Write the path resolved from `pathTemplates.log`.
 15. Print the resolved install path.

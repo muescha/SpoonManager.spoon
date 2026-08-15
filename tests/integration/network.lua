@@ -495,12 +495,14 @@ local function compactRunResult(result)
         return nil
     end
 
+    local details = result.result or {}
+
     return {
         action = result.action,
         name = result.name,
         path = result.path,
-        skipped = result.skipped or nil,
-        reason = result.reason,
+        skipped = details.skipped or nil,
+        reason = details.reason,
     }
 end
 
@@ -616,7 +618,7 @@ for _, test in ipairs(config.tests or {}) do
                 }
                 error(skipErr or "second install failed")
             end
-            if not skipped.skipped then
+            if not skipped.result.skipped then
                 runnerResult.checks.alreadyInstalledSkip = {
                     success = false,
                     result = compactRunResult(skipped),
@@ -628,8 +630,8 @@ for _, test in ipairs(config.tests or {}) do
             runnerResult.checks.alreadyInstalledSkip = {
                 success = true,
                 result = {
-                    skipped = skipped.skipped,
-                    reason = skipped.reason,
+                    skipped = skipped.result.skipped,
+                    reason = skipped.result.reason,
                 },
             }
             if expectedFailure(test) then

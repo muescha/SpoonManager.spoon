@@ -45,6 +45,7 @@ return function(T)
                     or source.zipFile
                     or source.selection_path
                 ) or "unknown",
+                result = {},
             }
         end
 
@@ -139,9 +140,11 @@ return function(T)
         manager._installDefinition = function()
             return {
                 success = true,
-                skipped = true,
-                reason = "source-unchanged",
                 name = "Emojis",
+                result = {
+                    skipped = true,
+                    reason = "source-unchanged",
+                },
             }
         end
         hs.reload = function()
@@ -301,11 +304,78 @@ return function(T)
                     .install()
 
             T.assertTrue(result, err)
-            T.assertTrue(result.skipped)
-            T.assertEqual(result.reason, "already-installed")
+            T.assertEqual(result.action, "install")
+            T.assertEqual(result.name, "Emojis")
+            T.assertEqual(result.path, "/tmp/hammerspoon-test/Spoons/Emojis.spoon")
+            T.assertTrue(result.task.config)
+            T.assertTrue(result.task.resolved)
+            T.assertTrue(result.task.command)
+            T.assertFalse(result.skipped)
+            T.assertFalse(result.reason)
+            T.assertTrue(result.result.skipped)
+            T.assertEqual(result.result.reason, "already-installed")
             T.assertEqual(#used, 1)
             T.assertEqual(used[1].name, "Emojis")
             T.assertEqual(used[1].options.start, true)
+        end)
+    end)
+
+    T.test("installer wraps update result separately from task", function()
+        withPatched({
+            {
+                table = T.context.sourceStage,
+                key = "fromCommand",
+                value = function(command)
+                    T.assertEqual(command.action, "update")
+                    return {
+                        folder = "/stage/Emojis.spoon",
+                    }
+                end,
+            },
+            {
+                table = T.context.sourceStage,
+                key = "cleanup",
+                value = function() end,
+            },
+            {
+                table = T.context.installer,
+                key = "installFromStage",
+                value = function()
+                    return {
+                        success = true,
+                        action = "update",
+                        name = "Emojis",
+                        path = "/tmp/hammerspoon-test/Spoons/Emojis.spoon",
+                        skipped = true,
+                        reason = "source-unchanged",
+                        fingerprints = {
+                            stagedSourceHash = "source-hash",
+                            storedSourceHash = "source-hash",
+                        },
+                    }
+                end,
+            },
+        }, function()
+            local result, err = T.context.installer.installDefinition(
+                T.SpoonManager.from.default
+                    .spoon("Emojis")
+                    .toConfig(),
+                "update"
+            )
+
+            T.assertTrue(result, err)
+            T.assertEqual(result.action, "update")
+            T.assertEqual(result.name, "Emojis")
+            T.assertEqual(result.path, "/tmp/hammerspoon-test/Spoons/Emojis.spoon")
+            T.assertTrue(result.task.config)
+            T.assertTrue(result.task.resolved)
+            T.assertTrue(result.task.command)
+            T.assertFalse(result.config)
+            T.assertFalse(result.resolved)
+            T.assertFalse(result.command)
+            T.assertTrue(result.result.skipped)
+            T.assertEqual(result.result.reason, "source-unchanged")
+            T.assertEqual(result.result.fingerprints.stagedSourceHash, "source-hash")
         end)
     end)
 

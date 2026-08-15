@@ -1300,10 +1300,10 @@ install or update, `update()` skips the copy and returns `reason =
 "source-unchanged"`. `update()` is for managed Spoons; if a Spoon is not recorded
 in SpoonManager's registry, use `install()` first.
 
-Update results include `fingerprints.stagedSourceHash` and
+The nested `result` section includes `fingerprints.stagedSourceHash` and
 `fingerprints.storedSourceHash`. When SpoonManager hashes the installed target
-folder, results also include `fingerprints.targetFolderHash` so you can debug why
-an update copied or skipped.
+folder, that section also includes `fingerprints.targetFolderHash` so you can
+debug why an update copied or skipped.
 
 After a successful update, SpoonManager stores the builder config as a managed builder config.
 
@@ -1622,14 +1622,18 @@ On success:
 {
     success = true,
     action = "install",
-    skipped = true,
-    reason = "already-installed",
     name = "Emojis",
     path = "~/.hammerspoon/Spoons/Emojis.spoon",
-    config = {},
-    resolved = {},
-    command = {},
-    use = {},
+    task = {
+        config = {},
+        resolved = {},
+        command = {},
+    },
+    result = {
+        skipped = true,
+        reason = "already-installed",
+        use = {},
+    },
 }
 ```
 
@@ -1695,13 +1699,14 @@ The terms used in debug output and stored metadata are:
 config   = the user-provided source, target, use, and options values
 resolved = inferred install name, source type, URLs, and archive selection
 command  = final executable install/update task
-task     = transient runtime values used while applying a command
+task     = returned task context containing config, resolved, and command
+result   = action outcome such as skipped, reason, fingerprints, and use
 ```
 
 SpoonManager calculates each stage once and then reuses it:
 
 ```text
-config -> resolved -> command -> task -> installed record
+config -> resolved -> command -> result -> installed record
 ```
 
 `builder.toConfig()` returns only the declarative config. Install results and
