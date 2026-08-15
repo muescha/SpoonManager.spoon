@@ -161,9 +161,9 @@ return function(context)
             return nil, "Could not install Spoon folder"
         end
 
-        registry.persistInstall(definition, destination, function(path)
-            return util.hashDirectory(path, nil, logger)
-        end, {
+        local localHash = util.hashDirectory(destination, nil, logger)
+        registry.persistInstall(definition, destination, {
+            localHash = localHash,
             sourceHash = sourceHash,
         })
         Installer.applyUse(definition)
