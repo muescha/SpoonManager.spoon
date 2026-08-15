@@ -334,11 +334,30 @@ local function artifactPathFor(test, rootPath, installPath, templateName, defaul
 end
 
 local function stubHammerspoon(configRoot, logs)
+    local function structuredLogMessage(message)
+        local plainMessage, stackText = message:match("^(.-)\nStacktrace:\n%s*<%- (.*)$")
+        if not stackText then
+            return message, {}
+        end
+
+        local stacktrace = {}
+        for frame in stackText:gmatch("([^\n]+)") do
+            frame = frame:gsub("^%s*<%- ", "")
+            if frame ~= "" then
+                table.insert(stacktrace, frame)
+            end
+        end
+
+        return plainMessage, stacktrace
+    end
+
     local function logMessage(level, fmt, ...)
         local message = string.format(fmt or "%s", ...)
+        local plainMessage, stacktrace = structuredLogMessage(message)
         table.insert(logs, {
             level = level,
-            message = message,
+            message = plainMessage,
+            stacktrace = stacktrace,
         })
         if level == "error" then
             io.stderr:write(message .. "\n")

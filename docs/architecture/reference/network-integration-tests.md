@@ -254,7 +254,10 @@ The log artifact has this shape:
   "logs": [
     {
       "level": "debug",
-      "message": "Inferred Spoon name 'WindowSigils' from source path 'Source/WindowSigils.spoon'"
+      "message": "Inferred Spoon name 'WindowSigils' from source path 'Source/WindowSigils.spoon'",
+      "stacktrace": [
+        "DefinitionResolver.lua:16 resolveFromDefinition"
+      ]
     }
   ]
 }
