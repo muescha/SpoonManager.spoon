@@ -9,6 +9,18 @@ Start a new Codex task with:
 ```text
 Implement docs/architecture/planned/stateless-manager-actions.md.
 
+Do this after docs/architecture/planned/definition-bom-and-results.md has been
+implemented. The desired order is:
+
+1. Definition BOM and result artifacts.
+2. Stateless manager actions.
+3. SpoonManager.installed registry view and selections.
+
+Before starting this refactor, verify that install/update actions already expose
+the prepared definition/BOM 1:1, installed.json stores the full BOM snapshot, and
+network result/explain artifacts are passive snapshots of the actual pipeline
+state. Then make the manager stateless on top of that stable shape.
+
 Work in atomic refactor commits. Keep each commit logically balanced: when a
 piece of behavior is removed from one side, wire the replacement on the other
 side in the same commit.
@@ -22,9 +34,11 @@ Main goals:
 4. Normalize varargs and explicit list input into one internal list shape.
 5. Return one result format everywhere, using runs = { ... } for individual
    executions.
-6. Add SpoonManager.installed as a registry view, including both whole-registry
-   actions and selection methods such as installed.spoon("Emojis").update().
-7. Keep the persisted install registry; do not remove installed metadata.
+6. Keep SpoonManager.installed as the next follow-up after stateless actions,
+   including both whole-registry actions and selection methods such as
+   installed.spoon("Emojis").update().
+7. Keep the persisted install registry as full BOM snapshots; do not remove
+   installed metadata.
 
 Run the normal Lua test suite after each meaningful refactor slice:
 /Users/muescha/.local/share/mise/installs/lua/5.4.4/bin/lua tests/run.lua

@@ -17,6 +17,14 @@ Start a new Codex task with:
 ```text
 Implement docs/architecture/planned/definition-bom-and-results.md.
 
+This is the first step before implementing
+docs/architecture/planned/stateless-manager-actions.md. Stabilize the BOM,
+result, registry, and network artifact shapes first. The follow-up order is:
+
+1. Definition BOM and result artifacts.
+2. Stateless manager actions.
+3. SpoonManager.installed registry view and selections.
+
 Work in atomic refactor commits. Keep each commit logically balanced: when a
 piece of behavior is removed from one side, wire the replacement on the other
 side in the same commit.
@@ -26,10 +34,11 @@ Main goals:
 1. Treat the runtime definition as the canonical BOM for pipeline state.
 2. Add runtime sections to the definition instead of creating parallel result
    formats.
-3. Make explain/network artifacts record snapshots of the actual definition at
+3. Persist installed.json as a map from installed name to the full BOM snapshot.
+4. Make explain/network artifacts record snapshots of the actual definition at
    that point in time.
-4. Remove unnecessary publicResult-style field mapping.
-5. Keep tests away from manager-only shortcuts such as _prepareDefinition when a
+5. Remove unnecessary publicResult-style field mapping.
+6. Keep tests away from manager-only shortcuts such as _prepareDefinition when a
    resolver/stage helper is the better owner.
 
 Run the normal Lua test suite after each meaningful refactor slice:
