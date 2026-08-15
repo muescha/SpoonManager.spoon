@@ -41,10 +41,6 @@ return function(context)
         return def
     end
 
-    function DefinitionResolver.sourceFromResolved(resolved)
-        return util.copyTable(resolved.source)
-    end
-
     function DefinitionResolver.commandFromResolved(definition, action, resolved)
         if definition.command and (not action or definition.command.action == action) then
             return util.copyTable(definition.command)
@@ -55,7 +51,7 @@ return function(context)
         local command = {
             action = action or "install",
             name = resolved.installName,
-            source = DefinitionResolver.sourceFromResolved(resolved),
+            source = util.copyTable(resolved.source),
             target = {
                 type = "spoon",
                 name = resolved.installName,
