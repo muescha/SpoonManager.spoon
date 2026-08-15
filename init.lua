@@ -387,4 +387,15 @@ function obj.update(...)
     )
 end
 
+local function providerCount()
+    local count = 0
+    for _ in pairs(obj.providers) do
+        count = count + 1
+    end
+
+    return count
+end
+
+obj.logger.i(string.format("Loaded %s %s with %d source providers", obj.name, obj.version, providerCount()))
+
 return obj
