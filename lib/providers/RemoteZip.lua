@@ -49,9 +49,16 @@ return function(context)
         end
 
         return {
-            sourceKind = "zip",
-            url = url,
-            extractFolder = extract.useFolder,
+            source = {
+                kind = "zip",
+                location = {
+                    kind = "url",
+                    url = url,
+                },
+                selection = {
+                    folder = extract.useFolder,
+                },
+            },
         }
     end
 
