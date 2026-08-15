@@ -3,22 +3,6 @@ return function(context)
     local util = context.util
     local logger = context.logger
 
-    function SpoonExtractor.downloadToFile(url, destination)
-        local status, body = hs.http.get(url)
-        if status < 100 or status >= 400 then
-            return nil, string.format("Download failed with HTTP status %s for %s", tostring(status), url)
-        end
-
-        local file, err = io.open(destination, "wb")
-        if not file then
-            return nil, err
-        end
-
-        file:write(body)
-        file:close()
-        return true
-    end
-
     function SpoonExtractor.validateInstalledFolder(path)
         if not util.fileExists(util.pathJoin(path, "init.lua")) then
             return nil, "Installed folder does not contain init.lua"

@@ -1,7 +1,22 @@
 return function(context)
     local SourceFetcher = {}
-    local spoonExtractor = context.spoonExtractor
     local util = context.util
+
+    function SourceFetcher.downloadToFile(url, destination)
+        local status, body = hs.http.get(url)
+        if status < 100 or status >= 400 then
+            return nil, string.format("Download failed with HTTP status %s for %s", tostring(status), url)
+        end
+
+        local file, err = io.open(destination, "wb")
+        if not file then
+            return nil, err
+        end
+
+        file:write(body)
+        file:close()
+        return true
+    end
 
     function SourceFetcher.fetch(location, stage)
         location = location or {}
@@ -15,7 +30,7 @@ return function(context)
 
         if location.kind == "url" then
             local zipFile = util.pathJoin(stage.root, "download.zip")
-            local ok, err = spoonExtractor.downloadToFile(location.url, zipFile)
+            local ok, err = SourceFetcher.downloadToFile(location.url, zipFile)
             if not ok then
                 return nil, err
             end
