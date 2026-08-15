@@ -366,6 +366,106 @@ return function(T)
         end)
     end)
 
+    T.test("installed update runs registry configs through manager update", function()
+        withRecordedInstaller(function(manager, calls)
+            withPatched({
+                {
+                    table = T.context.registry,
+                    key = "read",
+                    value = function()
+                        return {
+                            TimeMachineProgress = {
+                                config = {
+                                    source = {
+                                        selection_spoon = "TimeMachineProgress",
+                                    },
+                                },
+                            },
+                            Emojis = {
+                                config = {
+                                    source = {
+                                        selection_spoon = "Emojis",
+                                    },
+                                },
+                            },
+                        }
+                    end,
+                },
+            }, function()
+                local installed = T.context.installed.create()
+                local result = installed.update()
+
+                T.assertTrue(result.success)
+                T.assertEqual(result.action, "update")
+                T.assertEqual(#result.runs, 2)
+                T.assertEqual(#calls, 2)
+                T.assertEqual(calls[1].action, "update")
+                T.assertEqual(calls[1].config.source.selection_spoon, "Emojis")
+                T.assertEqual(calls[2].config.source.selection_spoon, "TimeMachineProgress")
+            end)
+        end)
+    end)
+
+    T.test("installed spoon selection updates one registry config", function()
+        withRecordedInstaller(function(manager, calls)
+            withPatched({
+                {
+                    table = T.context.registry,
+                    key = "read",
+                    value = function()
+                        return {
+                            Emojis = {
+                                config = {
+                                    source = {
+                                        selection_spoon = "Emojis",
+                                    },
+                                },
+                            },
+                            TimeMachineProgress = {
+                                config = {
+                                    source = {
+                                        selection_spoon = "TimeMachineProgress",
+                                    },
+                                },
+                            },
+                        }
+                    end,
+                },
+            }, function()
+                local installed = T.context.installed.create()
+                local result = installed.spoon("Emojis").update()
+
+                T.assertTrue(result.success)
+                T.assertEqual(#result.runs, 1)
+                T.assertEqual(#calls, 1)
+                T.assertEqual(calls[1].action, "update")
+                T.assertEqual(calls[1].config.source.selection_spoon, "Emojis")
+
+                T.assertError(function()
+                    installed.spoon("Missing").update()
+                end, "Installed Spoon not found: Missing")
+            end)
+        end)
+    end)
+
+    T.test("installed update with empty registry is a no-op", function()
+        withPatched({
+            {
+                table = T.context.registry,
+                key = "read",
+                value = function()
+                    return {}
+                end,
+            },
+        }, function()
+            local result = T.context.installed.create().update()
+
+            T.assertTrue(result.success)
+            T.assertEqual(result.action, "update")
+            T.assertEqual(#result.runs, 0)
+        end)
+    end)
+
     T.test("installer skips already installed spoon", function()
         local used = {}
 
