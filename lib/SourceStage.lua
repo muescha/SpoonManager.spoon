@@ -5,10 +5,6 @@ return function(context)
     local spoonExtractor = context.spoonExtractor
     local sourceFetcher = context.sourceFetcher
 
-    local function sourceLocation(source)
-        return source.location or {}
-    end
-
     function SourceStage.create()
         local root = util.trim(hs.execute("/usr/bin/mktemp -d"))
         if not root or root == "" then
@@ -105,7 +101,7 @@ return function(context)
             return nil, err
         end
 
-        local artifact, fetchErr = sourceFetcher.fetch(sourceLocation(source), stage)
+        local artifact, fetchErr = sourceFetcher.fetch(source.location or {}, stage)
         if not artifact then
             SourceStage.cleanup(stage)
             return nil, fetchErr
@@ -128,7 +124,7 @@ return function(context)
             return nil, err
         end
 
-        local artifact, fetchErr = sourceFetcher.fetch(sourceLocation(source), stage)
+        local artifact, fetchErr = sourceFetcher.fetch(source.location or {}, stage)
         if not artifact then
             SourceStage.cleanup(stage)
             return nil, fetchErr
