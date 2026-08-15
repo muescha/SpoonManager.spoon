@@ -45,6 +45,7 @@ Grouped by role:
 - [discovery-website-and-gui.md](architecture/planned/discovery-website-and-gui.md)
 - [local-changes-and-forking.md](architecture/planned/local-changes-and-forking.md)
 - [error-strategy.md](architecture/planned/error-strategy.md)
+- [name-inference-repeat-resolution.md](architecture/planned/name-inference-repeat-resolution.md)
 
 ### Roadmap — overview and matrices
 
