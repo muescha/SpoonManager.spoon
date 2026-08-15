@@ -254,7 +254,6 @@ local function definitionInstallName(definition)
 end
 
 function obj._rememberDefinition(definition, installName)
-    Util.debugTable(definition)
     local config = definitionConfig(definition)
     installName = installName or definitionInstallName(config)
 
@@ -272,7 +271,6 @@ function obj._rememberDefinition(definition, installName)
 end
 
 local function installAndRememberDefinition(definition, action)
-    Util.debugTable(definition)
     local config = definitionConfig(definition)
     local result, err, prepared = obj._installDefinition(config, action)
     config = prepared or config
