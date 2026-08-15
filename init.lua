@@ -292,7 +292,7 @@ local function installAndRememberDefinition(definition, action)
     config = prepared or config
 
     if result then
-        obj._rememberDefinition(config, result.result.name)
+        obj._rememberDefinition(config, config.task and config.task.name)
     end
 
     return result, err, config

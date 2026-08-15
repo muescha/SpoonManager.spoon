@@ -255,6 +255,39 @@ return function(T)
         end)
     end)
 
+    T.test("manager remembers prepared name without reading output result", function()
+        local manager = T.SpoonManager
+        local originalInstallDefinition = manager._installDefinition
+
+        manager.clear()
+        manager._installDefinition = function(definitionConfig, action)
+            return {
+                success = true,
+            }, nil, {
+                config = definitionConfig,
+                task = {
+                    action = action,
+                    name = "Emojis",
+                    options = {},
+                },
+            }
+        end
+
+        local ok, result = pcall(function()
+            return manager.from.default
+                .spoon("Emojis")
+                .update()
+        end)
+
+        manager._installDefinition = originalInstallDefinition
+
+        T.assertTrue(ok, result)
+        T.assertTrue(result.success)
+        T.assertEqual(#manager.definitions, 1)
+        T.assertEqual(manager.definitions[1].source.selection_spoon, "Emojis")
+        manager.clear()
+    end)
+
     T.test("manager stores one definition per spoon name", function()
         withRecordedInstaller(function(manager)
             manager.install(
