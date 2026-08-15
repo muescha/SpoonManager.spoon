@@ -6,25 +6,7 @@ return function(context)
     local sourceFetcher = context.sourceFetcher
 
     local function sourceLocation(source)
-        if source.location then
-            return source.location
-        end
-
-        if source.path then
-            return {
-                kind = "path",
-                path = source.path,
-            }
-        end
-
-        if source.url then
-            return {
-                kind = "url",
-                url = source.url,
-            }
-        end
-
-        return {}
+        return source.location or {}
     end
 
     function SourceStage.create()
@@ -139,9 +121,7 @@ return function(context)
     end
 
     function SourceStage.fromZipSource(source)
-        local selection = source.selection or {
-            folder = source.folder,
-        }
+        local selection = source.selection or {}
 
         local stage, err = SourceStage.create()
         if not stage then

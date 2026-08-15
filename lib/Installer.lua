@@ -11,7 +11,7 @@ return function(context)
 
     local function sourceLocationValue(source)
         local location = source.location or {}
-        return location.url or location.path or source.url or source.path
+        return location.url or location.path
     end
 
     function Installer.checksumDirectory(path)

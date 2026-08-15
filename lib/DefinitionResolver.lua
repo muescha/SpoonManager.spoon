@@ -42,23 +42,7 @@ return function(context)
     end
 
     function DefinitionResolver.sourceFromResolved(resolved)
-        if resolved.source then
-            return util.copyTable(resolved.source)
-        end
-
-        local source = {
-            kind = resolved.sourceKind,
-        }
-
-        if resolved.sourceKind == "zip" then
-            source.url = resolved.url
-            source.path = resolved.localPath
-            source.folder = resolved.extractFolder
-        elseif resolved.sourceKind == "folder" then
-            source.path = resolved.localPath
-        end
-
-        return source
+        return util.copyTable(resolved.source)
     end
 
     function DefinitionResolver.commandFromResolved(definition, action, resolved)

@@ -228,7 +228,10 @@ return function(T)
                     name = "A",
                     source = {
                         kind = "zip",
-                        url = "https://example.com/A.tar.gz",
+                        location = {
+                            kind = "url",
+                            url = "https://example.com/A.tar.gz",
+                        },
                     },
                     target = {
                         type = "spoon",
