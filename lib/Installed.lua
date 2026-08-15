@@ -4,15 +4,6 @@ return function(context)
     local registry = context.registry
     local util = context.util
 
-    local function sortedKeys(map)
-        local keys = {}
-        for key in pairs(map or {}) do
-            keys[#keys + 1] = key
-        end
-        table.sort(keys)
-        return keys
-    end
-
     local function create(selection)
         selection = selection or {}
         local api = {}
@@ -20,7 +11,7 @@ return function(context)
         function api.list()
             local installed = registry.read()
             local entries = {}
-            local names = selection.names or sortedKeys(installed)
+            local names = selection.names or util.sortedKeys(installed)
 
             for _, name in ipairs(names) do
                 if installed[name] then
@@ -34,7 +25,7 @@ return function(context)
         function api.update()
             local installed = registry.read()
             local definitions = {}
-            local names = selection.names or sortedKeys(installed)
+            local names = selection.names or util.sortedKeys(installed)
 
             for _, name in ipairs(names) do
                 local entry = installed[name]

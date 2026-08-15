@@ -1,6 +1,17 @@
 return function(T)
     local util = T.context.util
 
+    T.test("util sortedKeys returns stable sorted map keys", function()
+        local keys = util.sortedKeys({
+            beta = true,
+            alpha = true,
+            gamma = true,
+        })
+
+        T.assertEqual(table.concat(keys, ","), "alpha,beta,gamma")
+        T.assertEqual(#util.sortedKeys(nil), 0)
+    end)
+
     T.test("util pathJoin joins segments and collapses slashes", function()
         T.assertEqual(util.pathJoin("a", "b", "c"), "a/b/c")
         T.assertEqual(util.pathJoin("a/", "/b"), "a/b")

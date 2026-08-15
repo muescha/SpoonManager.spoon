@@ -69,6 +69,15 @@ function Util.mergeTables(base, extra)
     return result
 end
 
+function Util.sortedKeys(map)
+    local keys = {}
+    for key in pairs(map or {}) do
+        keys[#keys + 1] = key
+    end
+    table.sort(keys)
+    return keys
+end
+
 local function debugCallSite(level)
     if type(debug) ~= "table" or type(debug.getinfo) ~= "function" then
         return nil
