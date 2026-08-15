@@ -19,6 +19,7 @@ return function(repoRoot)
     context.sourceStage = dofile(repoRoot .. "/lib/SourceStage.lua")(context)
     context.registry = dofile(repoRoot .. "/lib/Registry.lua")(context)
     context.installer = dofile(repoRoot .. "/lib/Installer.lua")(context)
+    context.installed = dofile(repoRoot .. "/lib/Installed.lua")(context)
 
     return SpoonManager, context
 end

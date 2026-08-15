@@ -179,7 +179,10 @@ context.spoonExtractor = loadLib("SpoonExtractor")(context)
 context.sourceFetcher = loadLib("SourceFetcher")(context)
 context.sourceStage = loadLib("SourceStage")(context)
 context.installer = loadLib("Installer")(context)
+context.installed = loadLib("Installed")(context)
 context.definitionBuilder = loadLib("DefinitionBuilder")(context)
+
+obj.installed = context.installed.create()
 
 function obj.registerProvider(provider)
     assert(type(provider) == "table", "Provider must be a table")

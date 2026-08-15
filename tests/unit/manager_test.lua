@@ -87,6 +87,8 @@ return function(T)
         T.assertEqual(type(T.SpoonManager.from.spoonRepo), "function")
         T.assertEqual(type(T.SpoonManager.from.spoonRepoZip), "function")
         T.assertEqual(type(T.SpoonManager.from.remoteZip), "function")
+        T.assertEqual(type(T.SpoonManager.installed.list), "function")
+        T.assertEqual(type(T.SpoonManager.installed.spoon), "function")
     end)
 
     T.test("manager rejects duplicate provider factories", function()
@@ -286,6 +288,82 @@ return function(T)
         T.assertEqual(#result.runs, 1)
         T.assertFalse(result.runs[1].success)
         T.assertEqual(result.runs[1].error, "install failed")
+    end)
+
+    T.test("installed list returns sorted registry BOM snapshots", function()
+        withPatched({
+            {
+                table = T.context.registry,
+                key = "read",
+                value = function()
+                    return {
+                        TimeMachineProgress = {
+                            task = {
+                                name = "TimeMachineProgress",
+                            },
+                            config = {
+                                source = {
+                                    selection_spoon = "TimeMachineProgress",
+                                },
+                            },
+                        },
+                        Emojis = {
+                            task = {
+                                name = "Emojis",
+                            },
+                            config = {
+                                source = {
+                                    selection_spoon = "Emojis",
+                                },
+                            },
+                        },
+                    }
+                end,
+            },
+        }, function()
+            local installed = T.context.installed.create()
+            local items = installed.list()
+
+            T.assertEqual(#items, 2)
+            T.assertEqual(items[1].task.name, "Emojis")
+            T.assertEqual(items[2].task.name, "TimeMachineProgress")
+
+            items[1].task.name = "Mutated"
+            T.assertEqual(installed.list()[1].task.name, "Emojis")
+        end)
+    end)
+
+    T.test("installed spoon selection lists one installed BOM", function()
+        withPatched({
+            {
+                table = T.context.registry,
+                key = "read",
+                value = function()
+                    return {
+                        Emojis = {
+                            task = {
+                                name = "Emojis",
+                            },
+                        },
+                        TimeMachineProgress = {
+                            task = {
+                                name = "TimeMachineProgress",
+                            },
+                        },
+                    }
+                end,
+            },
+        }, function()
+            local installed = T.context.installed.create()
+            local items = installed.spoon("TimeMachineProgress").list()
+
+            T.assertEqual(#items, 1)
+            T.assertEqual(items[1].task.name, "TimeMachineProgress")
+            T.assertEqual(#installed.spoon("Missing").list(), 0)
+            T.assertError(function()
+                installed.spoon(123)
+            end, "Installed Spoon name must be a string")
+        end)
     end)
 
     T.test("installer skips already installed spoon", function()
