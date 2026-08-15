@@ -1177,6 +1177,31 @@ spoon.SpoonManager.from.default
     .update()
 ```
 
+### `SpoonManager.reloadController(controller)`
+
+Sets a reload controller used to pause config reload watchers during install or update.
+
+The controller may be an object with `start`/`stop` methods, such as an
+`hs.pathwatcher`. If it has no `reload` method, SpoonManager uses `hs.reload`.
+
+```lua
+spoon.SpoonManager.reloadController(reloadWatcher)
+```
+
+You can also pass functions explicitly:
+
+```lua
+spoon.SpoonManager.reloadController({
+    stop = function() reloadWatcher:stop() end,
+    start = function() reloadWatcher:start() end,
+    reload = function() hs.reload() end,
+})
+```
+
+For batch `install()` / `update()`, SpoonManager stops the controller before the
+batch, starts it again after the batch, and triggers one reload only if at least
+one Spoon was actually installed or updated. Skipped updates do not reload.
+
 ### `builder.conflictStrategy(behavior)`
 
 Returns a new builder with explicit behavior for existing or locally changed Spoons.

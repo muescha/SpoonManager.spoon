@@ -60,6 +60,8 @@ obj.installOptions = {
     conflictStrategy = obj.options.conflictStrategy.abort,
 }
 
+obj._reloadController = nil
+
 function obj._isConflictStrategy(behavior)
     for _, value in pairs(obj.options.conflictStrategy) do
         if behavior == value then
@@ -78,6 +80,76 @@ function obj.conflictStrategy(behavior)
 
     obj.installOptions.conflictStrategy = behavior
     return obj
+end
+
+--- SpoonManager.reloadController(controller) -> SpoonManager
+--- Function
+--- Set a reload controller used to pause config reload watchers during installs or updates.
+---
+--- The controller may be an object with `start`/`stop` methods, such as an
+--- `hs.pathwatcher`, or a table with `start`, `stop`, and optional `reload`
+--- functions. If `reload` is omitted, SpoonManager uses `hs.reload`.
+function obj.reloadController(controller)
+    if controller == nil or controller == false then
+        obj._reloadController = nil
+        return obj
+    end
+
+    assert(type(controller) == "table", "Reload controller must be a table")
+    assert(controller.stop == nil or type(controller.stop) == "function", "Reload controller stop must be a function")
+    assert(controller.start == nil or type(controller.start) == "function", "Reload controller start must be a function")
+    assert(controller.reload == nil or type(controller.reload) == "function", "Reload controller reload must be a function")
+
+    obj._reloadController = controller
+    return obj
+end
+
+local function callReloadController(method)
+    local controller = obj._reloadController
+    if not controller then
+        return true
+    end
+
+    local fn = controller[method]
+    if fn then
+        return fn(controller)
+    end
+
+    if method == "reload" and hs.reload then
+        return hs.reload()
+    end
+
+    return true
+end
+
+local function scheduleReload()
+    if hs.timer and hs.timer.doAfter then
+        hs.timer.doAfter(0, function()
+            callReloadController("reload")
+        end)
+    else
+        callReloadController("reload")
+    end
+end
+
+local function withReloadController(fn, changed)
+    if not obj._reloadController then
+        return fn()
+    end
+
+    callReloadController("stop")
+    local ok, result, err, extra = xpcall(fn, debug.traceback)
+    callReloadController("start")
+
+    if not ok then
+        error(result, 0)
+    end
+
+    if changed(result, err, extra) then
+        scheduleReload()
+    end
+
+    return result, err, extra
 end
 
 local spoonPath = hs.spoons.scriptPath()
@@ -198,7 +270,7 @@ function obj._rememberDefinition(definition, installName)
     return obj
 end
 
-function obj._installAndRememberDefinition(definition, action)
+local function installAndRememberDefinition(definition, action)
     local config = definitionConfig(definition)
     local result, err, prepared = obj._installDefinition(config, action)
     config = prepared or config
@@ -208,6 +280,17 @@ function obj._installAndRememberDefinition(definition, action)
     end
 
     return result, err, config
+end
+
+function obj._installAndRememberDefinition(definition, action)
+    return withReloadController(
+        function()
+            return installAndRememberDefinition(definition, action)
+        end,
+        function(result)
+            return result and not result.skipped
+        end
+    )
 end
 
 --- SpoonManager.from.config(config) -> definition
@@ -257,7 +340,7 @@ local function runDefinitions(action, ...)
     }
 
     for _, definition in ipairs(definitions) do
-        local installed, err = obj._installAndRememberDefinition(definition, action)
+        local installed, err = installAndRememberDefinition(definition, action)
         if installed then
             if installed.skipped then
                 table.insert(result.skipped, installed)
@@ -278,14 +361,30 @@ local function runDefinitions(action, ...)
 end
 
 function obj.install(...)
-    return runDefinitions("install", ...)
+    local definitions = { ... }
+    return withReloadController(
+        function()
+            return runDefinitions("install", table.unpack(definitions))
+        end,
+        function(result)
+            return result and #result.installed > 0
+        end
+    )
 end
 
 --- SpoonManager.update([...]) -> result
 --- Function
 --- Reinstall managed definitions from their source. Local changes abort by default.
 function obj.update(...)
-    return runDefinitions("update", ...)
+    local definitions = { ... }
+    return withReloadController(
+        function()
+            return runDefinitions("update", table.unpack(definitions))
+        end,
+        function(result)
+            return result and #result.installed > 0
+        end
+    )
 end
 
 return obj

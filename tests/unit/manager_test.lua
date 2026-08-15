@@ -98,6 +98,76 @@ return function(T)
         end, "Source factory already registered: spoonRepo")
     end)
 
+    T.test("manager reload controller pauses batch reloads", function()
+        withRecordedInstaller(function(manager)
+            local events = {}
+            local originalReload = hs.reload
+
+            hs.reload = function()
+                table.insert(events, "reload")
+            end
+
+            local controller = {
+                stop = function(self)
+                    T.assertTrue(self)
+                    table.insert(events, "stop")
+                end,
+                start = function(self)
+                    T.assertTrue(self)
+                    table.insert(events, "start")
+                end,
+            }
+
+            manager.reloadController(controller)
+            manager.update(
+                manager.from.default.spoon("Emojis"),
+                manager.from.default.spoon("TimeMachineProgress")
+            )
+            manager.reloadController(nil)
+            hs.reload = originalReload
+
+            T.assertEqual(table.concat(events, ","), "stop,start,reload")
+        end)
+    end)
+
+    T.test("manager reload controller skips reload for unchanged batch", function()
+        local manager = T.SpoonManager
+        local originalInstallDefinition = manager._installDefinition
+        local originalReload = hs.reload
+        local events = {}
+
+        manager._installDefinition = function()
+            return {
+                success = true,
+                skipped = true,
+                reason = "source-unchanged",
+                name = "Emojis",
+            }
+        end
+        hs.reload = function()
+            table.insert(events, "reload")
+        end
+
+        manager.reloadController({
+            stop = function()
+                table.insert(events, "stop")
+            end,
+            start = function()
+                table.insert(events, "start")
+            end,
+        })
+
+        local result = manager.update(manager.from.default.spoon("Emojis"))
+
+        manager.reloadController(nil)
+        manager._installDefinition = originalInstallDefinition
+        hs.reload = originalReload
+
+        T.assertTrue(result.success)
+        T.assertEqual(#result.skipped, 1)
+        T.assertEqual(table.concat(events, ","), "stop,start")
+    end)
+
     T.test("manager add stores definitions for later install and update", function()
         withRecordedInstaller(function(manager, calls)
             local emojis = manager.from.default.spoon("Emojis")

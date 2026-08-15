@@ -36,6 +36,12 @@ return function(repoRoot)
         execute = function()
             return "", true
         end,
+        timer = {
+            doAfter = function(_, fn)
+                return fn()
+            end,
+        },
+        reload = function() end,
     }
 
     return {
