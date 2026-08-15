@@ -227,21 +227,24 @@ local function debugInfo(message, definition)
     end
 
     local ok, info = pcall(function()
-        return string.format(
-            "%s: toConfig=%s config=%s resolved=%s command=%s task=%s name=%s\nStacktrace:\n%s",
-            message,
-            tostring(type(definition) == "table" and definition.toConfig ~= nil),
-            tostring(type(definition) == "table" and definition.config ~= nil),
-            tostring(type(definition) == "table" and definition.resolved ~= nil),
-            tostring(type(definition) == "table" and definition.command ~= nil),
-            tostring(type(definition) == "table" and definition.task ~= nil),
-            tostring(type(definition) == "table" and definition.name or nil),
-            debug.traceback("", 3)
-        )
+        local isTable = type(definition) == "table"
+        return {
+            message = message,
+            definitionShape = {
+                toConfig = isTable and definition.toConfig ~= nil,
+                config = isTable and definition.config ~= nil,
+                resolved = isTable and definition.resolved ~= nil,
+                command = isTable and definition.command ~= nil,
+                task = isTable and definition.task ~= nil,
+                name = isTable and definition.name or nil,
+            },
+            stacktrace = debug.traceback("", 3),
+        }
     end)
 
     if ok then
-        pcall(obj.logger.df, "%s", info)
+        local inspected = hs.inspect and hs.inspect(info) or tostring(info)
+        pcall(obj.logger.df, "%s", inspected)
     end
 end
 

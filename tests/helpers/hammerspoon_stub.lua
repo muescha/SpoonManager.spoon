@@ -36,6 +36,9 @@ return function(repoRoot)
         execute = function()
             return "", true
         end,
+        inspect = function(value)
+            return tostring(value)
+        end,
         timer = {
             doAfter = function(_, fn)
                 return fn()

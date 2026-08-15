@@ -292,8 +292,14 @@ return function(T)
         local manager = T.SpoonManager
         local originalInstallDefinition = manager._installDefinition
         local originalDebug = manager.logger.df
+        local originalInspect = hs.inspect
+        local inspected
 
         manager.clear()
+        hs.inspect = function(value)
+            inspected = value
+            return "inspected-debug-info"
+        end
         manager.logger.df = function()
             error("")
         end
@@ -324,10 +330,12 @@ return function(T)
 
         manager._installDefinition = originalInstallDefinition
         manager.logger.df = originalDebug
+        hs.inspect = originalInspect
 
         T.assertTrue(ok, result)
         T.assertTrue(result.success)
         T.assertEqual(#manager.definitions, 1)
+        T.assertEqual(inspected.message, "_rememberDefinition stores config-only definition")
         manager.clear()
     end)
 
