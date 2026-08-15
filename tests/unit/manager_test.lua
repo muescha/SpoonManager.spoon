@@ -288,10 +288,9 @@ return function(T)
         manager.clear()
     end)
 
-    T.test("manager debug info does not break update", function()
+    T.test("manager debug table does not break update", function()
         local manager = T.SpoonManager
         local originalInstallDefinition = manager._installDefinition
-        local originalDebug = manager.logger.df
         local originalInspect = hs.inspect
         local inspected
 
@@ -299,9 +298,6 @@ return function(T)
         hs.inspect = function(value)
             inspected = value
             return "inspected-debug-info"
-        end
-        manager.logger.df = function()
-            error("")
         end
         manager._installDefinition = function(definitionConfig, action)
             return {
@@ -329,7 +325,6 @@ return function(T)
         end)
 
         manager._installDefinition = originalInstallDefinition
-        manager.logger.df = originalDebug
         hs.inspect = originalInspect
 
         T.assertTrue(ok, result)
@@ -339,7 +334,7 @@ return function(T)
         manager.clear()
     end)
 
-    T.test("manager debug stacktrace does not break update", function()
+    T.test("manager debug stacktrace ignores debug.traceback", function()
         local manager = T.SpoonManager
         local originalInstallDefinition = manager._installDefinition
         local originalTraceback = debug.traceback

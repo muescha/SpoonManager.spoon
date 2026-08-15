@@ -69,6 +69,59 @@ function Util.mergeTables(base, extra)
     return result
 end
 
+local function debugCallSite(level)
+    if type(debug) ~= "table" or type(debug.getinfo) ~= "function" then
+        return nil
+    end
+
+    local info = debug.getinfo(level, "nSl")
+    if not info then
+        return nil
+    end
+
+    local source = info.short_src or info.source or "?"
+    source = source:match("([^/]+%.lua)$") or source
+    local name = info.name or "?"
+    return string.format("%s:%s %s", source, tostring(info.currentline or "?"), name)
+end
+
+function Util.stacktrace(startLevel, options)
+    options = options or {}
+    local sites = {}
+
+    for level = startLevel or 3, 64 do
+        local site = debugCallSite(level)
+        if not site then
+            break
+        end
+
+        if not options.excludePattern or not site:match(options.excludePattern) then
+            table.insert(sites, site)
+        end
+    end
+
+    if #sites == 0 then
+        return nil
+    end
+
+    return table.concat(sites, options.separator or "\n\t")
+end
+
+function Util.debugStacktrace(startLevel)
+    local trace = Util.stacktrace(startLevel or 3)
+    if not trace then
+        print("debug stacktrace unavailable")
+        return
+    end
+
+    print("stack traceback:\n\t" .. trace)
+end
+
+function Util.debugTable(value)
+    print(hs.inspect and hs.inspect(value) or tostring(value))
+    Util.debugStacktrace(3)
+end
+
 function Util.execute(command, logger, errfmt, ...)
     local output, ok = hs.execute(command)
     if ok then

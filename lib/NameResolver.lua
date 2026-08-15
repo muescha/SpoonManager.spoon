@@ -1,42 +1,13 @@
 return function(context)
     local NameResolver = {}
     local logger = context.logger
-
-    local function callSite(level)
-        if not debug or not debug.getinfo then
-            return nil
-        end
-
-        local info = debug.getinfo(level, "nSl")
-        if not info then
-            return nil
-        end
-
-        local source = info.short_src or info.source or "?"
-        source = source:match("([^/]+%.lua)$") or source
-        local name = info.name or "?"
-        return string.format("%s:%s %s", source, tostring(info.currentline or "?"), name)
-    end
+    local util = context.util
 
     local function callerStack()
-        local sites = {}
-
-        for level = 5, 64 do
-            local site = callSite(level)
-            if not site then
-                break
-            end
-
-            if site and not site:match("^NameResolver%.lua:") then
-                table.insert(sites, site)
-            end
-        end
-
-        if #sites > 0 then
-            return table.concat(sites, "\n  <- ")
-        end
-
-        return "unknown"
+        return util.stacktrace(5, {
+            excludePattern = "^NameResolver%.lua:",
+            separator = "\n  <- ",
+        }) or "unknown"
     end
 
     function NameResolver.safe(name)

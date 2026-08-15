@@ -221,23 +221,6 @@ function obj._installDefinition(definition, action)
     return context.installer.installDefinition(definition, action)
 end
 
-local function debugStacktrace()
-    local ok, trace = pcall(function()
-        if type(debug) == "table" and type(debug.traceback) == "function" then
-            return debug.traceback()
-        end
-
-        return "debug.traceback unavailable"
-    end)
-
-    print(ok and trace or "debug.traceback failed")
-end
-
-local function debugInfo(definition)
-    print(hs.inspect and hs.inspect(definition) or tostring(definition))
-    debugStacktrace()
-end
-
 local function definitionConfig(definition)
     if definition.toConfig then
         return definition.toConfig()
@@ -271,7 +254,7 @@ local function definitionInstallName(definition)
 end
 
 function obj._rememberDefinition(definition, installName)
-    debugInfo(definition)
+    Util.debugTable(definition)
     local config = definitionConfig(definition)
     installName = installName or definitionInstallName(config)
 
@@ -289,7 +272,7 @@ function obj._rememberDefinition(definition, installName)
 end
 
 local function installAndRememberDefinition(definition, action)
-    debugInfo(definition)
+    Util.debugTable(definition)
     local config = definitionConfig(definition)
     local result, err, prepared = obj._installDefinition(config, action)
     config = prepared or config
