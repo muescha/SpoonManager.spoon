@@ -256,6 +256,10 @@ function Util.requireSafeFileNames(values, label, sourceRef)
         error(string.format("%s must be a table, got %s", label or "File names", type(values)), 3)
     end
 
+    if #values == 0 then
+        error((sourceRef and Util.createLabel(sourceRef) or label or "File names") .. " needs at least one value", 3)
+    end
+
     for _, value in ipairs(values) do
         Util.requireSafeFileName(value, label, sourceRef)
     end
