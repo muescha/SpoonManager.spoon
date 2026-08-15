@@ -1,6 +1,6 @@
 # Definition BOM and Result Artifacts
 
-**Status: Planned.**
+**Status: Completed.**
 
 This note records the desired shape for runtime definitions, public results, and
 network test artifacts.

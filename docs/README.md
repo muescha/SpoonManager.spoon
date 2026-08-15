@@ -35,6 +35,7 @@ Grouped by role:
 
 - [source-provider-pipeline.md](architecture/completed/source-provider-pipeline.md)
 - [definition-resolution-command.md](architecture/completed/definition-resolution-command.md)
+- [definition-bom-and-results.md](architecture/completed/definition-bom-and-results.md)
 
 ### Planned — not implemented yet
 
