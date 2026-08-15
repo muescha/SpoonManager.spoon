@@ -18,21 +18,22 @@ return function(context)
         return string.format("%s:%s %s", source, tostring(info.currentline or "?"), name)
     end
 
-    local function callerTrace()
+    local function callerStack()
         local sites = {}
 
-        for level = 5, 14 do
+        for level = 5, 64 do
             local site = callSite(level)
+            if not site then
+                break
+            end
+
             if site and not site:match("^NameResolver%.lua:") then
                 table.insert(sites, site)
-                if #sites == 4 then
-                    break
-                end
             end
         end
 
         if #sites > 0 then
-            return table.concat(sites, " <- ")
+            return table.concat(sites, "\n  <- ")
         end
 
         return "unknown"
@@ -53,9 +54,9 @@ return function(context)
 
     function NameResolver.logInferred(name, kind, value)
         if name then
-            logger.df("Inferred Spoon name '%s' from %s '%s' via %s", name, kind or "value", tostring(value), callerTrace())
+            logger.df("Inferred Spoon name '%s' from %s '%s'\nStacktrace:\n  <- %s", name, kind or "value", tostring(value), callerStack())
         else
-            logger.df("Could not infer Spoon name from %s '%s' via %s", kind or "value", tostring(value), callerTrace())
+            logger.df("Could not infer Spoon name from %s '%s'\nStacktrace:\n  <- %s", kind or "value", tostring(value), callerStack())
         end
     end
 
