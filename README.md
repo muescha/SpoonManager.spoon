@@ -1530,8 +1530,9 @@ Result shape:
 }
 ```
 
-`reason` is `"missing-folder"` when the stored path no longer exists and
-`"missing-path"` when the registry entry has no usable installed path.
+`reason` is `"missing-folder"` when the stored path no longer exists,
+`"missing-path"` when the registry entry has no usable installed path, and
+`"missing-registry-entry"` when a selected Spoon is not in `installed.json`.
 
 ### `SpoonManager.installed.spoon(name).doctor()`
 
@@ -1543,7 +1544,8 @@ Example:
 spoon.SpoonManager.installed.spoon("Emojis").doctor()
 ```
 
-If the Spoon is not in `installed.json`, `doctor()` raises an error.
+If the Spoon is not in `installed.json`, `doctor()` returns a failed check with
+`reason = "missing-registry-entry"`.
 
 ### `SpoonManager.installed.update()`
 

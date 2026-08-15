@@ -78,26 +78,31 @@ return function(context)
             for _, name in ipairs(names) do
                 local entry = installed[name]
                 if not entry then
-                    error("Installed Spoon not found: " .. name, 2)
-                end
-
-                local path = entryPath(entry)
-                local check = {
-                    name = name,
-                    path = path,
-                    installed = path and util.fileExists(path) or false,
-                    definition = util.copyTable(entry),
-                }
-
-                if not path then
-                    check.reason = "missing-path"
                     result.success = false
-                elseif not check.installed then
-                    check.reason = "missing-folder"
-                    result.success = false
-                end
+                    result.checks[#result.checks + 1] = {
+                        name = name,
+                        installed = false,
+                        reason = "missing-registry-entry",
+                    }
+                else
+                    local path = entryPath(entry)
+                    local check = {
+                        name = name,
+                        path = path,
+                        installed = path and util.fileExists(path) or false,
+                        definition = util.copyTable(entry),
+                    }
 
-                result.checks[#result.checks + 1] = check
+                    if not path then
+                        check.reason = "missing-path"
+                        result.success = false
+                    elseif not check.installed then
+                        check.reason = "missing-folder"
+                        result.success = false
+                    end
+
+                    result.checks[#result.checks + 1] = check
+                end
             end
 
             return result
