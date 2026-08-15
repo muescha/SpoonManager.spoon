@@ -19,23 +19,14 @@ return function(context)
     end
 
     local function publicResult(definition, command, result, action)
-        local details = util.copyTable(result)
-        details.success = nil
-        details.action = nil
-        details.name = nil
-        details.path = nil
-
         return {
             success = result.success,
-            action = action,
-            name = result.name,
-            path = result.path,
             task = {
                 config = definition.config,
                 resolved = definition.resolved,
                 command = command,
             },
-            result = details,
+            result = util.copyTable(result),
         }
     end
 

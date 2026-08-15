@@ -133,7 +133,7 @@ return function(T)
         end
 
         T.assertTrue(result ~= nil, err)
-        T.assertEqual(result.name, "WidgetKit")
+        T.assertEqual(result.result.name, "WidgetKit")
         T.assertTrue(fileExists(configdir .. "/Spoons/WidgetKit.spoon/init.lua"))
     T.assertTrue(fileExists(configdir .. "/Spoons/WidgetKit.spoon/content.txt"))
         T.assertFalse(fileExists(configdir .. "/Spoons/UnusedWidget.spoon/init.lua"))

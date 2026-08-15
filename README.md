@@ -1621,15 +1621,16 @@ On success:
 ```lua
 {
     success = true,
-    action = "install",
-    name = "Emojis",
-    path = "~/.hammerspoon/Spoons/Emojis.spoon",
     task = {
         config = {},
         resolved = {},
         command = {},
     },
     result = {
+        success = true,
+        action = "install",
+        name = "Emojis",
+        path = "~/.hammerspoon/Spoons/Emojis.spoon",
         skipped = true,
         reason = "already-installed",
         use = {},

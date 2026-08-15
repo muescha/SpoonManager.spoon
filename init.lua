@@ -276,7 +276,7 @@ local function installAndRememberDefinition(definition, action)
     config = prepared or config
 
     if result then
-        obj._rememberDefinition(config, result.name)
+        obj._rememberDefinition(config, result.result.name)
     end
 
     return result, err, config

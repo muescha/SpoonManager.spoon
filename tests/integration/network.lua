@@ -489,8 +489,9 @@ end
 
 local function assertExpectedFiles(test, result)
     local expected = test.expect or {}
+    local installedPath = result.result.path
     for _, relativePath in ipairs(expected.files or {}) do
-        local fullPath = pathJoin(result.path, relativePath)
+        local fullPath = pathJoin(installedPath, relativePath)
         if not fileExists(fullPath) then
             error(string.format("%s expected file missing: %s", test.id, fullPath))
         end
@@ -614,7 +615,7 @@ for _, test in ipairs(config.tests or {}) do
             table.insert(runnerResult.events, {
                 step = "install",
                 success = true,
-                result = result,
+                output = result,
                 checks = {
                     expectedFiles = expectedFilesCheck(test, result),
                 },
@@ -633,7 +634,7 @@ for _, test in ipairs(config.tests or {}) do
                 table.insert(runnerResult.events, {
                     step = "install-again",
                     success = false,
-                    result = skipped,
+                    output = skipped,
                     checks = {
                         skipped = {
                             success = false,
@@ -647,7 +648,7 @@ for _, test in ipairs(config.tests or {}) do
             table.insert(runnerResult.events, {
                 step = "install-again",
                 success = true,
-                result = skipped,
+                output = skipped,
                 checks = {
                     skipped = {
                         success = true,

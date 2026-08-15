@@ -222,16 +222,17 @@ The result artifact has this general shape:
     {
       "step": "install",
       "success": true,
-      "result": {
-        "action": "install",
-        "name": "WindowSigils",
-        "path": ".../Spoons/WindowSigils.spoon",
+      "output": {
         "task": {
           "config": {},
           "resolved": {},
           "command": {}
         },
         "result": {
+          "success": true,
+          "action": "install",
+          "name": "WindowSigils",
+          "path": ".../Spoons/WindowSigils.spoon",
           "fingerprints": {}
         }
       },
@@ -245,12 +246,13 @@ The result artifact has this general shape:
     {
       "step": "install-again",
       "success": true,
-      "result": {
-        "action": "install",
-        "name": "WindowSigils",
-        "path": ".../Spoons/WindowSigils.spoon",
+      "output": {
         "task": {},
         "result": {
+          "success": true,
+          "action": "install",
+          "name": "WindowSigils",
+          "path": ".../Spoons/WindowSigils.spoon",
           "skipped": true,
           "reason": "already-installed"
         }
