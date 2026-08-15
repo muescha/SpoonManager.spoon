@@ -9,6 +9,15 @@ return function(context)
     local definitionResolver = context.definitionResolver
     local util = context.util
 
+    local function execution(definition)
+        return definition.execution or {
+            action = definition.command and definition.command.action or nil,
+            name = definition.name,
+            options = definition.options or {},
+            use = definition.use,
+        }
+    end
+
     function Installer.prepareDefinition(definition, action)
         local def = definition.config and util.copyTable(definition) or {
             config = util.copyTable(definition),
@@ -16,9 +25,12 @@ return function(context)
         action = action or "install"
 
         def = definitionResolver.withCommand(def, action)
-        def.name = def.command.name
-        def.options = util.copyTable(def.command.options)
-        def.use = util.copyTable(def.command.use)
+        def.execution = {
+            action = action,
+            name = def.command.name,
+            options = util.copyTable(def.command.options),
+            use = util.copyTable(def.command.use),
+        }
 
         return def
     end
@@ -32,25 +44,27 @@ return function(context)
             return nil, "Spoon definition requires a source"
         end
 
-        if not definition.name then
+        local run = execution(definition)
+        if not run.name then
             return nil, "Spoon definition requires a Spoon name. Add .withName(\"Name\")."
         end
 
-        if definition.options and definition.options.conflictStrategy and not manager._isConflictStrategy(definition.options.conflictStrategy) then
-            return nil, "Invalid conflict strategy: " .. tostring(definition.options.conflictStrategy)
+        if run.options and run.options.conflictStrategy and not manager._isConflictStrategy(run.options.conflictStrategy) then
+            return nil, "Invalid conflict strategy: " .. tostring(run.options.conflictStrategy)
         end
 
         return true
     end
 
     function Installer.checkLocalChanges(definition, destination)
-        local installed = registry.read()[definition.name]
+        local run = execution(definition)
+        local installed = registry.read()[run.name]
 
         if not util.fileExists(destination) then
             return true
         end
 
-        local behavior = definition.options.conflictStrategy or manager.options.conflictStrategy.abort
+        local behavior = run.options.conflictStrategy or manager.options.conflictStrategy.abort
 
         if not installed or not installed.checksum then
             if behavior == manager.options.conflictStrategy.overwrite then
@@ -91,13 +105,14 @@ return function(context)
     end
 
     function Installer.applyUse(definition)
-        if not definition.use then
+        local run = execution(definition)
+        if not run.use then
             return true
         end
 
-        local arg = util.copyTable(definition.use)
+        local arg = util.copyTable(run.use)
         arg.disable = nil
-        return hs.spoons.use(definition.name, arg, false)
+        return hs.spoons.use(run.name, arg, false)
     end
 
     function Installer.installedSourceHash(installed)
@@ -113,7 +128,8 @@ return function(context)
     end
 
     function Installer.skipUnchangedUpdate(definition, destination, sourceHash)
-        local installed = registry.read()[definition.name]
+        local run = execution(definition)
+        local installed = registry.read()[run.name]
         if not installed then
             return nil, "Spoon is not installed by SpoonManager. Use install() first."
         end
@@ -126,13 +142,13 @@ return function(context)
                 action = "update",
                 skipped = true,
                 reason = "source-unchanged",
-                name = definition.name,
+                name = run.name,
                 path = destination,
                 fingerprints = {
                     sourceHash = sourceHash,
                     installedSourceHash = installedSourceHash,
                 },
-                use = definition.use,
+                use = run.use,
             }
         end
 
@@ -148,14 +164,14 @@ return function(context)
                 action = "update",
                 skipped = true,
                 reason = "source-unchanged",
-                name = definition.name,
+                name = run.name,
                 path = destination,
                 fingerprints = {
                     localHash = localHash,
                     sourceHash = sourceHash,
                     installedSourceHash = installedSourceHash,
                 },
-                use = definition.use,
+                use = run.use,
             }
         end
 
@@ -163,7 +179,8 @@ return function(context)
     end
 
     function Installer.installFromStage(definition, stage, action)
-        local destination = paths.targetPath(definition.name)
+        local run = execution(definition)
+        local destination = paths.targetPath(run.name)
         util.ensureDir(paths.installRoot(), logger)
 
         local valid, validationError = spoonExtractor.validateInstalledFolder(stage.folder)
@@ -199,13 +216,13 @@ return function(context)
         return {
             success = true,
             action = "install",
-            name = definition.name,
+            name = run.name,
             path = destination,
             fingerprints = {
                 localHash = localHash,
                 sourceHash = sourceHash,
             },
-            use = definition.use,
+            use = run.use,
         }
     end
 
@@ -221,19 +238,20 @@ return function(context)
 
         action = action or "install"
 
-        if action == "install" and util.fileExists(paths.targetPath(def.name)) then
+        local run = execution(def)
+        if action == "install" and util.fileExists(paths.targetPath(run.name)) then
             Installer.applyUse(def)
             return {
                 success = true,
                 action = "install",
                 skipped = true,
                 reason = "already-installed",
-                name = def.name,
-                path = paths.targetPath(def.name),
+                name = run.name,
+                path = paths.targetPath(run.name),
                 config = def.config,
                 command = command,
                 resolved = def.resolved,
-                use = def.use,
+                use = run.use,
             }, nil, def
         end
 

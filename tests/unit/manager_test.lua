@@ -309,6 +309,26 @@ return function(T)
         end)
     end)
 
+    T.test("installer prepares execution values in one section", function()
+        local prepared = T.context.installer.prepareDefinition(
+            T.SpoonManager.from.default
+                .spoon("Emojis")
+                .use({
+                    start = true,
+                })
+                .toConfig(),
+            "update"
+        )
+
+        T.assertEqual(prepared.execution.action, "update")
+        T.assertEqual(prepared.execution.name, "Emojis")
+        T.assertEqual(prepared.execution.options.conflictStrategy, T.SpoonManager.options.conflictStrategy.abort)
+        T.assertEqual(prepared.execution.use.start, true)
+        T.assertFalse(prepared.name)
+        T.assertFalse(prepared.options)
+        T.assertFalse(prepared.use)
+    end)
+
     T.test("update aborts on unmanaged local changes by default", function()
         local destination = "/tmp/hammerspoon-test/Spoons/Emojis.spoon"
 

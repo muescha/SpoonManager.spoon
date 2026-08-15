@@ -31,10 +31,12 @@ return function(context)
         local registry = Registry.read()
         fingerprints = fingerprints or {}
         local now = os.date("!%Y-%m-%dT%H:%M:%SZ")
-        local previous = registry[definition.name] or {}
+        local execution = definition.execution or {}
+        local name = execution.name or definition.name
+        local previous = registry[name] or {}
 
-        registry[definition.name] = {
-            name = definition.name,
+        registry[name] = {
+            name = name,
             installedAt = previous.installedAt or now,
             updatedAt = now,
             path = destination,
@@ -46,7 +48,7 @@ return function(context)
                 localHash = fingerprints.localHash,
                 sourceHash = fingerprints.sourceHash,
             },
-            use = definition.use,
+            use = execution.use or definition.use,
         }
 
         return Registry.write(registry)

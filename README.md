@@ -1694,12 +1694,13 @@ The terms used in debug output and stored metadata are:
 config   = the user-provided source, target, use, and options values
 resolved = inferred install name, source type, URLs, and archive selection
 command  = final executable install/update task
+execution = transient runtime values used while applying a command
 ```
 
 SpoonManager calculates each stage once and then reuses it:
 
 ```text
-config -> resolved -> command -> installed record
+config -> resolved -> command -> execution -> installed record
 ```
 
 `builder.toConfig()` returns only the declarative config. Install results and
