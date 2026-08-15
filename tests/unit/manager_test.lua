@@ -309,7 +309,7 @@ return function(T)
         end)
     end)
 
-    T.test("installer prepares execution values in one section", function()
+    T.test("installer prepares task values in one section", function()
         local prepared = T.context.installer.prepareDefinition(
             T.SpoonManager.from.default
                 .spoon("Emojis")
@@ -320,10 +320,11 @@ return function(T)
             "update"
         )
 
-        T.assertEqual(prepared.execution.action, "update")
-        T.assertEqual(prepared.execution.name, "Emojis")
-        T.assertEqual(prepared.execution.options.conflictStrategy, T.SpoonManager.options.conflictStrategy.abort)
-        T.assertEqual(prepared.execution.use.start, true)
+        T.assertEqual(prepared.task.action, "update")
+        T.assertEqual(prepared.task.name, "Emojis")
+        T.assertEqual(prepared.task.options.conflictStrategy, T.SpoonManager.options.conflictStrategy.abort)
+        T.assertEqual(prepared.task.use.start, true)
+        T.assertFalse(prepared.execution)
         T.assertFalse(prepared.name)
         T.assertFalse(prepared.options)
         T.assertFalse(prepared.use)

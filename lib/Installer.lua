@@ -9,8 +9,8 @@ return function(context)
     local definitionResolver = context.definitionResolver
     local util = context.util
 
-    local function execution(definition)
-        return definition.execution or {
+    local function task(definition)
+        return definition.task or {
             action = definition.command and definition.command.action or nil,
             name = definition.name,
             options = definition.options or {},
@@ -25,7 +25,7 @@ return function(context)
         action = action or "install"
 
         def = definitionResolver.withCommand(def, action)
-        def.execution = {
+        def.task = {
             action = action,
             name = def.command.name,
             options = util.copyTable(def.command.options),
@@ -44,7 +44,7 @@ return function(context)
             return nil, "Spoon definition requires a source"
         end
 
-        local run = execution(definition)
+        local run = task(definition)
         if not run.name then
             return nil, "Spoon definition requires a Spoon name. Add .withName(\"Name\")."
         end
@@ -57,7 +57,7 @@ return function(context)
     end
 
     function Installer.checkLocalChanges(definition, destination)
-        local run = execution(definition)
+        local run = task(definition)
         local installed = registry.read()[run.name]
 
         if not util.fileExists(destination) then
@@ -105,7 +105,7 @@ return function(context)
     end
 
     function Installer.applyUse(definition)
-        local run = execution(definition)
+        local run = task(definition)
         if not run.use then
             return true
         end
@@ -128,7 +128,7 @@ return function(context)
     end
 
     function Installer.skipUnchangedUpdate(definition, destination, sourceHash)
-        local run = execution(definition)
+        local run = task(definition)
         local installed = registry.read()[run.name]
         if not installed then
             return nil, "Spoon is not installed by SpoonManager. Use install() first."
@@ -179,7 +179,7 @@ return function(context)
     end
 
     function Installer.installFromStage(definition, stage, action)
-        local run = execution(definition)
+        local run = task(definition)
         local destination = paths.targetPath(run.name)
         util.ensureDir(paths.installRoot(), logger)
 
@@ -238,7 +238,7 @@ return function(context)
 
         action = action or "install"
 
-        local run = execution(def)
+        local run = task(def)
         if action == "install" and util.fileExists(paths.targetPath(run.name)) then
             Installer.applyUse(def)
             return {
