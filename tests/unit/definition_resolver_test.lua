@@ -116,7 +116,8 @@ return function(T)
         local command = T.context.definitionResolver.commandFromResolved(definition, "install", resolved)
 
         T.assertEqual(command.source.kind, "zip")
-        T.assertEqual(command.source.path, "/Users/test/Downloads/WindowGrid.spoon.zip")
+        T.assertEqual(command.source.location.kind, "path")
+        T.assertEqual(command.source.location.path, "/Users/test/Downloads/WindowGrid.spoon.zip")
         T.assertEqual(command.target.name, "WindowGrid")
     end)
 
@@ -133,7 +134,7 @@ return function(T)
         local resolved = T.context.definitionResolver.resolveFromDefinition(definition)
         local command = T.context.definitionResolver.commandFromResolved(definition, "install", resolved)
 
-        T.assertEqual(command.source.path, "/Users/test/Downloads/spoons/WindowGrid.spoon.zip")
+        T.assertEqual(command.source.location.path, "/Users/test/Downloads/spoons/WindowGrid.spoon.zip")
         T.assertEqual(command.target.name, "WindowGrid")
     end)
 

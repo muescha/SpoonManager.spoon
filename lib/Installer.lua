@@ -9,6 +9,11 @@ return function(context)
     local definitionResolver = context.definitionResolver
     local util = context.util
 
+    local function sourceLocationValue(source)
+        local location = source.location or {}
+        return location.url or location.path or source.url or source.path
+    end
+
     function Installer.checksumDirectory(path)
         if not util.fileExists(path) then
             return nil
@@ -59,7 +64,7 @@ return function(context)
         end
 
         if definition.command.source.kind == "zip" then
-            local zipSource = definition.command.source.url or definition.command.source.path
+            local zipSource = sourceLocationValue(definition.command.source)
             if not util.isZipPath(zipSource) then
                 return nil, "ZIP source must point to a .zip file"
             end

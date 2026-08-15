@@ -7,7 +7,11 @@
     },
     "source": {
       "kind": "zip",
-      "path": "/Users/test/Downloads/latest.zip"
+      "location": {
+        "kind": "path",
+        "path": "/Users/test/Downloads/latest.zip"
+      },
+      "selection": {}
     },
     "target": {
       "name": "DeepFolder",
@@ -26,8 +30,14 @@
   },
   "resolved": {
     "installName": "DeepFolder",
-    "localPath": "/Users/test/Downloads/latest.zip",
-    "sourceKind": "zip"
+    "source": {
+      "kind": "zip",
+      "location": {
+        "kind": "path",
+        "path": "/Users/test/Downloads/latest.zip"
+      },
+      "selection": {}
+    }
   },
   "state": "command"
 }

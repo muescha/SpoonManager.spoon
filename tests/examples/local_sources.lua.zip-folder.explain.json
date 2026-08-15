@@ -6,9 +6,14 @@
       "conflictStrategy": "abort"
     },
     "source": {
-      "folder": "bundles/DeepFolder.spoon",
       "kind": "zip",
-      "path": "/Users/test/Downloads/DeepFolder.spoon.zip"
+      "location": {
+        "kind": "path",
+        "path": "/Users/test/Downloads/DeepFolder.spoon.zip"
+      },
+      "selection": {
+        "folder": "bundles/DeepFolder.spoon"
+      }
     },
     "target": {
       "name": "DeepFolder",
@@ -26,10 +31,17 @@
     }
   },
   "resolved": {
-    "extractFolder": "bundles/DeepFolder.spoon",
     "installName": "DeepFolder",
-    "localPath": "/Users/test/Downloads/DeepFolder.spoon.zip",
-    "sourceKind": "zip"
+    "source": {
+      "kind": "zip",
+      "location": {
+        "kind": "path",
+        "path": "/Users/test/Downloads/DeepFolder.spoon.zip"
+      },
+      "selection": {
+        "folder": "bundles/DeepFolder.spoon"
+      }
+    }
   },
   "state": "command"
 }

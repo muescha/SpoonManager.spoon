@@ -51,9 +51,16 @@ return function(context)
         end
 
         return {
-            sourceKind = "zip",
-            localPath = util.localPath(file),
-            extractFolder = extract.useFolder,
+            source = {
+                kind = "zip",
+                location = {
+                    kind = "path",
+                    path = util.localPath(file),
+                },
+                selection = {
+                    folder = extract.useFolder,
+                },
+            },
         }
     end
 
