@@ -335,7 +335,7 @@ return function(T)
         T.assertTrue(ok, result)
         T.assertTrue(result.success)
         T.assertEqual(#manager.definitions, 1)
-        T.assertEqual(inspected.message, "_rememberDefinition stores config-only definition")
+        T.assertTrue(inspected.config)
         manager.clear()
     end)
 

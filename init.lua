@@ -221,31 +221,8 @@ function obj._installDefinition(definition, action)
     return context.installer.installDefinition(definition, action)
 end
 
-local function debugInfo(message, definition)
-    if not obj.logger or not obj.logger.df then
-        return
-    end
-
-    local ok, info = pcall(function()
-        local isTable = type(definition) == "table"
-        return {
-            message = message,
-            definitionShape = {
-                toConfig = isTable and definition.toConfig ~= nil,
-                config = isTable and definition.config ~= nil,
-                resolved = isTable and definition.resolved ~= nil,
-                command = isTable and definition.command ~= nil,
-                task = isTable and definition.task ~= nil,
-                name = isTable and definition.name or nil,
-            },
-            stacktrace = debug.traceback("", 3),
-        }
-    end)
-
-    if ok then
-        local inspected = hs.inspect and hs.inspect(info) or tostring(info)
-        pcall(obj.logger.df, "%s", inspected)
-    end
+local function debugInfo(definition)
+    print(hs.inspect and hs.inspect(definition) or tostring(definition))
 end
 
 local function definitionConfig(definition)
@@ -281,7 +258,7 @@ local function definitionInstallName(definition)
 end
 
 function obj._rememberDefinition(definition, installName)
-    debugInfo("_rememberDefinition stores config-only definition", definition)
+    debugInfo(definition)
     local config = definitionConfig(definition)
     installName = installName or definitionInstallName(config)
 
@@ -299,7 +276,7 @@ function obj._rememberDefinition(definition, installName)
 end
 
 local function installAndRememberDefinition(definition, action)
-    debugInfo("installAndRememberDefinition passes config-only definition into installer", definition)
+    debugInfo(definition)
     local config = definitionConfig(definition)
     local result, err, prepared = obj._installDefinition(config, action)
     config = prepared or config
