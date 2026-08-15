@@ -2,6 +2,42 @@ return function(context)
     local NameResolver = {}
     local logger = context.logger
 
+    local function callSite(level)
+        if not debug or not debug.getinfo then
+            return nil
+        end
+
+        local info = debug.getinfo(level, "nSl")
+        if not info then
+            return nil
+        end
+
+        local source = info.short_src or info.source or "?"
+        source = source:match("([^/]+%.lua)$") or source
+        local name = info.name or "?"
+        return string.format("%s:%s %s", source, tostring(info.currentline or "?"), name)
+    end
+
+    local function callerTrace()
+        local sites = {}
+
+        for level = 5, 14 do
+            local site = callSite(level)
+            if site and not site:match("^NameResolver%.lua:") then
+                table.insert(sites, site)
+                if #sites == 4 then
+                    break
+                end
+            end
+        end
+
+        if #sites > 0 then
+            return table.concat(sites, " <- ")
+        end
+
+        return "unknown"
+    end
+
     function NameResolver.safe(name)
         if not name or name == "" then
             return nil
@@ -17,9 +53,9 @@ return function(context)
 
     function NameResolver.logInferred(name, kind, value)
         if name then
-            logger.df("Inferred Spoon name '%s' from %s '%s'", name, kind or "value", tostring(value))
+            logger.df("Inferred Spoon name '%s' from %s '%s' via %s", name, kind or "value", tostring(value), callerTrace())
         else
-            logger.df("Could not infer Spoon name from %s '%s'", kind or "value", tostring(value))
+            logger.df("Could not infer Spoon name from %s '%s' via %s", kind or "value", tostring(value), callerTrace())
         end
     end
 
