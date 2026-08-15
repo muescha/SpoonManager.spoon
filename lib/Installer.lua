@@ -185,20 +185,15 @@ return function(context)
     end
 
     function Installer.installFromRemoteZip(definition, url)
-        local tmpdir = util.trim(hs.execute("/usr/bin/mktemp -d"))
-        if not tmpdir or tmpdir == "" then
-            return nil, "Could not create temporary directory"
-        end
-
-        local zipFile = util.pathJoin(tmpdir, "download.zip")
-        local ok, err = spoonExtractor.downloadToFile(url, zipFile)
-        if not ok then
-            util.removePath(tmpdir, logger)
+        local stage, err = sourceStage.fromRemoteZip(url, {
+            folder = definition.command.source.folder,
+        })
+        if not stage then
             return nil, err
         end
 
-        local result, installErr = Installer.installFromZipFile(definition, zipFile, tmpdir)
-        util.removePath(tmpdir, logger)
+        local result, installErr = Installer.installFromStage(definition, stage)
+        sourceStage.cleanup(stage)
         return result, installErr
     end
 
