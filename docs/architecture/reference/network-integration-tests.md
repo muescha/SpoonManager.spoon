@@ -220,7 +220,15 @@ The result artifact has this general shape:
       "result": {
         "action": "install",
         "name": "WindowSigils",
-        "path": ".../Spoons/WindowSigils.spoon"
+        "path": ".../Spoons/WindowSigils.spoon",
+        "task": {
+          "config": {},
+          "resolved": {},
+          "command": {}
+        },
+        "result": {
+          "fingerprints": {}
+        }
       }
     }
   },
@@ -232,8 +240,14 @@ The result artifact has this general shape:
     "alreadyInstalledSkip": {
       "success": true,
       "result": {
-        "skipped": true,
-        "reason": "already-installed"
+        "action": "install",
+        "name": "WindowSigils",
+        "path": ".../Spoons/WindowSigils.spoon",
+        "task": {},
+        "result": {
+          "skipped": true,
+          "reason": "already-installed"
+        }
       }
     }
   }

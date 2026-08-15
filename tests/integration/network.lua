@@ -509,22 +509,6 @@ local function expectedFilesCheck(test, result)
     }
 end
 
-local function compactRunResult(result)
-    if not result then
-        return nil
-    end
-
-    local details = result.result or {}
-
-    return {
-        action = result.action,
-        name = result.name,
-        path = result.path,
-        skipped = details.skipped or nil,
-        reason = details.reason,
-    }
-end
-
 local function buildRunnerResult(test, paths)
     return {
         success = false,
@@ -625,7 +609,7 @@ for _, test in ipairs(config.tests or {}) do
             end
             runnerResult.runs.install = {
                 success = true,
-                result = compactRunResult(result),
+                result = result,
             }
             runnerResult.checks.expectedFiles = expectedFilesCheck(test, result)
 
@@ -640,7 +624,7 @@ for _, test in ipairs(config.tests or {}) do
             if not skipped.result.skipped then
                 runnerResult.checks.alreadyInstalledSkip = {
                     success = false,
-                    result = compactRunResult(skipped),
+                    result = skipped,
                     error = errorBlock("second install should have skipped an already installed Spoon"),
                 }
                 error("second install should have skipped an already installed Spoon")
@@ -648,10 +632,7 @@ for _, test in ipairs(config.tests or {}) do
 
             runnerResult.checks.alreadyInstalledSkip = {
                 success = true,
-                result = {
-                    skipped = skipped.result.skipped,
-                    reason = skipped.result.reason,
-                },
+                result = skipped,
             }
             if expectedFailure(test) then
                 runnerResult.checks.expectedFailure = {
