@@ -1,6 +1,7 @@
 return function(context)
     local Installer = {}
     local spoonExtractor = context.spoonExtractor
+    local sourceStage = context.sourceStage
     local logger = context.logger
     local manager = context.manager
     local paths = context.paths
@@ -128,7 +129,7 @@ return function(context)
         return hs.spoons.use(definition.name, arg, false)
     end
 
-    function Installer.installFromFolder(definition, sourceFolder)
+    function Installer.installFromStage(definition, stage)
         local destination = paths.targetPath(definition.name)
         util.ensureDir(paths.installRoot(), logger)
 
@@ -137,12 +138,12 @@ return function(context)
             return nil, err
         end
 
-        local valid, validationError = spoonExtractor.validateInstalledFolder(sourceFolder)
+        local valid, validationError = spoonExtractor.validateInstalledFolder(stage.folder)
         if not valid then
             return nil, validationError
         end
 
-        local _, copied = util.copyPath(sourceFolder, destination, logger)
+        local _, copied = util.copyPath(stage.folder, destination, logger)
         if not copied then
             return nil, "Could not install Spoon folder"
         end
@@ -157,6 +158,17 @@ return function(context)
             path = destination,
             use = definition.use,
         }
+    end
+
+    function Installer.installFromFolder(definition, sourceFolder)
+        local stage, err = sourceStage.fromFolder(sourceFolder)
+        if not stage then
+            return nil, err
+        end
+
+        local result, installErr = Installer.installFromStage(definition, stage)
+        sourceStage.cleanup(stage)
+        return result, installErr
     end
 
     function Installer.installFromZipFile(definition, zipFile, tmpdir)
