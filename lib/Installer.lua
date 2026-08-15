@@ -10,15 +10,10 @@ return function(context)
     local util = context.util
 
     local function task(definition)
-        return definition.task or {
-            action = definition.command and definition.command.action or nil,
-            name = definition.name,
-            options = definition.options or {},
-            use = definition.use,
-        }
+        return definition.task or error("Prepared definition requires task section", 3)
     end
 
-    local function publicResult(definition, command, result, action)
+    local function publicResult(definition, command, result)
         return {
             success = result.success,
             task = {
@@ -250,7 +245,7 @@ return function(context)
                 name = run.name,
                 path = paths.targetPath(run.name),
                 use = run.use,
-            }, action), nil, def
+            }), nil, def
         end
 
         local stage, stageErr = sourceStage.fromCommand(command)
@@ -265,7 +260,7 @@ return function(context)
             return nil, err, def
         end
 
-        return publicResult(def, command, result, action), nil, def
+        return publicResult(def, command, result), nil, def
     end
 
     return Installer

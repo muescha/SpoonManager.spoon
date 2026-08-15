@@ -19,6 +19,18 @@ return function(T)
         end
     end
 
+    local function preparedTask(name, options, use)
+        return {
+            task = {
+                name = name,
+                options = options or {
+                    conflictStrategy = T.SpoonManager.options.conflictStrategy.abort,
+                },
+                use = use,
+            },
+        }
+    end
+
     local function withRecordedInstaller(fn)
         local manager = T.SpoonManager
         local originalInstallDefinition = manager._installDefinition
@@ -474,12 +486,7 @@ return function(T)
                 end,
             },
         }, function()
-            local ok, err = T.context.installer.checkLocalChanges({
-                name = "Emojis",
-                options = {
-                    conflictStrategy = T.SpoonManager.options.conflictStrategy.abort,
-                },
-            }, destination)
+            local ok, err = T.context.installer.checkLocalChanges(preparedTask("Emojis"), destination)
 
             T.assertFalse(ok)
             T.assertEqual(err, "Spoon already exists but is not managed by SpoonManager. Use .conflictStrategy(\"backup\") or .conflictStrategy(\"overwrite\") to install anyway.")
@@ -518,12 +525,7 @@ return function(T)
                 end,
             },
         }, function()
-            local ok, err = T.context.installer.checkLocalChanges({
-                name = "Emojis",
-                options = {
-                    conflictStrategy = T.SpoonManager.options.conflictStrategy.abort,
-                },
-            }, destination)
+            local ok, err = T.context.installer.checkLocalChanges(preparedTask("Emojis"), destination)
 
             T.assertTrue(ok, err)
         end)
@@ -581,15 +583,9 @@ return function(T)
                 end,
             },
         }, function()
-            local result, err = T.context.installer.installFromStage({
-                name = "Emojis",
-                options = {
-                    conflictStrategy = T.SpoonManager.options.conflictStrategy.abort,
-                },
-                use = {
-                    start = true,
-                },
-            }, {
+            local result, err = T.context.installer.installFromStage(preparedTask("Emojis", nil, {
+                start = true,
+            }), {
                 folder = "/stage/Emojis.spoon",
             }, "update")
 
@@ -644,7 +640,7 @@ return function(T)
                 key = "persistInstall",
                 value = function(definition, destination, fingerprints)
                     persisted = {
-                        name = definition.name,
+                        name = definition.task.name,
                         destination = destination,
                         targetFolderHash = fingerprints.targetFolderHash,
                         stagedSourceHash = fingerprints.stagedSourceHash,
@@ -661,12 +657,7 @@ return function(T)
                 end,
             },
         }, function()
-            local result, err = T.context.installer.installFromStage({
-                name = "Emojis",
-                options = {
-                    conflictStrategy = T.SpoonManager.options.conflictStrategy.abort,
-                },
-            }, {
+            local result, err = T.context.installer.installFromStage(preparedTask("Emojis"), {
                 folder = "/stage/Emojis.spoon",
             }, "update")
 
@@ -734,12 +725,7 @@ return function(T)
                 end,
             },
         }, function()
-            local result, err = T.context.installer.installFromStage({
-                name = "Emojis",
-                options = {
-                    conflictStrategy = T.SpoonManager.options.conflictStrategy.abort,
-                },
-            }, {
+            local result, err = T.context.installer.installFromStage(preparedTask("Emojis"), {
                 folder = "/stage/Emojis.spoon",
             }, "update")
 
@@ -784,12 +770,7 @@ return function(T)
                 end,
             },
         }, function()
-            local result, err = T.context.installer.installFromStage({
-                name = "Emojis",
-                options = {
-                    conflictStrategy = T.SpoonManager.options.conflictStrategy.abort,
-                },
-            }, {
+            local result, err = T.context.installer.installFromStage(preparedTask("Emojis"), {
                 folder = "/stage/Emojis.spoon",
             }, "update")
 

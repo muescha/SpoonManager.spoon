@@ -30,8 +30,8 @@ return function(context)
     function Registry.persistInstall(definition, destination, fingerprints)
         local registry = Registry.read()
         local now = os.date("!%Y-%m-%dT%H:%M:%SZ")
-        local task = definition.task or {}
-        local name = task.name or definition.name
+        local task = definition.task
+        local name = task.name
         local previous = registry[name] or {}
 
         registry[name] = {
@@ -46,7 +46,7 @@ return function(context)
                 stagedSourceHash = fingerprints.stagedSourceHash,
                 targetFolderHash = fingerprints.targetFolderHash,
             },
-            use = task.use or definition.use,
+            use = task.use,
         }
 
         return Registry.write(registry)
