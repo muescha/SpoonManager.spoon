@@ -34,7 +34,7 @@ function T.explainResolved(definition)
 end
 
 function T.explainCommand(definition, action)
-    local prepared = T.SpoonManager._prepareDefinition(definition, action or "install")
+    local prepared = T.context.installer.prepareDefinition(T.configOf(definition), action or "install")
     prepared.task = nil
     prepared.state = "command"
     return T.context.definitionResolver.explain(prepared)

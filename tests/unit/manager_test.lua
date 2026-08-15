@@ -375,26 +375,30 @@ return function(T)
                     .install()
 
             T.assertTrue(result, err)
-            T.assertTrue(result.task.config)
-            T.assertTrue(result.task.resolved)
-            T.assertTrue(result.task.command)
+            T.assertTrue(result.definition.config)
+            T.assertTrue(result.definition.resolved)
+            T.assertTrue(result.definition.command)
+            T.assertTrue(result.definition.task)
+            T.assertTrue(result.definition.result)
             T.assertFalse(result.action)
             T.assertFalse(result.name)
             T.assertFalse(result.path)
             T.assertFalse(result.skipped)
             T.assertFalse(result.reason)
-            T.assertEqual(result.result.action, "install")
-            T.assertEqual(result.result.name, "Emojis")
-            T.assertEqual(result.result.path, "/tmp/hammerspoon-test/Spoons/Emojis.spoon")
-            T.assertTrue(result.result.skipped)
-            T.assertEqual(result.result.reason, "already-installed")
+            T.assertFalse(result.task)
+            T.assertFalse(result.result)
+            T.assertEqual(result.definition.result.action, "install")
+            T.assertEqual(result.definition.result.name, "Emojis")
+            T.assertEqual(result.definition.result.path, "/tmp/hammerspoon-test/Spoons/Emojis.spoon")
+            T.assertTrue(result.definition.result.skipped)
+            T.assertEqual(result.definition.result.reason, "already-installed")
             T.assertEqual(#used, 1)
             T.assertEqual(used[1].name, "Emojis")
             T.assertEqual(used[1].options.start, true)
         end)
     end)
 
-    T.test("installer wraps update result separately from task", function()
+    T.test("installer exposes update definition without remapping sections", function()
         withPatched({
             {
                 table = T.context.sourceStage,
@@ -438,21 +442,25 @@ return function(T)
             )
 
             T.assertTrue(result, err)
-            T.assertTrue(result.task.config)
-            T.assertTrue(result.task.resolved)
-            T.assertTrue(result.task.command)
+            T.assertTrue(result.definition.config)
+            T.assertTrue(result.definition.resolved)
+            T.assertTrue(result.definition.command)
+            T.assertTrue(result.definition.task)
+            T.assertTrue(result.definition.result)
             T.assertFalse(result.action)
             T.assertFalse(result.name)
             T.assertFalse(result.path)
             T.assertFalse(result.config)
             T.assertFalse(result.resolved)
             T.assertFalse(result.command)
-            T.assertEqual(result.result.action, "update")
-            T.assertEqual(result.result.name, "Emojis")
-            T.assertEqual(result.result.path, "/tmp/hammerspoon-test/Spoons/Emojis.spoon")
-            T.assertTrue(result.result.skipped)
-            T.assertEqual(result.result.reason, "source-unchanged")
-            T.assertEqual(result.result.fingerprints.stagedSourceHash, "source-hash")
+            T.assertFalse(result.task)
+            T.assertFalse(result.result)
+            T.assertEqual(result.definition.result.action, "update")
+            T.assertEqual(result.definition.result.name, "Emojis")
+            T.assertEqual(result.definition.result.path, "/tmp/hammerspoon-test/Spoons/Emojis.spoon")
+            T.assertTrue(result.definition.result.skipped)
+            T.assertEqual(result.definition.result.reason, "source-unchanged")
+            T.assertEqual(result.definition.result.fingerprints.stagedSourceHash, "source-hash")
         end)
     end)
 
@@ -477,7 +485,7 @@ return function(T)
         T.assertFalse(prepared.use)
     end)
 
-    T.test("registry stores clear fingerprint names", function()
+    T.test("registry stores full BOM snapshot with metadata section", function()
         local written
 
         withPatched({
@@ -517,12 +525,62 @@ return function(T)
             })
 
             T.assertTrue(ok, err)
-            T.assertEqual(written.Emojis.fingerprints.stagedSourceHash, "source-hash")
-            T.assertEqual(written.Emojis.fingerprints.targetFolderHash, "target-hash")
+            T.assertEqual(written.Emojis.registryMeta.installedAt, "2026-08-01T00:00:00Z")
+            T.assertTrue(written.Emojis.config)
+            T.assertTrue(written.Emojis.resolved)
+            T.assertTrue(written.Emojis.command)
+            T.assertTrue(written.Emojis.task)
+            T.assertTrue(written.Emojis.registryMeta.updatedAt)
+            T.assertEqual(written.Emojis.registryMeta.path, "/tmp/hammerspoon-test/Spoons/Emojis.spoon")
+            T.assertEqual(written.Emojis.registryMeta.persistedFingerprints.stagedSourceHash, "source-hash")
+            T.assertEqual(written.Emojis.registryMeta.persistedFingerprints.targetFolderHash, "target-hash")
+            T.assertFalse(written.Emojis.fingerprints)
             T.assertFalse(written.Emojis.checksum)
-            T.assertFalse(written.Emojis.fingerprints.sourceHash)
-            T.assertFalse(written.Emojis.fingerprints.localHash)
-            T.assertEqual(written.Emojis.use.start, true)
+            T.assertFalse(written.Emojis.use)
+            T.assertEqual(written.Emojis.task.use.start, true)
+        end)
+    end)
+
+    T.test("registry metadata remains on the runtime definition", function()
+        local definition = {
+            task = {
+                name = "Emojis",
+            },
+            config = {},
+            resolved = {},
+            command = {},
+            result = {
+                fingerprints = {
+                    stagedSourceHash = "source-hash",
+                    targetFolderHash = "target-hash",
+                },
+            },
+        }
+
+        withPatched({
+            {
+                table = T.context.registry,
+                key = "read",
+                value = function()
+                    return {}
+                end,
+            },
+            {
+                table = T.context.registry,
+                key = "write",
+                value = function()
+                    return true
+                end,
+            },
+        }, function()
+            local ok, err = T.context.registry.persistInstall(definition, "/tmp/hammerspoon-test/Spoons/Emojis.spoon", {
+                stagedSourceHash = "source-hash",
+                targetFolderHash = "target-hash",
+            })
+
+            T.assertTrue(ok, err)
+            T.assertEqual(definition.registryMeta.persistedFingerprints.stagedSourceHash, "source-hash")
+            T.assertEqual(definition.registryMeta.path, "/tmp/hammerspoon-test/Spoons/Emojis.spoon")
         end)
     end)
 

@@ -13,16 +13,29 @@ return function(context)
         return definition.task or error("Prepared definition requires task section", 3)
     end
 
-    local function publicResult(definition, command, result)
+    local function publicResult(definition, result)
+        local def = util.copyTable(definition)
+        def.result = util.copyTable(result)
         return {
             success = result.success,
-            task = {
-                config = definition.config,
-                resolved = definition.resolved,
-                command = command,
-            },
-            result = util.copyTable(result),
+            definition = def,
         }
+    end
+
+    local function installedFingerprints(installed)
+        if not installed then
+            return nil
+        end
+
+        if installed.registryMeta and installed.registryMeta.persistedFingerprints then
+            return installed.registryMeta.persistedFingerprints
+        end
+
+        if installed.result and installed.result.fingerprints then
+            return installed.result.fingerprints
+        end
+
+        return installed.fingerprints
     end
 
     function Installer.prepareDefinition(definition, action)
@@ -73,7 +86,8 @@ return function(context)
 
         local behavior = run.options.conflictStrategy or manager.options.conflictStrategy.abort
 
-        local knownTargetFolderHash = installed and installed.fingerprints.targetFolderHash
+        local fingerprints = installedFingerprints(installed)
+        local knownTargetFolderHash = fingerprints and fingerprints.targetFolderHash
         if not installed or not knownTargetFolderHash then
             if behavior == manager.options.conflictStrategy.overwrite then
                 return true
@@ -130,7 +144,8 @@ return function(context)
             return nil, "Spoon is not installed by SpoonManager. Use install() first."
         end
 
-        local storedSourceHash = installed.fingerprints.stagedSourceHash
+        local installedHashes = installedFingerprints(installed) or {}
+        local storedSourceHash = installedHashes.stagedSourceHash
         if stagedSourceHash and stagedSourceHash == storedSourceHash then
             Installer.applyUse(definition)
             return {
@@ -150,12 +165,7 @@ return function(context)
 
         local targetFolderHash = util.hashDirectory(destination, nil, logger)
         if stagedSourceHash and targetFolderHash == stagedSourceHash then
-            registry.persistInstall(definition, destination, {
-                targetFolderHash = targetFolderHash,
-                stagedSourceHash = stagedSourceHash,
-            })
-            Installer.applyUse(definition)
-            return {
+            local result = {
                 success = true,
                 action = "update",
                 skipped = true,
@@ -169,6 +179,13 @@ return function(context)
                 },
                 use = run.use,
             }
+            definition.result = util.copyTable(result)
+            registry.persistInstall(definition, destination, {
+                targetFolderHash = targetFolderHash,
+                stagedSourceHash = stagedSourceHash,
+            })
+            Installer.applyUse(definition)
+            return result
         end
 
         return false
@@ -203,15 +220,9 @@ return function(context)
         end
 
         local targetFolderHash = util.hashDirectory(destination, nil, logger)
-        registry.persistInstall(definition, destination, {
-            targetFolderHash = targetFolderHash,
-            stagedSourceHash = stagedSourceHash,
-        })
-        Installer.applyUse(definition)
-
-        return {
+        local result = {
             success = true,
-            action = "install",
+            action = action,
             name = run.name,
             path = destination,
             fingerprints = {
@@ -220,6 +231,14 @@ return function(context)
             },
             use = run.use,
         }
+        definition.result = util.copyTable(result)
+        registry.persistInstall(definition, destination, {
+            targetFolderHash = targetFolderHash,
+            stagedSourceHash = stagedSourceHash,
+        })
+        Installer.applyUse(definition)
+
+        return result
     end
 
     function Installer.installDefinition(definition, action)
@@ -237,7 +256,7 @@ return function(context)
         local run = task(def)
         if action == "install" and util.fileExists(paths.targetPath(run.name)) then
             Installer.applyUse(def)
-            return publicResult(def, command, {
+            return publicResult(def, {
                 success = true,
                 action = "install",
                 skipped = true,
@@ -260,7 +279,7 @@ return function(context)
             return nil, err, def
         end
 
-        return publicResult(def, command, result), nil, def
+        return publicResult(def, result), nil, def
     end
 
     return Installer

@@ -289,13 +289,22 @@ local function installAndRememberDefinition(definition, action)
     return result, err, config
 end
 
+local function actionResult(output)
+    if output and output.definition and output.definition.result then
+        return output.definition.result
+    end
+
+    return output and output.result
+end
+
 function obj._installAndRememberDefinition(definition, action)
     return withReloadController(
         function()
             return installAndRememberDefinition(definition, action)
         end,
         function(result)
-            return result and result.result and not result.result.skipped
+            local run = actionResult(result)
+            return run and not run.skipped
         end
     )
 end
@@ -350,7 +359,8 @@ local function runDefinitions(action, ...)
     for _, definition in ipairs(definitions) do
         local installed, err = installAndRememberDefinition(definition, action)
         if installed then
-            if installed.result and installed.result.skipped then
+            local run = actionResult(installed)
+            if run and run.skipped then
                 table.insert(result.skipped, installed)
             else
                 table.insert(result.installed, installed)

@@ -33,21 +33,23 @@ return function(context)
         local task = definition.task
         local name = task.name
         local previous = registry[name] or {}
-
-        registry[name] = {
-            name = name,
-            installedAt = previous.installedAt or now,
+        local previousMeta = previous.registryMeta or {}
+        definition.registryMeta = util.mergeTables(definition.registryMeta or {}, {
+            installedAt = previousMeta.installedAt or previous.installedAt or now,
             updatedAt = now,
             path = destination,
-            config = definition.config,
-            resolved = definition.resolved,
-            command = definition.command,
-            fingerprints = {
+            previousFingerprints = (
+                previousMeta.persistedFingerprints
+                or (previous.result and previous.result.fingerprints)
+                or previous.fingerprints
+            ),
+            persistedFingerprints = {
                 stagedSourceHash = fingerprints.stagedSourceHash,
                 targetFolderHash = fingerprints.targetFolderHash,
             },
-            use = task.use,
-        }
+        })
+
+        registry[name] = util.copyTable(definition)
 
         return Registry.write(registry)
     end

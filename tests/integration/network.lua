@@ -489,7 +489,7 @@ end
 
 local function assertExpectedFiles(test, result)
     local expected = test.expect or {}
-    local installedPath = result.result.path
+    local installedPath = result.definition.result.path
     for _, relativePath in ipairs(expected.files or {}) do
         local fullPath = pathJoin(installedPath, relativePath)
         if not fileExists(fullPath) then
@@ -594,7 +594,7 @@ for _, test in ipairs(config.tests or {}) do
             stubHammerspoon(installPath, logs)
             local SpoonManager = dofile(repoRoot .. "/init.lua")
             local definition = buildDefinition(SpoonManager, test)
-            local explain = SpoonManager._prepareDefinition(definition, "install")
+            local explain = definition.explain()
             table.insert(runnerResult.events, {
                 step = "explain",
                 success = true,
@@ -629,7 +629,7 @@ for _, test in ipairs(config.tests or {}) do
                 })
                 error(skipErr or "second install failed")
             end
-            if not skipped.result.skipped then
+            if not skipped.definition.result.skipped then
                 table.insert(runnerResult.events, {
                     step = "install-again",
                     success = false,
@@ -651,7 +651,7 @@ for _, test in ipairs(config.tests or {}) do
                 checks = {
                     skipped = {
                         success = true,
-                        reason = skipped.result.reason,
+                        reason = skipped.definition.result.reason,
                     },
                 },
             })
