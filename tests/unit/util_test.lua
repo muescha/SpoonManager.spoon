@@ -29,6 +29,36 @@ return function(T)
         end, "must not contain '%.%.'")
     end)
 
+    T.test("util hashDirectory prunes default noise and extra folders", function()
+        local originalExecute = hs.execute
+        local originalAttributes = hs.fs.attributes
+        local commandSeen
+
+        hs.execute = function(command)
+            commandSeen = command
+            return "hash\n", true
+        end
+        hs.fs.attributes = function()
+            return {}
+        end
+
+        local hash = util.hashDirectory("/tmp/Spoon.spoon", {
+            ignoreFolders = {
+                "annotations",
+            },
+        })
+
+        hs.execute = originalExecute
+        hs.fs.attributes = originalAttributes
+
+        T.assertEqual(hash, "hash")
+        T.assertTrue(commandSeen:find("%-name '%.DS_Store'") ~= nil)
+        T.assertTrue(commandSeen:find("%-name '__MACOSX'") ~= nil)
+        T.assertTrue(commandSeen:find("%-name '%.git'") ~= nil)
+        T.assertTrue(commandSeen:find("%-name 'annotations'") ~= nil)
+        T.assertTrue(commandSeen:find("%-prune %-o %-type f %-print0") ~= nil)
+    end)
+
     T.test("util requireSafeFileName rejects path separators", function()
         T.assertEqual(util.requireSafeFileName("A.spoon.zip", "ZIP file"), "A.spoon.zip")
 

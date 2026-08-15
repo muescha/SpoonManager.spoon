@@ -293,8 +293,8 @@ return function(T)
                 end,
             },
             {
-                table = T.context.installer,
-                key = "checksumDirectory",
+                table = T.context.util,
+                key = "hashDirectory",
                 value = function()
                     return "same"
                 end,
@@ -324,8 +324,8 @@ return function(T)
                 end,
             },
             {
-                table = T.context.installer,
-                key = "checksumDirectory",
+                table = T.context.util,
+                key = "hashDirectory",
                 value = function()
                     return "source-hash"
                 end,
@@ -397,8 +397,8 @@ return function(T)
                 end,
             },
             {
-                table = T.context.installer,
-                key = "checksumDirectory",
+                table = T.context.util,
+                key = "hashDirectory",
                 value = function()
                     return "source-hash"
                 end,

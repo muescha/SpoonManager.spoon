@@ -129,6 +129,51 @@ function Util.fileExists(path)
     return hs.fs.attributes(path) ~= nil
 end
 
+function Util.hashDirectory(path, options, logger)
+    if not Util.fileExists(path) then
+        return nil
+    end
+
+    options = options or {}
+    local command = {
+        "/usr/bin/find",
+        Util.shellQuote(path),
+    }
+
+    local ignoredNames = {
+        ".DS_Store",
+        "__MACOSX",
+        "._*",
+        ".git",
+    }
+
+    for _, name in ipairs(options.ignoreFolders or {}) do
+        ignoredNames[#ignoredNames + 1] = name
+    end
+
+    command[#command + 1] = "\\("
+    for index, name in ipairs(ignoredNames) do
+        if index > 1 then
+            command[#command + 1] = "-o"
+        end
+        command[#command + 1] = "-name"
+        command[#command + 1] = Util.shellQuote(name)
+    end
+    command[#command + 1] = "\\)"
+    command[#command + 1] = "-prune"
+    command[#command + 1] = "-o"
+    command[#command + 1] = "-type f"
+    command[#command + 1] = "-print0"
+    command[#command + 1] = "|"
+    command[#command + 1] = "/usr/bin/xargs -0 /usr/bin/shasum -a 256"
+    command[#command + 1] = "|"
+    command[#command + 1] = "/usr/bin/shasum -a 256"
+    command[#command + 1] = "|"
+    command[#command + 1] = "/usr/bin/awk '{ print $1 }'"
+
+    return Util.execute(table.concat(command, " "), logger, "Could not hash %s", path)
+end
+
 function Util.localPath(path)
     Util.requireString(path, "Local path")
 

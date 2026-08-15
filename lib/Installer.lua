@@ -9,28 +9,6 @@ return function(context)
     local definitionResolver = context.definitionResolver
     local util = context.util
 
-    function Installer.checksumDirectory(path)
-        if not util.fileExists(path) then
-            return nil
-        end
-
-        local command = table.concat({
-            "/usr/bin/find",
-            util.shellQuote(path),
-            "-type f",
-            "! -name .DS_Store",
-            "-print0",
-            "|",
-            "/usr/bin/xargs -0 /usr/bin/shasum -a 256",
-            "|",
-            "/usr/bin/shasum -a 256",
-            "|",
-            "/usr/bin/awk '{ print $1 }'",
-        }, " ")
-
-        return util.execute(command, logger, "Could not checksum %s", path)
-    end
-
     function Installer.prepareDefinition(definition, action)
         local def = definition.config and util.copyTable(definition) or {
             config = util.copyTable(definition),
@@ -91,7 +69,7 @@ return function(context)
             return nil, "Spoon already exists but is not managed by SpoonManager. Use .conflictStrategy(\"backup\") or .conflictStrategy(\"overwrite\") to install anyway."
         end
 
-        local currentChecksum = Installer.checksumDirectory(destination)
+        local currentChecksum = util.hashDirectory(destination, nil, logger)
         if currentChecksum == installed.checksum then
             return true
         end
@@ -165,7 +143,7 @@ return function(context)
             return nil, validationError
         end
 
-        local sourceHash = Installer.checksumDirectory(stage.folder)
+        local sourceHash = util.hashDirectory(stage.folder, nil, logger)
         if action == "update" then
             local skipped, skipErr = Installer.skipUnchangedUpdate(definition, destination, sourceHash)
             if skipped or skipErr then
@@ -183,7 +161,9 @@ return function(context)
             return nil, "Could not install Spoon folder"
         end
 
-        registry.persistInstall(definition, destination, Installer.checksumDirectory, {
+        registry.persistInstall(definition, destination, function(path)
+            return util.hashDirectory(path, nil, logger)
+        end, {
             sourceHash = sourceHash,
         })
         Installer.applyUse(definition)
