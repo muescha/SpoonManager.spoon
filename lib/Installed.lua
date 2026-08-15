@@ -22,13 +22,18 @@ return function(context)
 
     local function create(selection)
         selection = selection or {}
+        local installed = registry.read()
+        local names = selection.names or util.sortedKeys(installed)
         local api = {
             kind = "installed",
             scope = selection.names and "spoon" or "all",
             name = selection.names and selection.names[1] or nil,
         }
         if selection.names then
-            api.registered = registry.read()[api.name] ~= nil
+            api.registered = installed[api.name] ~= nil
+        else
+            api.count = #names
+            api.names = util.copyTable(names)
         end
 
         function api.list()
