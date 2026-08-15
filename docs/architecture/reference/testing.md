@@ -67,13 +67,16 @@ The same test can also compare the complete explanation against a golden JSON fi
 
 ```lua
 test("default spoon zip explanation snapshot", function()
-    local explanation = SpoonManager._prepareDefinition(
+    local prepared = installer.prepareDefinition(
         SpoonManager.from.default
-            .spoon("Emojis"),
+            .spoon("Emojis")
+            .toConfig(),
         "install"
     )
+    prepared.task = nil
+    prepared.state = "command"
 
-    assertMatchesJson("examples/default_spoon.lua.explain.json", explanation)
+    assertMatchesJson("examples/default_spoon.lua.explain.json", prepared)
 end)
 ```
 
@@ -119,7 +122,7 @@ Golden JSON snapshots make sense for stable public or semi-public structures:
 - `definition.toConfig()`
 - resolver `resolved` output
 - resolver `command` output
-- prepared definition output from `SpoonManager._prepareDefinition(...)`
+- prepared definition output from `Installer.prepareDefinition(...)`
 - selected `installed.json` records after normalizing dynamic values
 
 They are less useful for unstable runtime data unless the test normalizes dynamic fields first.
@@ -130,7 +133,7 @@ Examples of fields to normalize before snapshot comparison:
 installedAt
 updatedAt
 path
-fingerprints.targetFolderHash
+registryMeta.persistedFingerprints.targetFolderHash
 temporary directories
 ```
 
@@ -184,10 +187,6 @@ Example normalized installed snapshot:
 ```json
 {
   "Emojis": {
-    "name": "Emojis",
-    "installedAt": "<timestamp>",
-    "updatedAt": "<timestamp>",
-    "path": "<spoons>/Emojis.spoon",
     "config": {
       "source": {
         "type": "github",
@@ -204,8 +203,21 @@ Example normalized installed snapshot:
       "sourceKind": "zip",
       "url": "https://github.com/Hammerspoon/Spoons/raw/master/Spoons/Emojis.spoon.zip"
     },
-    "fingerprints": {
-      "targetFolderHash": "<sha256>"
+    "task": {
+      "name": "Emojis"
+    },
+    "registryMeta": {
+      "installedAt": "<timestamp>",
+      "updatedAt": "<timestamp>",
+      "path": "<spoons>/Emojis.spoon",
+      "persistedFingerprints": {
+        "targetFolderHash": "<sha256>"
+      }
+    },
+    "result": {
+      "fingerprints": {
+        "targetFolderHash": "<sha256>"
+      }
     }
   }
 }
@@ -432,10 +444,10 @@ Registry tests should use a temporary config directory.
 Useful cases:
 
 - creates `.config/SpoonManager/installed.json`
-- stores original `definition`
+- stores the full runtime definition/BOM snapshot
 - stores `resolved`
 - stores effective task `source`
-- stores `fingerprints.targetFolderHash`
+- stores `registryMeta.persistedFingerprints.targetFolderHash`
 - preserves `installedAt` and updates `updatedAt`
 - reads unknown or missing registry as an empty table
 

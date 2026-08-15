@@ -1300,7 +1300,7 @@ install or update, `update()` skips the copy and returns `reason =
 "source-unchanged"`. `update()` is for managed Spoons; if a Spoon is not recorded
 in SpoonManager's registry, use `install()` first.
 
-The nested `result` section includes `fingerprints.stagedSourceHash` and
+The nested `definition.result` section includes `fingerprints.stagedSourceHash` and
 `fingerprints.storedSourceHash`. When SpoonManager hashes the installed target
 folder, that section also includes `fingerprints.targetFolderHash` so you can
 debug why an update copied or skipped.
@@ -1558,19 +1558,20 @@ On success:
 ```lua
 {
     success = true,
-    task = {
+    definition = {
         config = {},
         resolved = {},
         command = {},
-    },
-    result = {
-        success = true,
-        action = "install",
-        name = "Emojis",
-        path = "~/.hammerspoon/Spoons/Emojis.spoon",
-        skipped = true,
-        reason = "already-installed",
-        use = {},
+        task = {},
+        result = {
+            success = true,
+            action = "install",
+            name = "Emojis",
+            path = "~/.hammerspoon/Spoons/Emojis.spoon",
+            skipped = true,
+            reason = "already-installed",
+            use = {},
+        },
     },
 }
 ```
@@ -1595,25 +1596,27 @@ After a successful install or update, SpoonManager stores install metadata here:
 ~/.hammerspoon/.config/SpoonManager/installed.json
 ```
 
-It contains the original config, the resolved install data, the effective command, and the `targetFolderHash` of the installed Spoon folder. That hash is used to detect local changes before `update()`.
+It is a map from installed Spoon name to the full runtime definition/BOM snapshot. That snapshot contains the original config, the resolved install data, the effective command, registry metadata, and the `targetFolderHash` of the installed Spoon folder. That hash is used to detect local changes before `update()`.
 
 Shape:
 
 ```lua
 {
     Emojis = {
-        name = "Emojis",
-        installedAt = "2026-08-05T03:12:00Z",
-        updatedAt = "2026-08-05T03:12:00Z",
-        path = "~/.hammerspoon/Spoons/Emojis.spoon",
         config = {},
         resolved = {},
         command = {},
-        use = {},
-        fingerprints = {
-            stagedSourceHash = "sha256:...",
-            targetFolderHash = "sha256:...",
+        task = {},
+        registryMeta = {
+            installedAt = "2026-08-05T03:12:00Z",
+            updatedAt = "2026-08-05T03:12:00Z",
+            path = "~/.hammerspoon/Spoons/Emojis.spoon",
+            persistedFingerprints = {
+                stagedSourceHash = "sha256:...",
+                targetFolderHash = "sha256:...",
+            },
         },
+        result = {},
     },
 }
 ```
@@ -1638,18 +1641,19 @@ config   = the user-provided source, target, use, and options values
 resolved = inferred install name, source type, URLs, and archive selection
 command  = final executable install/update task
 task     = returned task context containing config, resolved, and command
+registryMeta = installed registry timestamps, path, and persisted fingerprints
 result   = action outcome such as skipped, reason, fingerprints, and use
 ```
 
 SpoonManager calculates each stage once and then reuses it:
 
 ```text
-config -> resolved -> command -> result -> installed record
+config -> resolved -> command -> task -> result -> registryMeta -> installed record
 ```
 
 `builder.toConfig()` returns only the declarative config. Install results and
-`installed.json` additionally include `resolved` and `command` data for debugging
-and update checks.
+`installed.json` additionally include the full runtime definition snapshot for
+debugging and update checks.
 
 ### Logger
 

@@ -214,26 +214,27 @@ The result artifact has this general shape:
       "step": "explain",
       "success": true,
       "definition": {
-        "config": {},
-        "resolved": {},
-        "command": {}
+        "config": {}
       }
     },
     {
       "step": "install",
       "success": true,
       "output": {
-        "task": {
+        "success": true,
+        "definition": {
           "config": {},
           "resolved": {},
-          "command": {}
-        },
-        "result": {
-          "success": true,
-          "action": "install",
-          "name": "WindowSigils",
-          "path": ".../Spoons/WindowSigils.spoon",
-          "fingerprints": {}
+          "command": {},
+          "task": {},
+          "registryMeta": {},
+          "result": {
+            "success": true,
+            "action": "install",
+            "name": "WindowSigils",
+            "path": ".../Spoons/WindowSigils.spoon",
+            "fingerprints": {}
+          }
         }
       },
       "checks": {
@@ -247,14 +248,20 @@ The result artifact has this general shape:
       "step": "install-again",
       "success": true,
       "output": {
-        "task": {},
-        "result": {
-          "success": true,
-          "action": "install",
-          "name": "WindowSigils",
-          "path": ".../Spoons/WindowSigils.spoon",
-          "skipped": true,
-          "reason": "already-installed"
+        "success": true,
+        "definition": {
+          "config": {},
+          "resolved": {},
+          "command": {},
+          "task": {},
+          "result": {
+            "success": true,
+            "action": "install",
+            "name": "WindowSigils",
+            "path": ".../Spoons/WindowSigils.spoon",
+            "skipped": true,
+            "reason": "already-installed"
+          }
         }
       },
       "checks": {
@@ -534,7 +541,7 @@ The runner:
 9. Write the path resolved from `pathTemplates.explain`.
 10. Run `definition.install()` synchronously.
 11. Verify expected files below the temporary install path.
-12. Run the same install again and assert `result.result.skipped == true`.
+12. Run the same install again and assert `result.definition.result.skipped == true`.
 13. Write the path resolved from `pathTemplates.result`.
 14. Write the path resolved from `pathTemplates.log`.
 15. Print the resolved install path.
