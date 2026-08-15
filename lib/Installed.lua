@@ -4,6 +4,22 @@ return function(context)
     local registry = context.registry
     local util = context.util
 
+    local function entryPath(entry)
+        if entry.registryMeta and entry.registryMeta.path then
+            return entry.registryMeta.path
+        end
+
+        if entry.result and entry.result.path then
+            return entry.result.path
+        end
+
+        if entry.command and entry.command.target and entry.command.target.path then
+            return entry.command.target.path
+        end
+
+        return nil
+    end
+
     local function create(selection)
         selection = selection or {}
         local api = {}
@@ -49,6 +65,42 @@ return function(context)
             end
 
             return manager.update(definitions)
+        end
+
+        function api.doctor()
+            local installed = registry.read()
+            local result = {
+                success = true,
+                checks = {},
+            }
+            local names = selection.names or util.sortedKeys(installed)
+
+            for _, name in ipairs(names) do
+                local entry = installed[name]
+                if not entry then
+                    error("Installed Spoon not found: " .. name, 2)
+                end
+
+                local path = entryPath(entry)
+                local check = {
+                    name = name,
+                    path = path,
+                    installed = path and util.fileExists(path) or false,
+                    definition = util.copyTable(entry),
+                }
+
+                if not path then
+                    check.reason = "missing-path"
+                    result.success = false
+                elseif not check.installed then
+                    check.reason = "missing-folder"
+                    result.success = false
+                end
+
+                result.checks[#result.checks + 1] = check
+            end
+
+            return result
         end
 
         function api.spoon(name)

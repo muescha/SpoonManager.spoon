@@ -466,6 +466,93 @@ return function(T)
         end)
     end)
 
+    T.test("installed doctor reports missing installed spoon folders", function()
+        withPatched({
+            {
+                table = T.context.registry,
+                key = "read",
+                value = function()
+                    return {
+                        Emojis = {
+                            registryMeta = {
+                                path = "/tmp/hammerspoon-test/Spoons/Emojis.spoon",
+                            },
+                        },
+                        MissingPath = {
+                            task = {
+                                name = "MissingPath",
+                            },
+                        },
+                        TimeMachineProgress = {
+                            result = {
+                                path = "/tmp/hammerspoon-test/Spoons/TimeMachineProgress.spoon",
+                            },
+                        },
+                    }
+                end,
+            },
+            {
+                table = T.context.util,
+                key = "fileExists",
+                value = function(path)
+                    return path == "/tmp/hammerspoon-test/Spoons/Emojis.spoon"
+                end,
+            },
+        }, function()
+            local result = T.context.installed.create().doctor()
+
+            T.assertFalse(result.success)
+            T.assertEqual(#result.checks, 3)
+            T.assertEqual(result.checks[1].name, "Emojis")
+            T.assertTrue(result.checks[1].installed)
+            T.assertFalse(result.checks[1].reason)
+            T.assertEqual(result.checks[2].name, "MissingPath")
+            T.assertFalse(result.checks[2].installed)
+            T.assertEqual(result.checks[2].reason, "missing-path")
+            T.assertEqual(result.checks[3].name, "TimeMachineProgress")
+            T.assertFalse(result.checks[3].installed)
+            T.assertEqual(result.checks[3].reason, "missing-folder")
+        end)
+    end)
+
+    T.test("installed doctor supports one spoon selection", function()
+        withPatched({
+            {
+                table = T.context.registry,
+                key = "read",
+                value = function()
+                    return {
+                        Emojis = {
+                            command = {
+                                target = {
+                                    path = "/tmp/hammerspoon-test/Spoons/Emojis.spoon",
+                                },
+                            },
+                        },
+                    }
+                end,
+            },
+            {
+                table = T.context.util,
+                key = "fileExists",
+                value = function()
+                    return true
+                end,
+            },
+        }, function()
+            local installed = T.context.installed.create()
+            local result = installed.spoon("Emojis").doctor()
+
+            T.assertTrue(result.success)
+            T.assertEqual(#result.checks, 1)
+            T.assertEqual(result.checks[1].path, "/tmp/hammerspoon-test/Spoons/Emojis.spoon")
+
+            T.assertError(function()
+                installed.spoon("Missing").doctor()
+            end, "Installed Spoon not found: Missing")
+        end)
+    end)
+
     T.test("installer skips already installed spoon", function()
         local used = {}
 
