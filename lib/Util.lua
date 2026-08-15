@@ -292,6 +292,10 @@ function Util.createLabel(method, value)
         return "." .. method .. "()"
     end
 
+    if type(value) == "table" then
+        value = table.concat(value, ", ")
+    end
+
     local escaped = tostring(value):gsub("'", "\\'")
     return "." .. method .. "('" .. escaped .. "')"
 end

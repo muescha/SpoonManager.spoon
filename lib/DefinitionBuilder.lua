@@ -144,6 +144,19 @@ return function(context)
             section = "extract",
         },
         {
+            method = "excludeFolders",
+            collect = function(...)
+                return { ... }
+            end,
+            validate = function(value)
+                util.requireSafeFileNames(value, "Excluded folder", "source.excludeFolders")
+            end,
+            labelValue = function(value)
+                return table.concat(value, ", ")
+            end,
+            section = "source",
+        },
+        {
             method = "withName",
             validate = util.requireString,
             label = "Spoon name",
@@ -182,16 +195,18 @@ return function(context)
         end
 
         for _, spec in ipairs(setterSpecs) do
-            api[spec.method] = function(value)
+            api[spec.method] = function(...)
+                local value = spec.collect and spec.collect(...) or select(1, ...)
                 if spec.fixedValue ~= nil then
                     value = spec.fixedValue
                 elseif spec.validate then
                     spec.validate(value, spec.label)
                 end
 
+                local labelValue = spec.labelValue and spec.labelValue(value) or value
                 local nextDef = util.copyTable(def)
-                ensureState(nextDef, "config", spec.method, value)
-                requireCapability(nextDef, spec.method, spec.method, value)
+                ensureState(nextDef, "config", spec.method, labelValue)
+                requireCapability(nextDef, spec.method, spec.method, labelValue)
                 setExclusive(ensureSection(nextDef.config, spec.section), spec.group, spec.method, value)
                 return createBuilder(nextDef)
             end
@@ -216,19 +231,6 @@ return function(context)
                 ), 3)
             end
 
-            return createBuilder(nextDef)
-        end
-
-        api.excludeFolders = function(...)
-            local folders = { ... }
-            util.requireSafeFileNames(folders, "Excluded folder", "source.excludeFolders")
-
-            local nextDef = util.copyTable(def)
-            ensureState(nextDef, "config", "excludeFolders", table.concat(folders, ", "))
-            requireCapability(nextDef, "excludeFolders", "excludeFolders", table.concat(folders, ", "))
-
-            local source = ensureSection(nextDef.config, "source")
-            source.excludeFolders = util.copyTable(folders)
             return createBuilder(nextDef)
         end
 
