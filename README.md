@@ -1493,6 +1493,58 @@ local emojis = spoon.SpoonManager.installed.spoon("Emojis").list()
 
 If the Spoon is not in `installed.json`, `list()` returns an empty list.
 
+### `SpoonManager.installed.doctor()`
+
+Checks whether the Spoons recorded in `installed.json` still exist on disk.
+
+The check is read-only. It looks for the stored path on each BOM snapshot
+(`registryMeta.path`, then `result.path`, then `command.target.path`) and reports
+missing folders without changing the registry or filesystem.
+
+Example:
+
+```lua
+local report = spoon.SpoonManager.installed.doctor()
+
+for _, check in ipairs(report.checks) do
+    if not check.installed then
+        print(check.name .. ": " .. check.reason)
+    end
+end
+```
+
+Result shape:
+
+```lua
+{
+    success = false,
+    checks = {
+        {
+            name = "Emojis",
+            path = "~/.hammerspoon/Spoons/Emojis.spoon",
+            installed = false,
+            reason = "missing-folder",
+            definition = {},
+        },
+    },
+}
+```
+
+`reason` is `"missing-folder"` when the stored path no longer exists and
+`"missing-path"` when the registry entry has no usable installed path.
+
+### `SpoonManager.installed.spoon(name).doctor()`
+
+Checks one Spoon from the installed registry.
+
+Example:
+
+```lua
+spoon.SpoonManager.installed.spoon("Emojis").doctor()
+```
+
+If the Spoon is not in `installed.json`, `doctor()` raises an error.
+
 ### `SpoonManager.installed.update()`
 
 Updates every Spoon recorded in `installed.json`.
