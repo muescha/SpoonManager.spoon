@@ -204,43 +204,6 @@ return function(context)
         }
     end
 
-    function Installer.installFromFolder(definition, sourceFolder, action)
-        local stage, err = sourceStage.fromFolder(sourceFolder)
-        if not stage then
-            return nil, err
-        end
-
-        local result, installErr = Installer.installFromStage(definition, stage, action)
-        sourceStage.cleanup(stage)
-        return result, installErr
-    end
-
-    function Installer.installFromZipFile(definition, zipFile, action)
-        local stage, err = sourceStage.fromZipFile(zipFile, {
-            folder = definition.command.source.folder,
-        })
-        if not stage then
-            return nil, err
-        end
-
-        local result, installErr = Installer.installFromStage(definition, stage, action)
-        sourceStage.cleanup(stage)
-        return result, installErr
-    end
-
-    function Installer.installFromRemoteZip(definition, url, action)
-        local stage, err = sourceStage.fromRemoteZip(url, {
-            folder = definition.command.source.folder,
-        })
-        if not stage then
-            return nil, err
-        end
-
-        local result, installErr = Installer.installFromStage(definition, stage, action)
-        sourceStage.cleanup(stage)
-        return result, installErr
-    end
-
     function Installer.installDefinition(definition, action)
         local def = Installer.prepareDefinition(definition, action)
         local command = util.copyTable(def.command)
@@ -269,18 +232,13 @@ return function(context)
             }, nil, def
         end
 
-        local source = command.source
-        local result, err
-
-        if source.kind == "folder" then
-            result, err = Installer.installFromFolder(def, source.path, action)
-        elseif source.kind == "zip" and source.path then
-            result, err = Installer.installFromZipFile(def, source.path, action)
-        elseif source.kind == "zip" and source.url then
-            result, err = Installer.installFromRemoteZip(def, source.url, action)
-        else
-            return nil, "Unsupported source kind: " .. tostring(source.kind), def
+        local stage, stageErr = sourceStage.fromCommand(command)
+        if not stage then
+            return nil, stageErr, def
         end
+
+        local result, err = Installer.installFromStage(def, stage, action)
+        sourceStage.cleanup(stage)
 
         if result then
             result.action = action

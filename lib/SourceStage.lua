@@ -82,6 +82,28 @@ return function(context)
         return stage
     end
 
+    function SourceStage.fromCommand(command)
+        local source = command.source
+
+        if source.kind == "folder" then
+            return SourceStage.fromFolder(source.path)
+        end
+
+        if source.kind == "zip" and source.path then
+            return SourceStage.fromZipFile(source.path, {
+                folder = source.folder,
+            })
+        end
+
+        if source.kind == "zip" and source.url then
+            return SourceStage.fromRemoteZip(source.url, {
+                folder = source.folder,
+            })
+        end
+
+        return nil, "Unsupported source kind: " .. tostring(source.kind)
+    end
+
     function SourceStage.cleanup(stage)
         if stage and stage.root then
             util.removePath(stage.root, logger)
