@@ -222,17 +222,27 @@ function obj._installDefinition(definition, action)
 end
 
 local function debugInfo(message, definition)
-    obj.logger.df(
-        "%s: toConfig=%s config=%s resolved=%s command=%s task=%s name=%s\nStacktrace:\n%s",
-        message,
-        tostring(type(definition) == "table" and definition.toConfig ~= nil),
-        tostring(type(definition) == "table" and definition.config ~= nil),
-        tostring(type(definition) == "table" and definition.resolved ~= nil),
-        tostring(type(definition) == "table" and definition.command ~= nil),
-        tostring(type(definition) == "table" and definition.task ~= nil),
-        tostring(type(definition) == "table" and definition.name or nil),
-        debug.traceback("", 3)
-    )
+    if not obj.logger or not obj.logger.df then
+        return
+    end
+
+    local ok, info = pcall(function()
+        return string.format(
+            "%s: toConfig=%s config=%s resolved=%s command=%s task=%s name=%s\nStacktrace:\n%s",
+            message,
+            tostring(type(definition) == "table" and definition.toConfig ~= nil),
+            tostring(type(definition) == "table" and definition.config ~= nil),
+            tostring(type(definition) == "table" and definition.resolved ~= nil),
+            tostring(type(definition) == "table" and definition.command ~= nil),
+            tostring(type(definition) == "table" and definition.task ~= nil),
+            tostring(type(definition) == "table" and definition.name or nil),
+            debug.traceback("", 3)
+        )
+    end)
+
+    if ok then
+        pcall(obj.logger.df, "%s", info)
+    end
 end
 
 local function definitionConfig(definition)
