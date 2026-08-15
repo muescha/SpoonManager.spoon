@@ -117,7 +117,7 @@ spoon.SpoonManager.from.default
     .install()
 ```
 
-Add builders and install them together:
+Install builders together with explicit inputs:
 
 ```lua
 local emojis =
@@ -131,8 +131,7 @@ local deepFolder =
     spoon.SpoonManager.from.github("muescha/SpoonRepo")
         .path("Source/DeepFolder.spoon")
 
-spoon.SpoonManager.add(emojis, deepFolder)
-spoon.SpoonManager.install()
+spoon.SpoonManager.install(emojis, deepFolder)
 ```
 
 Update explicitly when you want SpoonManager to fetch the external source again:
@@ -733,8 +732,8 @@ are rejected, and a non-`.zip` base requires `.zipFile(...)`.
 
 `.withName(name)` and `.conflictStrategy(behavior)` are declared by every
 provider, so they work on any source. `.use(options)` and the lifecycle calls
-`.add()`, `.install()`, `.update()`, `.toConfig()`, and `.explain()` are not
-capability-gated and always available.
+`.install()`, `.update()`, `.toConfig()`, and `.explain()` are not capability-gated
+and always available.
 
 ### `builder.branch(name)`
 
@@ -1234,33 +1233,11 @@ spoon.SpoonManager.from.default
     .update()
 ```
 
-### `builder.add()`
-
-Adds this builder to SpoonManager's managed list and returns the same builder.
-
-It does not install anything by itself.
-
-Example:
-
-```lua
-spoon.SpoonManager.from.default
-    .spoon("Emojis")
-    .use({
-        start = true,
-    })
-    .add()
-
-spoon.SpoonManager.install()
-```
-
 ### `builder.install()`
 
 Installs this builder synchronously.
 
 If the Spoon is already installed, `install()` skips the download and only applies `use()` options.
-
-After a successful install, SpoonManager stores the builder config in its managed list.
-That means a later `spoon.SpoonManager.update()` can update it without passing the builder again.
 
 Example:
 
@@ -1273,9 +1250,6 @@ local result, err =
 if not result then
     print(err)
 end
-
--- Later in the same Hammerspoon session:
-spoon.SpoonManager.update()
 ```
 
 Example with use options:
@@ -1300,12 +1274,10 @@ install or update, `update()` skips the copy and returns `reason =
 "source-unchanged"`. `update()` is for managed Spoons; if a Spoon is not recorded
 in SpoonManager's registry, use `install()` first.
 
-The nested `definition.result` section includes `fingerprints.stagedSourceHash` and
+The nested `runs[*].definition.result` section includes `fingerprints.stagedSourceHash` and
 `fingerprints.storedSourceHash`. When SpoonManager hashes the installed target
 folder, that section also includes `fingerprints.targetFolderHash` so you can
 debug why an update copied or skipped.
-
-After a successful update, SpoonManager stores the builder config as a managed builder config.
 
 Example:
 
@@ -1436,58 +1408,12 @@ config
   -> install/update
 ```
 
-### `SpoonManager.add(builder[, ...])`
-
-Adds one or more builders to SpoonManager's managed list.
-
-It does not install anything by itself.
-
-Example:
-
-```lua
-local emojis =
-    spoon.SpoonManager.from.default
-        .spoon("Emojis")
-
-local timeMachine =
-    spoon.SpoonManager.from.default
-        .spoon("TimeMachineProgress")
-        .use({
-            start = true,
-        })
-
-spoon.SpoonManager.add(emojis, timeMachine)
-spoon.SpoonManager.install()
-```
-
-### `SpoonManager.clear()`
-
-`clear()` removes all builders currently stored in SpoonManager's managed list.
-It only clears the in-memory list. It does not remove installed
-Spoons and it does not delete install metadata from `installed.json`.
-
-Example:
-
-```lua
-spoon.SpoonManager.add(
-    spoon.SpoonManager.from.default.spoon("Emojis")
-)
-
-spoon.SpoonManager.clear()
-spoon.SpoonManager.install()
-```
-
-In this example, `install()` has nothing to do after `clear()`.
-
-### `SpoonManager.install([builder[, ...]])`
+### `SpoonManager.install(builder[, ...])`
 
 Installs builders synchronously.
 
-With arguments, it installs the passed builders and stores successful builder configs in SpoonManager's managed list.
-
-Without arguments, it installs builders currently stored in SpoonManager's managed list.
-
-Builders are stored by inferred Spoon name. Installing another builder for the same Spoon name replaces the old managed builder config instead of adding a duplicate.
+Pass one or more definitions explicitly. Calling `install()` without definitions
+raises an error.
 
 Example with arguments:
 
@@ -1497,44 +1423,27 @@ local emojis =
         .spoon("Emojis")
 
 spoon.SpoonManager.install(emojis)
-
--- The explicit install above also makes Emojis managed:
-spoon.SpoonManager.update()
 ```
 
-Example with added builders:
+Example with a list:
 
 ```lua
-spoon.SpoonManager.from.default
-    .spoon("Emojis")
-    .add()
+local managedSpoons = {
+    spoon.SpoonManager.from.default.spoon("Emojis"),
+    spoon.SpoonManager.from.default.spoon("TimeMachineProgress"),
+}
 
-spoon.SpoonManager.from.default
-    .spoon("TimeMachineProgress")
-    .add()
-
-spoon.SpoonManager.install()
+spoon.SpoonManager.install(managedSpoons)
 ```
 
-### `SpoonManager.update([builder[, ...]])`
+### `SpoonManager.update(builder[, ...])`
 
 Updates builders synchronously.
 
-With arguments, it updates the passed builders and stores successful builder configs in SpoonManager's managed list.
-
-Without arguments, it updates builders currently stored in SpoonManager's managed list.
+Pass one or more definitions explicitly. Calling `update()` without definitions
+raises an error.
 
 Example:
-
-```lua
-spoon.SpoonManager.from.default
-    .spoon("TimeMachineProgress")
-    .add()
-
-spoon.SpoonManager.update()
-```
-
-Example with explicit builder:
 
 ```lua
 local timeMachine =
@@ -1542,6 +1451,17 @@ local timeMachine =
         .spoon("TimeMachineProgress")
 
 spoon.SpoonManager.update(timeMachine)
+```
+
+Example with a list:
+
+```lua
+local managedSpoons = {
+    spoon.SpoonManager.from.default.spoon("Emojis"),
+    spoon.SpoonManager.from.default.spoon("TimeMachineProgress"),
+}
+
+spoon.SpoonManager.update(managedSpoons)
 ```
 
 ### Results
@@ -1558,33 +1478,38 @@ On success:
 ```lua
 {
     success = true,
-    definition = {
-        config = {},
-        resolved = {},
-        command = {},
-        task = {},
-        result = {
+    action = "install",
+    runs = {
+        {
             success = true,
-            action = "install",
-            name = "Emojis",
-            path = "~/.hammerspoon/Spoons/Emojis.spoon",
-            skipped = true,
-            reason = "already-installed",
-            use = {},
+            definition = {
+                config = {},
+                resolved = {},
+                command = {},
+                task = {},
+                result = {
+                    success = true,
+                    action = "install",
+                    name = "Emojis",
+                    path = "~/.hammerspoon/Spoons/Emojis.spoon",
+                    skipped = true,
+                    reason = "already-installed",
+                    use = {},
+                },
+            },
         },
     },
 }
 ```
 
-Batch actions return:
+Manager actions return the same shape. Multiple definitions add multiple entries
+to `runs`.
 
 ```lua
 {
     success = true,
     action = "install",
-    installed = {},
-    skipped = {},
-    errors = {},
+    runs = {},
 }
 ```
 

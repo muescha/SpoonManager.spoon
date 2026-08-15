@@ -222,20 +222,26 @@ The result artifact has this general shape:
       "success": true,
       "output": {
         "success": true,
-        "definition": {
-          "config": {},
-          "resolved": {},
-          "command": {},
-          "task": {},
-          "registryMeta": {},
-          "result": {
+        "action": "install",
+        "runs": [
+          {
             "success": true,
-            "action": "install",
-            "name": "WindowSigils",
-            "path": ".../Spoons/WindowSigils.spoon",
-            "fingerprints": {}
+            "definition": {
+              "config": {},
+              "resolved": {},
+              "command": {},
+              "task": {},
+              "registryMeta": {},
+              "result": {
+                "success": true,
+                "action": "install",
+                "name": "WindowSigils",
+                "path": ".../Spoons/WindowSigils.spoon",
+                "fingerprints": {}
+              }
+            }
           }
-        }
+        ]
       },
       "checks": {
         "expectedFiles": {
@@ -249,20 +255,26 @@ The result artifact has this general shape:
       "success": true,
       "output": {
         "success": true,
-        "definition": {
-          "config": {},
-          "resolved": {},
-          "command": {},
-          "task": {},
-          "result": {
+        "action": "install",
+        "runs": [
+          {
             "success": true,
-            "action": "install",
-            "name": "WindowSigils",
-            "path": ".../Spoons/WindowSigils.spoon",
-            "skipped": true,
-            "reason": "already-installed"
+            "definition": {
+              "config": {},
+              "resolved": {},
+              "command": {},
+              "task": {},
+              "result": {
+                "success": true,
+                "action": "install",
+                "name": "WindowSigils",
+                "path": ".../Spoons/WindowSigils.spoon",
+                "skipped": true,
+                "reason": "already-installed"
+              }
+            }
           }
-        }
+        ]
       },
       "checks": {
         "skipped": {
@@ -541,7 +553,7 @@ The runner:
 9. Write the path resolved from `pathTemplates.explain`.
 10. Run `definition.install()` synchronously.
 11. Verify expected files below the temporary install path.
-12. Run the same install again and assert `result.definition.result.skipped == true`.
+12. Run the same install again and assert `result.runs[1].definition.result.skipped == true`.
 13. Write the path resolved from `pathTemplates.result`.
 14. Write the path resolved from `pathTemplates.log`.
 15. Print the resolved install path.

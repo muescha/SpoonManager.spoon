@@ -1,6 +1,6 @@
 # Stateless Manager Actions
 
-**Status: Planned.**
+**Status: Completed.**
 
 ## Handoff
 
