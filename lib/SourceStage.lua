@@ -41,21 +41,6 @@ return function(context)
         return stage
     end
 
-    function SourceStage.fromZipFile(zipFile, selection)
-        local stage, err = SourceStage.create()
-        if not stage then
-            return nil, err
-        end
-
-        local result, stageErr = SourceStage.stageZipFile(stage, zipFile, selection)
-        if not result then
-            SourceStage.cleanup(stage)
-            return nil, stageErr
-        end
-
-        return stage
-    end
-
     function SourceStage.fromRemoteZip(url, selection)
         local stage, err = SourceStage.create()
         if not stage then
