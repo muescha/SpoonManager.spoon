@@ -6,9 +6,14 @@
       "conflictStrategy": "backup"
     },
     "source": {
-      "folder": "Source/A.spoon",
       "kind": "zip",
-      "url": "https://github.com/owner/repo/archive/main.zip"
+      "location": {
+        "kind": "url",
+        "url": "https://github.com/owner/repo/archive/main.zip"
+      },
+      "selection": {
+        "folder": "Source/A.spoon"
+      }
     },
     "target": {
       "name": "A",
@@ -29,10 +34,17 @@
     }
   },
   "resolved": {
-    "extractFolder": "Source/A.spoon",
     "installName": "A",
-    "sourceKind": "zip",
-    "url": "https://github.com/owner/repo/archive/main.zip"
+    "source": {
+      "kind": "zip",
+      "location": {
+        "kind": "url",
+        "url": "https://github.com/owner/repo/archive/main.zip"
+      },
+      "selection": {
+        "folder": "Source/A.spoon"
+      }
+    }
   },
   "state": "command"
 }

@@ -34,7 +34,7 @@ return function(T)
         T.assertEqual(commanded.config.naming.withName, "B.spoon")
         T.assertEqual(commanded.resolved.installName, "B")
         T.assertEqual(commanded.command.name, "B")
-        T.assertEqual(commanded.command.source.url, "https://github.com/owner/repo/raw/main/dist/A.spoon.zip")
+        T.assertEqual(commanded.command.source.location.url, "https://github.com/owner/repo/raw/main/dist/A.spoon.zip")
     end)
 
     T.test("definition rejects source changes after resolve", function()
@@ -359,8 +359,8 @@ return function(T)
             config = config,
         })
 
-        T.assertEqual(resolved.sourceKind, "zip")
-        T.assertEqual(resolved.extractFolder, "out/myspoons/Spoon1.spoon")
+        T.assertEqual(resolved.source.kind, "zip")
+        T.assertEqual(resolved.source.selection.folder, "out/myspoons/Spoon1.spoon")
     end)
 
     T.test("definition resolver allows github path with zip file and use folder", function()
@@ -374,9 +374,9 @@ return function(T)
             config = config,
         })
 
-        T.assertEqual(resolved.sourceKind, "zip")
-        T.assertEqual(resolved.url, "https://github.com/owner/repo/raw/main/dist/A.zip")
-        T.assertEqual(resolved.extractFolder, "nested")
+        T.assertEqual(resolved.source.kind, "zip")
+        T.assertEqual(resolved.source.location.url, "https://github.com/owner/repo/raw/main/dist/A.zip")
+        T.assertEqual(resolved.source.selection.folder, "nested")
     end)
 
     T.test("definition resolver rejects path separators in zip file", function()

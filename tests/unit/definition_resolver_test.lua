@@ -11,7 +11,8 @@ return function(T)
         local command = T.context.definitionResolver.commandFromResolved(definition, "install", resolved)
 
         T.assertEqual(command.source.kind, "zip")
-        T.assertEqual(command.source.url, "https://github.com/muescha/MySpoon.spoon/archive/main.zip")
+        T.assertEqual(command.source.location.kind, "url")
+        T.assertEqual(command.source.location.url, "https://github.com/muescha/MySpoon.spoon/archive/main.zip")
         T.assertEqual(command.target.name, "MySpoon")
     end)
 
@@ -31,7 +32,7 @@ return function(T)
 
         T.assertEqual(command.action, "update")
         T.assertEqual(command.source.kind, "zip")
-        T.assertEqual(command.source.folder, "Source/A.spoon")
+        T.assertEqual(command.source.selection.folder, "Source/A.spoon")
         T.assertEqual(command.target.name, "A")
     end)
 
@@ -50,7 +51,7 @@ return function(T)
         local command = T.context.definitionResolver.commandFromResolved(definition, "install", resolved)
 
         T.assertEqual(command.source.kind, "zip")
-        T.assertEqual(command.source.folder, "Source/A.spoon")
+        T.assertEqual(command.source.selection.folder, "Source/A.spoon")
         T.assertEqual(command.target.name, "A")
     end)
 
@@ -152,7 +153,7 @@ return function(T)
 
         local resolved = T.context.definitionResolver.resolveFromDefinition(definition)
 
-        T.assertEqual(resolved.extractFolder, "Source/Wid%get.spoon")
+        T.assertEqual(resolved.source.selection.folder, "Source/Wid%get.spoon")
     end)
 
     T.test("definition resolver maps local folder selection", function()

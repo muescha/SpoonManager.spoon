@@ -7,7 +7,11 @@
     },
     "source": {
       "kind": "zip",
-      "url": "https://github.com/muescha/DeepFolder.spoon/archive/main.zip"
+      "location": {
+        "kind": "url",
+        "url": "https://github.com/muescha/DeepFolder.spoon/archive/main.zip"
+      },
+      "selection": {}
     },
     "target": {
       "name": "DeepFolder",
@@ -25,8 +29,14 @@
   },
   "resolved": {
     "installName": "DeepFolder",
-    "sourceKind": "zip",
-    "url": "https://github.com/muescha/DeepFolder.spoon/archive/main.zip"
+    "source": {
+      "kind": "zip",
+      "location": {
+        "kind": "url",
+        "url": "https://github.com/muescha/DeepFolder.spoon/archive/main.zip"
+      },
+      "selection": {}
+    }
   },
   "state": "command"
 }

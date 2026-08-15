@@ -47,6 +47,19 @@ return function(context)
         )
     end
 
+    local function zipSource(url, folder)
+        return {
+            kind = "zip",
+            location = {
+                kind = "url",
+                url = url,
+            },
+            selection = {
+                folder = folder,
+            },
+        }
+    end
+
     local function resolveRelease(ruleOptions)
         local release = ruleOptions.source.selection_release
             or (ruleOptions.source.selection_releaseLatest and "latest")
@@ -56,15 +69,13 @@ return function(context)
         end
 
         return {
-            sourceKind = "zip",
             release = release,
-            url = releaseZipUrl({
+            source = zipSource(releaseZipUrl({
                 baseUrl = ruleOptions.source.baseUrl,
                 repository = ruleOptions.source.repository,
                 release = release,
                 zipFile = ruleOptions.source.zipFile,
-            }),
-            extractFolder = ruleOptions.extract.useFolder,
+            }), ruleOptions.extract.useFolder),
         }
     end
 
@@ -78,9 +89,7 @@ return function(context)
             or ruleOptions.source.zipFile
 
         return {
-            sourceKind = "zip",
-            url = repositoryFileUrl(ruleOptions.source, path),
-            extractFolder = ruleOptions.extract.useFolder,
+            source = zipSource(repositoryFileUrl(ruleOptions.source, path), ruleOptions.extract.useFolder),
         }
     end
 
@@ -101,9 +110,10 @@ return function(context)
         -- deeper folder inside the archive, so path("a").useFolder("b") extracts
         -- "a/b". pathJoin skips a nil useFolder.
         return {
-            sourceKind = "zip",
-            extractFolder = util.pathJoin(ruleOptions.source.selection_path, ruleOptions.extract.useFolder),
-            url = repositoryZipUrl(ruleOptions.source),
+            source = zipSource(
+                repositoryZipUrl(ruleOptions.source),
+                util.pathJoin(ruleOptions.source.selection_path, ruleOptions.extract.useFolder)
+            ),
         }
     end
 
@@ -125,8 +135,7 @@ return function(context)
             and expandName(ruleOptions.source.pattern_spoonZipPattern, ruleOptions.selectedSpoonName)
 
         return {
-            sourceKind = "zip",
-            url = path and repositoryFileUrl(ruleOptions.source, path),
+            source = zipSource(path and repositoryFileUrl(ruleOptions.source, path)),
         }
     end
 
@@ -142,9 +151,7 @@ return function(context)
             and expandName(ruleOptions.source.pattern_spoonFolderPattern, ruleOptions.selectedSpoonName)
 
         return {
-            sourceKind = "zip",
-            extractFolder = path,
-            url = repositoryZipUrl(ruleOptions.source),
+            source = zipSource(repositoryZipUrl(ruleOptions.source), path),
         }
     end
 
@@ -152,8 +159,7 @@ return function(context)
     -- repository zip and install its root as the Spoon.
     local function resolveRepositoryOnly(ruleOptions)
         return {
-            sourceKind = "zip",
-            url = repositoryZipUrl(ruleOptions.source),
+            source = zipSource(repositoryZipUrl(ruleOptions.source)),
         }
     end
 

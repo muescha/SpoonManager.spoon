@@ -10,10 +10,10 @@ return function(T)
                     revision_branch = "main",
                     selection_path = "Source/DeepFolder.spoon",
                 },
-            }).command("install").explain()
+        }).command("install").explain()
 
         T.assertEqual(explanation.command.source.kind, "zip")
-        T.assertEqual(explanation.command.source.folder, "Source/DeepFolder.spoon")
+        T.assertEqual(explanation.command.source.selection.folder, "Source/DeepFolder.spoon")
         T.assertEqual(explanation.command.target.name, "DeepFolder")
         T.assertMatchesJson("examples/config_sources.lua.github-folder.explain.json", explanation)
     end)

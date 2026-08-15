@@ -6,7 +6,7 @@ return function(T)
 
         T.assertEqual(explanation.config.source.repository, "muescha/DeepFolder.spoon")
         T.assertEqual(explanation.command.source.kind, "zip")
-        T.assertEqual(explanation.command.source.url, "https://github.com/muescha/DeepFolder.spoon/archive/main.zip")
+        T.assertEqual(explanation.command.source.location.url, "https://github.com/muescha/DeepFolder.spoon/archive/main.zip")
         T.assertEqual(explanation.command.target.name, "DeepFolder")
         T.assertMatchesJson("examples/github_repository.lua.root.explain.json", explanation)
     end)
@@ -19,7 +19,7 @@ return function(T)
 
         T.assertEqual(explanation.config.source.revision_ref, "v1.2.3")
         T.assertEqual(explanation.command.action, "update")
-        T.assertEqual(explanation.command.source.url, "https://github.com/muescha/DeepFolder.spoon/archive/v1.2.3.zip")
+        T.assertEqual(explanation.command.source.location.url, "https://github.com/muescha/DeepFolder.spoon/archive/v1.2.3.zip")
         T.assertMatchesJson("examples/github_repository.lua.ref.explain.json", explanation)
     end)
 end

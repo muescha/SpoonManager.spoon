@@ -7,7 +7,11 @@
     },
     "source": {
       "kind": "zip",
-      "url": "https://github.com/Hammerspoon/Spoons/raw/main/Spoons/Emojis.spoon.zip"
+      "location": {
+        "kind": "url",
+        "url": "https://github.com/Hammerspoon/Spoons/raw/main/Spoons/Emojis.spoon.zip"
+      },
+      "selection": {}
     },
     "target": {
       "name": "Emojis",
@@ -29,8 +33,14 @@
   },
   "resolved": {
     "installName": "Emojis",
-    "sourceKind": "zip",
-    "url": "https://github.com/Hammerspoon/Spoons/raw/main/Spoons/Emojis.spoon.zip"
+    "source": {
+      "kind": "zip",
+      "location": {
+        "kind": "url",
+        "url": "https://github.com/Hammerspoon/Spoons/raw/main/Spoons/Emojis.spoon.zip"
+      },
+      "selection": {}
+    }
   },
   "state": "command"
 }

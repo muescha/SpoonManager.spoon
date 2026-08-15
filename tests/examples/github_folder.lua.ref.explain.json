@@ -6,9 +6,14 @@
       "conflictStrategy": "abort"
     },
     "source": {
-      "folder": "Source/DeepFolder.spoon",
       "kind": "zip",
-      "url": "https://github.com/muescha/SpoonRepo/archive/v1.2.3.zip"
+      "location": {
+        "kind": "url",
+        "url": "https://github.com/muescha/SpoonRepo/archive/v1.2.3.zip"
+      },
+      "selection": {
+        "folder": "Source/DeepFolder.spoon"
+      }
     },
     "target": {
       "name": "DeepFolder",
@@ -27,10 +32,17 @@
     }
   },
   "resolved": {
-    "extractFolder": "Source/DeepFolder.spoon",
     "installName": "DeepFolder",
-    "sourceKind": "zip",
-    "url": "https://github.com/muescha/SpoonRepo/archive/v1.2.3.zip"
+    "source": {
+      "kind": "zip",
+      "location": {
+        "kind": "url",
+        "url": "https://github.com/muescha/SpoonRepo/archive/v1.2.3.zip"
+      },
+      "selection": {
+        "folder": "Source/DeepFolder.spoon"
+      }
+    }
   },
   "state": "command"
 }

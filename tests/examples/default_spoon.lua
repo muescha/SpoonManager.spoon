@@ -24,7 +24,7 @@ return function(T)
 
         T.assertEqual(explanation.config.source.defaultBranch, "master")
         T.assertEqual(explanation.config.source.revision_branch, "main")
-        T.assertEqual(explanation.command.source.url, "https://github.com/Hammerspoon/Spoons/raw/main/Spoons/Emojis.spoon.zip")
+        T.assertEqual(explanation.command.source.location.url, "https://github.com/Hammerspoon/Spoons/raw/main/Spoons/Emojis.spoon.zip")
         T.assertMatchesJson("examples/default_spoon.lua.branch-override.explain.json", explanation)
     end)
 end

@@ -7,7 +7,11 @@
     },
     "source": {
       "kind": "zip",
-      "url": "https://github.com/muescha/DeepFolder.spoon/releases/download/v1.2.3/latest.zip"
+      "location": {
+        "kind": "url",
+        "url": "https://github.com/muescha/DeepFolder.spoon/releases/download/v1.2.3/latest.zip"
+      },
+      "selection": {}
     },
     "target": {
       "name": "DeepFolder",
@@ -31,8 +35,14 @@
   "resolved": {
     "installName": "DeepFolder",
     "release": "v1.2.3",
-    "sourceKind": "zip",
-    "url": "https://github.com/muescha/DeepFolder.spoon/releases/download/v1.2.3/latest.zip"
+    "source": {
+      "kind": "zip",
+      "location": {
+        "kind": "url",
+        "url": "https://github.com/muescha/DeepFolder.spoon/releases/download/v1.2.3/latest.zip"
+      },
+      "selection": {}
+    }
   },
   "state": "command"
 }
