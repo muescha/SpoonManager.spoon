@@ -1275,6 +1275,10 @@ install or update, `update()` skips the copy and returns `reason =
 "source-unchanged"`. `update()` is for managed Spoons; if a Spoon is not recorded
 in SpoonManager's registry, use `install()` first.
 
+Update results include `fingerprints.sourceHash` and, when computed,
+`fingerprints.localHash` / `fingerprints.installedSourceHash` so you can debug why
+an update copied or skipped.
+
 After a successful update, SpoonManager stores the builder config as a managed builder config.
 
 Example:

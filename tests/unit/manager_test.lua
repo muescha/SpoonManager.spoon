@@ -378,6 +378,8 @@ return function(T)
             T.assertTrue(result, err)
             T.assertTrue(result.skipped)
             T.assertEqual(result.reason, "source-unchanged")
+            T.assertEqual(result.fingerprints.sourceHash, "source-hash")
+            T.assertEqual(result.fingerprints.installedSourceHash, "source-hash")
             T.assertFalse(copied)
             T.assertEqual(#used, 1)
             T.assertEqual(used[1].name, "Emojis")
@@ -453,11 +455,80 @@ return function(T)
             T.assertTrue(result, err)
             T.assertTrue(result.skipped)
             T.assertEqual(result.reason, "source-unchanged")
+            T.assertEqual(result.fingerprints.localHash, "stable-hash")
+            T.assertEqual(result.fingerprints.sourceHash, "stable-hash")
+            T.assertEqual(result.fingerprints.installedSourceHash, "old-path-dependent-source-hash")
             T.assertFalse(copied)
             T.assertEqual(persisted.name, "Emojis")
             T.assertEqual(persisted.destination, "/tmp/hammerspoon-test/Spoons/Emojis.spoon")
             T.assertEqual(persisted.localHash, "stable-hash")
             T.assertEqual(persisted.sourceHash, "stable-hash")
+        end)
+    end)
+
+    T.test("update result includes fingerprints when source changed", function()
+        local copied = false
+        local hashCalls = 0
+
+        withPatched({
+            {
+                table = T.context.util,
+                key = "fileExists",
+                value = function(path)
+                    return path == "/stage/Emojis.spoon/init.lua"
+                        or path == "/tmp/hammerspoon-test/Spoons/Emojis.spoon"
+                end,
+            },
+            {
+                table = T.context.util,
+                key = "hashDirectory",
+                value = function()
+                    hashCalls = hashCalls + 1
+                    if hashCalls == 1 then
+                        return "new-source-hash"
+                    end
+                    if hashCalls == 4 then
+                        return "new-local-hash"
+                    end
+                    return "old-local-hash"
+                end,
+            },
+            {
+                table = T.context.registry,
+                key = "read",
+                value = function()
+                    return {
+                        Emojis = {
+                            checksum = "old-local-hash",
+                            fingerprints = {
+                                sourceHash = "old-source-hash",
+                            },
+                        },
+                    }
+                end,
+            },
+            {
+                table = T.context.util,
+                key = "copyPath",
+                value = function()
+                    copied = true
+                    return "", true
+                end,
+            },
+        }, function()
+            local result, err = T.context.installer.installFromStage({
+                name = "Emojis",
+                options = {
+                    conflictStrategy = T.SpoonManager.options.conflictStrategy.abort,
+                },
+            }, {
+                folder = "/stage/Emojis.spoon",
+            }, "update")
+
+            T.assertTrue(result, err)
+            T.assertTrue(copied)
+            T.assertEqual(result.fingerprints.sourceHash, "new-source-hash")
+            T.assertEqual(result.fingerprints.localHash, "new-local-hash")
         end)
     end)
 

@@ -118,7 +118,8 @@ return function(context)
             return nil, "Spoon is not installed by SpoonManager. Use install() first."
         end
 
-        if sourceHash and sourceHash == Installer.installedSourceHash(installed) then
+        local installedSourceHash = Installer.installedSourceHash(installed)
+        if sourceHash and sourceHash == installedSourceHash then
             Installer.applyUse(definition)
             return {
                 success = true,
@@ -127,6 +128,10 @@ return function(context)
                 reason = "source-unchanged",
                 name = definition.name,
                 path = destination,
+                fingerprints = {
+                    sourceHash = sourceHash,
+                    installedSourceHash = installedSourceHash,
+                },
                 use = definition.use,
             }
         end
@@ -145,6 +150,11 @@ return function(context)
                 reason = "source-unchanged",
                 name = definition.name,
                 path = destination,
+                fingerprints = {
+                    localHash = localHash,
+                    sourceHash = sourceHash,
+                    installedSourceHash = installedSourceHash,
+                },
                 use = definition.use,
             }
         end
@@ -191,6 +201,10 @@ return function(context)
             action = "install",
             name = definition.name,
             path = destination,
+            fingerprints = {
+                localHash = localHash,
+                sourceHash = sourceHash,
+            },
             use = definition.use,
         }
     end
