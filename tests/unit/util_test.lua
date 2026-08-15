@@ -52,10 +52,12 @@ return function(T)
         hs.fs.attributes = originalAttributes
 
         T.assertEqual(hash, "hash")
+        T.assertTrue(commandSeen:find("^cd '/tmp/Spoon%.spoon' && /usr/bin/find %.", 1) ~= nil)
         T.assertTrue(commandSeen:find("%-name '%.DS_Store'") ~= nil)
         T.assertTrue(commandSeen:find("%-name '__MACOSX'") ~= nil)
         T.assertTrue(commandSeen:find("%-name '%.git'") ~= nil)
         T.assertTrue(commandSeen:find("%-name 'annotations'") ~= nil)
+        T.assertTrue(commandSeen:find("/usr/bin/sort %-z", 1) ~= nil)
         T.assertTrue(commandSeen:find("%-prune %-o %-type f %-print0") ~= nil)
     end)
 

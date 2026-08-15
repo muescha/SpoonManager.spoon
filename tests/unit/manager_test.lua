@@ -385,6 +385,82 @@ return function(T)
         end)
     end)
 
+    T.test("update skips when staged source matches installed folder", function()
+        local copied = false
+        local persisted
+
+        withPatched({
+            {
+                table = T.context.util,
+                key = "fileExists",
+                value = function(path)
+                    return path == "/stage/Emojis.spoon/init.lua"
+                        or path == "/tmp/hammerspoon-test/Spoons/Emojis.spoon"
+                end,
+            },
+            {
+                table = T.context.util,
+                key = "hashDirectory",
+                value = function()
+                    return "stable-hash"
+                end,
+            },
+            {
+                table = T.context.registry,
+                key = "read",
+                value = function()
+                    return {
+                        Emojis = {
+                            checksum = "old-path-dependent-local-hash",
+                            fingerprints = {
+                                sourceHash = "old-path-dependent-source-hash",
+                            },
+                        },
+                    }
+                end,
+            },
+            {
+                table = T.context.registry,
+                key = "persistInstall",
+                value = function(definition, destination, fingerprints)
+                    persisted = {
+                        name = definition.name,
+                        destination = destination,
+                        localHash = fingerprints.localHash,
+                        sourceHash = fingerprints.sourceHash,
+                    }
+                    return true
+                end,
+            },
+            {
+                table = T.context.util,
+                key = "copyPath",
+                value = function()
+                    copied = true
+                    return nil, false
+                end,
+            },
+        }, function()
+            local result, err = T.context.installer.installFromStage({
+                name = "Emojis",
+                options = {
+                    conflictStrategy = T.SpoonManager.options.conflictStrategy.abort,
+                },
+            }, {
+                folder = "/stage/Emojis.spoon",
+            }, "update")
+
+            T.assertTrue(result, err)
+            T.assertTrue(result.skipped)
+            T.assertEqual(result.reason, "source-unchanged")
+            T.assertFalse(copied)
+            T.assertEqual(persisted.name, "Emojis")
+            T.assertEqual(persisted.destination, "/tmp/hammerspoon-test/Spoons/Emojis.spoon")
+            T.assertEqual(persisted.localHash, "stable-hash")
+            T.assertEqual(persisted.sourceHash, "stable-hash")
+        end)
+    end)
+
     T.test("update does not install untracked spoon", function()
         local copied = false
 

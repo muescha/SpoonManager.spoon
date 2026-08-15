@@ -131,6 +131,24 @@ return function(context)
             }
         end
 
+        local localHash = util.hashDirectory(destination, nil, logger)
+        if sourceHash and localHash == sourceHash then
+            registry.persistInstall(definition, destination, {
+                localHash = localHash,
+                sourceHash = sourceHash,
+            })
+            Installer.applyUse(definition)
+            return {
+                success = true,
+                action = "update",
+                skipped = true,
+                reason = "source-unchanged",
+                name = definition.name,
+                path = destination,
+                use = definition.use,
+            }
+        end
+
         return false
     end
 

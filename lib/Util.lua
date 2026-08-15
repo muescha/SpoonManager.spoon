@@ -163,8 +163,11 @@ function Util.hashDirectory(path, options, logger)
     end
 
     local command = {
-        "/usr/bin/find",
+        "cd",
         Util.shellQuote(path),
+        "&&",
+        "/usr/bin/find",
+        ".",
     }
 
     appendFindNamePrune(command, ignoredNames(options))
@@ -172,6 +175,8 @@ function Util.hashDirectory(path, options, logger)
     command[#command + 1] = "-o"
     command[#command + 1] = "-type f"
     command[#command + 1] = "-print0"
+    command[#command + 1] = "|"
+    command[#command + 1] = "/usr/bin/sort -z"
     command[#command + 1] = "|"
     command[#command + 1] = "/usr/bin/xargs -0 /usr/bin/shasum -a 256"
     command[#command + 1] = "|"
