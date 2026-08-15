@@ -489,7 +489,7 @@ end
 
 local function assertExpectedFiles(test, result)
     local expected = test.expect or {}
-    local installedPath = result.definition.result.path
+    local installedPath = result.runs[1].definition.result.path
     for _, relativePath in ipairs(expected.files or {}) do
         local fullPath = pathJoin(installedPath, relativePath)
         if not fileExists(fullPath) then
@@ -603,10 +603,11 @@ for _, test in ipairs(config.tests or {}) do
             json.write(explainPath, explain)
 
             local result, installErr = definition.install()
-            if not result then
+            if not result or not result.success then
                 table.insert(runnerResult.events, {
                     step = "install",
                     success = false,
+                    output = result,
                     error = errorBlock(installErr or "install failed", installErr),
                 })
                 error(installErr or "install failed")
@@ -621,15 +622,16 @@ for _, test in ipairs(config.tests or {}) do
             })
 
             local skipped, skipErr = definition.install()
-            if not skipped then
+            if not skipped or not skipped.success then
                 table.insert(runnerResult.events, {
                     step = "install-again",
                     success = false,
+                    output = skipped,
                     error = errorBlock(skipErr or "second install failed", skipErr),
                 })
                 error(skipErr or "second install failed")
             end
-            if not skipped.definition.result.skipped then
+            if not skipped.runs[1].definition.result.skipped then
                 table.insert(runnerResult.events, {
                     step = "install-again",
                     success = false,
@@ -651,7 +653,7 @@ for _, test in ipairs(config.tests or {}) do
                 checks = {
                     skipped = {
                         success = true,
-                        reason = skipped.definition.result.reason,
+                        reason = skipped.runs[1].definition.result.reason,
                     },
                 },
             })

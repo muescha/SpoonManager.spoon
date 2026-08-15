@@ -36,7 +36,6 @@ return function(T)
         local originalInstallDefinition = manager._installDefinition
         local calls = {}
 
-        manager.clear()
         manager._installDefinition = function(definitionConfig, action)
             local config = definitionConfig.config or definitionConfig
             local source = config.source or {}
@@ -66,7 +65,6 @@ return function(T)
 
         local ok, err = pcall(fn, manager, calls)
         manager._installDefinition = originalInstallDefinition
-        manager.clear()
 
         if not ok then
             error(err, 2)
@@ -184,97 +182,88 @@ return function(T)
         hs.reload = originalReload
 
         T.assertTrue(result.success)
-        T.assertEqual(#result.skipped, 1)
+        T.assertEqual(#result.runs, 1)
+        T.assertTrue(result.runs[1].definition.result.skipped)
         T.assertEqual(table.concat(events, ","), "stop,start")
     end)
 
-    T.test("manager add stores definitions for later install and update", function()
+    T.test("manager install and update run explicit vararg definitions", function()
         withRecordedInstaller(function(manager, calls)
             local emojis = manager.from.default.spoon("Emojis")
             local timeMachine = manager.from.default.spoon("TimeMachineProgress")
 
-            manager.add(emojis, timeMachine)
-            T.assertEqual(#manager.definitions, 2)
-
-            local installResult = manager.install()
+            local installResult = manager.install(emojis, timeMachine)
             T.assertTrue(installResult.success)
+            T.assertEqual(#installResult.runs, 2)
             T.assertEqual(#calls, 2)
             T.assertEqual(calls[1].action, "install")
             T.assertEqual(calls[2].config.source.selection_spoon, "TimeMachineProgress")
 
-            local updateResult = manager.update()
+            local updateResult = manager.update(emojis, timeMachine)
             T.assertTrue(updateResult.success)
+            T.assertEqual(#updateResult.runs, 2)
             T.assertEqual(#calls, 4)
             T.assertEqual(calls[3].action, "update")
             T.assertEqual(calls[4].config.source.selection_spoon, "TimeMachineProgress")
         end)
     end)
 
-    T.test("definition add stores itself for manager install", function()
+    T.test("manager accepts an explicit definition list", function()
         withRecordedInstaller(function(manager, calls)
-            manager.from.default
-                .spoon("Emojis")
-                .add()
+            local definitions = {
+                manager.from.default.spoon("Emojis"),
+                manager.from.default.spoon("TimeMachineProgress"),
+            }
 
-            T.assertEqual(#manager.definitions, 1)
-            manager.install()
+            local result = manager.install(definitions)
 
-            T.assertEqual(#calls, 1)
-            T.assertEqual(calls[1].config.source.selection_spoon, "Emojis")
-        end)
-    end)
-
-    T.test("manager install with explicit definitions stores them", function()
-        withRecordedInstaller(function(manager, calls)
-            local emojis = manager.from.default.spoon("Emojis")
-            local timeMachine = manager.from.default.spoon("TimeMachineProgress")
-
-            manager.install(emojis, timeMachine)
-
+            T.assertTrue(result.success)
+            T.assertEqual(#result.runs, 2)
             T.assertEqual(#calls, 2)
-            T.assertEqual(#manager.definitions, 2)
-            T.assertEqual(manager.definitions[1].source.selection_spoon, "Emojis")
-            T.assertEqual(manager.definitions[2].source.selection_spoon, "TimeMachineProgress")
-
-            manager.update()
-            T.assertEqual(#calls, 4)
-            T.assertEqual(calls[3].action, "update")
-            T.assertEqual(calls[4].config.source.selection_spoon, "TimeMachineProgress")
+            T.assertEqual(calls[1].config.source.selection_spoon, "Emojis")
+            T.assertEqual(calls[2].config.source.selection_spoon, "TimeMachineProgress")
         end)
     end)
 
-    T.test("definition install stores itself in manager", function()
+    T.test("manager actions require explicit definitions", function()
+        T.assertError(function()
+            T.SpoonManager.install()
+        end, "SpoonManager.install requires at least one definition")
+
+        T.assertError(function()
+            T.SpoonManager.update()
+        end, "SpoonManager.update requires at least one definition")
+    end)
+
+    T.test("definition install and update are manager action shortcuts", function()
         withRecordedInstaller(function(manager, calls)
-            manager.from.default
+            local installResult = manager.from.default
                 .spoon("Emojis")
                 .install()
 
+            T.assertTrue(installResult.success)
+            T.assertEqual(#installResult.runs, 1)
             T.assertEqual(#calls, 1)
-            T.assertEqual(#manager.definitions, 1)
-            T.assertEqual(manager.definitions[1].source.selection_spoon, "Emojis")
+            T.assertEqual(calls[1].action, "install")
 
-            manager.update()
+            local updateResult = manager.from.default
+                .spoon("Emojis")
+                .update()
+
+            T.assertTrue(updateResult.success)
+            T.assertEqual(#updateResult.runs, 1)
             T.assertEqual(#calls, 2)
             T.assertEqual(calls[2].action, "update")
             T.assertEqual(calls[2].config.source.selection_spoon, "Emojis")
         end)
     end)
 
-    T.test("manager remembers prepared name without reading output result", function()
+    T.test("definition shortcut returns failed run without mutating manager state", function()
         local manager = T.SpoonManager
         local originalInstallDefinition = manager._installDefinition
 
-        manager.clear()
         manager._installDefinition = function(definitionConfig, action)
-            return {
-                success = true,
-                definition = {
-                    result = {
-                        action = action,
-                        name = "Emojis",
-                    },
-                },
-            }, nil, {
+            return nil, "install failed", {
                 config = definitionConfig,
                 task = {
                     action = action,
@@ -293,60 +282,10 @@ return function(T)
         manager._installDefinition = originalInstallDefinition
 
         T.assertTrue(ok, result)
-        T.assertTrue(result.success)
-        T.assertEqual(#manager.definitions, 1)
-        T.assertEqual(manager.definitions[1].source.selection_spoon, "Emojis")
-        manager.clear()
-    end)
-
-    T.test("manager stores one definition per spoon name", function()
-        withRecordedInstaller(function(manager)
-            manager.install(
-                manager.from.default
-                    .spoon("Emojis")
-                    .use({
-                        start = true,
-                    })
-            )
-
-            manager.install(
-                manager.from.default
-                    .spoon("Emojis")
-                    .use({
-                        start = false,
-                    })
-            )
-
-            T.assertEqual(#manager.definitions, 1)
-            T.assertEqual(manager.definitions[1].source.selection_spoon, "Emojis")
-            T.assertEqual(manager.definitions[1].use.start, false)
-        end)
-    end)
-
-    T.test("manager uses known install name without resolving existing definitions", function()
-        local manager = T.SpoonManager
-
-        manager.clear()
-        manager._rememberDefinition(manager.from.default.spoon("Emojis"), "Emojis")
-
-        withPatched({
-            {
-                table = T.context.definitionResolver,
-                key = "resolveFromDefinition",
-                value = function()
-                    error("existing definitions should not be resolved when installName is known")
-                end,
-            },
-        }, function()
-            manager._rememberDefinition(manager.from.default.spoon("Emojis").use({
-                start = false,
-            }), "Emojis")
-        end)
-
-        T.assertEqual(#manager.definitions, 1)
-        T.assertEqual(manager.definitions[1].source.selection_spoon, "Emojis")
-        T.assertEqual(manager.definitions[1].use.start, false)
-        manager.clear()
+        T.assertFalse(result.success)
+        T.assertEqual(#result.runs, 1)
+        T.assertFalse(result.runs[1].success)
+        T.assertEqual(result.runs[1].error, "install failed")
     end)
 
     T.test("installer skips already installed spoon", function()
@@ -386,23 +325,25 @@ return function(T)
                     .install()
 
             T.assertTrue(result, err)
-            T.assertTrue(result.definition.config)
-            T.assertTrue(result.definition.resolved)
-            T.assertTrue(result.definition.command)
-            T.assertTrue(result.definition.task)
-            T.assertTrue(result.definition.result)
-            T.assertFalse(result.action)
+            T.assertEqual(#result.runs, 1)
+            local run = result.runs[1]
+            T.assertTrue(run.definition.config)
+            T.assertTrue(run.definition.resolved)
+            T.assertTrue(run.definition.command)
+            T.assertTrue(run.definition.task)
+            T.assertTrue(run.definition.result)
+            T.assertEqual(result.action, "install")
             T.assertFalse(result.name)
             T.assertFalse(result.path)
             T.assertFalse(result.skipped)
             T.assertFalse(result.reason)
             T.assertFalse(result.task)
             T.assertFalse(result.result)
-            T.assertEqual(result.definition.result.action, "install")
-            T.assertEqual(result.definition.result.name, "Emojis")
-            T.assertEqual(result.definition.result.path, "/tmp/hammerspoon-test/Spoons/Emojis.spoon")
-            T.assertTrue(result.definition.result.skipped)
-            T.assertEqual(result.definition.result.reason, "already-installed")
+            T.assertEqual(run.definition.result.action, "install")
+            T.assertEqual(run.definition.result.name, "Emojis")
+            T.assertEqual(run.definition.result.path, "/tmp/hammerspoon-test/Spoons/Emojis.spoon")
+            T.assertTrue(run.definition.result.skipped)
+            T.assertEqual(run.definition.result.reason, "already-installed")
             T.assertEqual(#used, 1)
             T.assertEqual(used[1].name, "Emojis")
             T.assertEqual(used[1].options.start, true)

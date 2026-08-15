@@ -225,29 +225,12 @@ return function(context)
             return createBuilder(nextDef)
         end
 
-        api.add = function()
-            manager.add(api)
-            return api
-        end
-
         api.install = function()
-            local result, err, nextDef = manager._installAndRememberDefinition(def, "install")
-            if nextDef then
-                def = nextDef.config and nextDef or {
-                    config = nextDef,
-                }
-            end
-            return result, err
+            return manager.install(api)
         end
 
         api.update = function()
-            local result, err, nextDef = manager._installAndRememberDefinition(def, "update")
-            if nextDef then
-                def = nextDef.config and nextDef or {
-                    config = nextDef,
-                }
-            end
-            return result, err
+            return manager.update(api)
         end
 
         return setmetatable(api, DefinitionBuilder)

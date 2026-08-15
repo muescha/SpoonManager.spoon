@@ -32,8 +32,6 @@ obj.logger = hs.logger.new("SpoonManager")
 
 obj.from = {}
 obj.providers = {}
-obj.definitions = {}
-obj.definitionIndexByName = {}
 
 --- SpoonManager.options
 --- Variable
@@ -234,67 +232,21 @@ local function definitionConfig(definition)
     return Util.copyTable(definition)
 end
 
-local function definitionInstallName(definition)
-    if definition.name then
-        return definition.name
-    end
-
-    if definition.resolved and definition.resolved.installName then
-        return definition.resolved.installName
-    end
-
-    local state = definition.config and definition or {
-        config = definitionConfig(definition),
-    }
-    local ok, resolved = pcall(context.definitionResolver.resolveFromDefinition, state)
-    if ok and resolved then
-        return resolved.installName
-    end
-
-    return nil
-end
-
-function obj._rememberDefinition(definition, installName)
-    local config = definitionConfig(definition)
-    installName = installName or definitionInstallName(config)
-
-    if installName then
-        local index = obj.definitionIndexByName[installName]
-        if index then
-            obj.definitions[index] = config
-            return obj
-        end
-    end
-
-    table.insert(obj.definitions, config)
-    if installName then
-        obj.definitionIndexByName[installName] = #obj.definitions
-    end
-    return obj
-end
-
-local function installAndRememberDefinition(definition, action)
+local function runDefinition(definition, action)
     local config = definitionConfig(definition)
     local result, err, prepared = obj._installDefinition(config, action)
-    config = prepared or config
 
     if result then
-        obj._rememberDefinition(config, config.task and config.task.name)
+        return result
     end
 
-    return result, err, config
-end
-
-function obj._installAndRememberDefinition(definition, action)
-    return withReloadController(
-        function()
-            return installAndRememberDefinition(definition, action)
-        end,
-        function(result)
-            local run = result and result.definition and result.definition.result
-            return run and not run.skipped
-        end
-    )
+    return {
+        success = false,
+        error = err,
+        definition = prepared or {
+            config = config,
+        },
+    }
 end
 
 --- SpoonManager.from.config(config) -> definition
@@ -308,58 +260,57 @@ obj.from.default = obj.from.spoonRepoZip("Hammerspoon/Spoons", {
     defaultBranch = "master",
 })
 
---- SpoonManager.add(...) -> SpoonManager
---- Function
---- Add one or more Spoon definitions to the managed definition list.
-function obj.add(...)
-    local items = { ... }
-
-    for _, definition in ipairs(items) do
-        obj._rememberDefinition(definition)
-    end
-
-    return obj
-end
-
---- SpoonManager.clear() -> SpoonManager
---- Function
---- Remove all managed definitions.
-function obj.clear()
-    obj.definitions = {}
-    obj.definitionIndexByName = {}
-    return obj
-end
-
 --- SpoonManager.install([...]) -> result
 --- Function
---- Install the passed definitions, or all definitions added with `.add()`.
-local function runDefinitions(action, ...)
-    local passed = { ... }
-    local definitions = #passed > 0 and passed or obj.definitions
+--- Install the passed definitions.
+local function isDefinitionList(value)
+    return type(value) == "table"
+        and value.toConfig == nil
+        and value.config == nil
+        and value.source == nil
+        and #value > 0
+end
+
+local function normalizeDefinitions(action, ...)
+    local definitions = { ... }
+    if #definitions == 1 and isDefinitionList(definitions[1]) then
+        definitions = definitions[1]
+    end
+
+    if #definitions == 0 then
+        error("SpoonManager." .. action .. " requires at least one definition", 3)
+    end
+
+    return definitions
+end
+
+local function changedRuns(result)
+    if not result or not result.runs then
+        return false
+    end
+
+    for _, run in ipairs(result.runs) do
+        local actionResult = run.definition and run.definition.result
+        if run.success and actionResult and not actionResult.skipped then
+            return true
+        end
+    end
+
+    return false
+end
+
+local function runDefinitions(action, definitions)
     local result = {
         success = true,
         action = action,
-        installed = {},
-        skipped = {},
-        errors = {},
+        runs = {},
     }
 
     for _, definition in ipairs(definitions) do
-        local installed, err = installAndRememberDefinition(definition, action)
-        if installed then
-            local run = installed.definition and installed.definition.result
-            if run and run.skipped then
-                table.insert(result.skipped, installed)
-            else
-                table.insert(result.installed, installed)
-            end
-        else
+        local run = runDefinition(definition, action)
+        table.insert(result.runs, run)
+        if not run.success then
             result.success = false
-            table.insert(result.errors, {
-                name = definitionInstallName(definition),
-                error = err,
-                definition = definition,
-            })
         end
     end
 
@@ -370,26 +321,22 @@ function obj.install(...)
     local definitions = { ... }
     return withReloadController(
         function()
-            return runDefinitions("install", table.unpack(definitions))
+            return runDefinitions("install", normalizeDefinitions("install", table.unpack(definitions)))
         end,
-        function(result)
-            return result and #result.installed > 0
-        end
+        changedRuns
     )
 end
 
 --- SpoonManager.update([...]) -> result
 --- Function
---- Reinstall managed definitions from their source. Local changes abort by default.
+--- Reinstall the passed definitions from their source. Local changes abort by default.
 function obj.update(...)
     local definitions = { ... }
     return withReloadController(
         function()
-            return runDefinitions("update", table.unpack(definitions))
+            return runDefinitions("update", normalizeDefinitions("update", table.unpack(definitions)))
         end,
-        function(result)
-            return result and #result.installed > 0
-        end
+        changedRuns
     )
 end
 
