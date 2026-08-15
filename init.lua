@@ -33,6 +33,7 @@ obj.logger = hs.logger.new("SpoonManager")
 obj.from = {}
 obj.providers = {}
 obj.definitions = {}
+obj.definitionIndexByName = {}
 
 --- SpoonManager.options
 --- Variable
@@ -258,15 +259,17 @@ function obj._rememberDefinition(definition, installName)
     installName = installName or definitionInstallName(config)
 
     if installName then
-        for index, existing in ipairs(obj.definitions) do
-            if definitionInstallName(existing) == installName then
-                obj.definitions[index] = config
-                return obj
-            end
+        local index = obj.definitionIndexByName[installName]
+        if index then
+            obj.definitions[index] = config
+            return obj
         end
     end
 
     table.insert(obj.definitions, config)
+    if installName then
+        obj.definitionIndexByName[installName] = #obj.definitions
+    end
     return obj
 end
 
@@ -322,6 +325,7 @@ end
 --- Remove all managed definitions.
 function obj.clear()
     obj.definitions = {}
+    obj.definitionIndexByName = {}
     return obj
 end
 

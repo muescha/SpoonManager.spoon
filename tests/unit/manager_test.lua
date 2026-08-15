@@ -312,6 +312,32 @@ return function(T)
         end)
     end)
 
+    T.test("manager uses known install name without resolving existing definitions", function()
+        local manager = T.SpoonManager
+
+        manager.clear()
+        manager._rememberDefinition(manager.from.default.spoon("Emojis"), "Emojis")
+
+        withPatched({
+            {
+                table = T.context.definitionResolver,
+                key = "resolveFromDefinition",
+                value = function()
+                    error("existing definitions should not be resolved when installName is known")
+                end,
+            },
+        }, function()
+            manager._rememberDefinition(manager.from.default.spoon("Emojis").use({
+                start = false,
+            }), "Emojis")
+        end)
+
+        T.assertEqual(#manager.definitions, 1)
+        T.assertEqual(manager.definitions[1].source.selection_spoon, "Emojis")
+        T.assertEqual(manager.definitions[1].use.start, false)
+        manager.clear()
+    end)
+
     T.test("installer skips already installed spoon", function()
         local used = {}
 
