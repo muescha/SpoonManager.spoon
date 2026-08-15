@@ -149,7 +149,7 @@ spoon.SpoonManager.update(managedSpoons)
 The list remains visible in user configuration, but SpoonManager itself does not
 become the storage location for that list.
 
-If table input is supported, `install`/`update` should flatten one level:
+`install` and `update` should support both varargs and one explicit list table:
 
 ```lua
 spoon.SpoonManager.update({
@@ -158,7 +158,17 @@ spoon.SpoonManager.update({
 })
 ```
 
-and treat it the same as varargs.
+Internally, varargs should be normalized to the same list representation. After
+input normalization, the action runner should only deal with one shape:
+
+```lua
+{
+    definitionA,
+    definitionB,
+}
+```
+
+That keeps batch behavior identical for both call styles.
 
 ## Registry Boundary
 
@@ -177,14 +187,83 @@ The registry is not the same thing as an in-memory action list. It answers
 currently add to a batch queue?".
 
 If an "update everything already installed" workflow is needed later, it should
-be explicit and registry-backed:
+be explicit and registry-backed through `SpoonManager.installed`.
+
+```lua
+spoon.SpoonManager.installed.update()
+spoon.SpoonManager.installed.outdated()
+```
+
+That would be different from `SpoonManager.update()` with hidden in-memory
+state. It would say clearly that the input comes from the persisted registry,
+not from definitions passed to the current action.
+
+Possible convenience shortcuts can be added later, but they should delegate to
+the same `installed` API instead of creating a second path:
 
 ```lua
 spoon.SpoonManager.updateInstalled()
+spoon.SpoonManager.outdated()
 ```
 
-or another deliberately named API. That would be different from
-`SpoonManager.update()` with hidden in-memory state.
+The exact names can be decided later. The important boundary is:
+
+1. `SpoonManager.update(definition)` updates explicit caller-provided
+   definitions.
+
+2. `SpoonManager.installed.update()` updates definitions loaded from the
+   installed registry.
+
+3. Both paths should still run through the same action runner once their input
+   list has been built.
+
+## Result Shape
+
+There should be one result format for all install/update entry points.
+
+`definition.install()` and `definition.update()` should be treated as shortcuts
+for:
+
+```lua
+spoon.SpoonManager.install(definition)
+spoon.SpoonManager.update(definition)
+```
+
+Therefore they should return the same batch-style result shape as manager
+actions. A single-definition run is just a batch with one run.
+
+Possible shape:
+
+```lua
+{
+    success = true,
+    action = "update",
+    runs = {
+        {
+            success = true,
+            task = {
+                config = { ... },
+                resolved = { ... },
+                command = { ... },
+            },
+            result = {
+                action = "update",
+                name = "Emojis",
+                path = "...",
+                skipped = true,
+                reason = "source-unchanged",
+                fingerprints = { ... },
+            },
+        },
+    },
+}
+```
+
+The large rule: always one result format.
+
+Do not return a single-item result from `definition.install()` and a different
+batch result from `SpoonManager.install(defA, defB)`. Different result shapes
+make console inspection and tests harder than necessary.
 
 ## Benefits
 
@@ -233,13 +312,14 @@ or another deliberately named API. That would be different from
 
 3. Batch ergonomics need a small helper
 
-   To keep table input pleasant, `install` and `update` should accept either
-   varargs or one list table.
+   To keep table input pleasant, `install` and `update` accept either varargs or
+   one list table. Internally, both become the same list.
 
 4. Future registry-backed update needs a separate design
 
    Removing `SpoonManager.update()` without arguments means "update all
-   installed" must be introduced intentionally later.
+   installed" must be introduced intentionally later through
+   `SpoonManager.installed`.
 
 ## Implementation Cut
 
@@ -264,7 +344,7 @@ rewires its caller in the same commit.
 
 4. Support explicit list input.
 
-   Normalize these forms to the same internal list:
+   Normalize these forms to the same internal list before running anything:
 
    ```lua
    SpoonManager.update(defA, defB)
@@ -274,45 +354,58 @@ rewires its caller in the same commit.
 5. Remove managed-list API and state.
 
    Remove `.add()`, `.clear()`, `obj.definitions`, and
-   `obj.definitionIndexByName` once callers and tests no longer need them.
+   `obj.definitionIndexByName`. There is no legacy API to preserve yet, so no
+   fallback, deprecation layer, or automatic conversion is needed. Treat this as
+   greenfield cleanup.
 
-6. Update tests.
+6. Normalize result shape.
+
+   Make builder and manager actions return the same batch result shape with a
+   `runs = { ... }` section, even for a single definition.
+
+7. Update tests.
 
    Replace stateful manager tests with direct vararg/list tests. Keep builder
-   tests proving `definition.install()` and `definition.update()` still work.
+   tests proving `definition.install()` and `definition.update()` still work and
+   return the same result shape as manager actions.
 
-7. Update README and architecture docs.
+8. Update README and architecture docs.
 
    Remove examples that teach `.add()` plus argument-less actions. Add explicit
    list examples instead.
 
-8. Keep registry behavior unchanged.
+9. Keep registry behavior unchanged.
 
    The install registry should continue to persist installed metadata after a
    successful install/update. This refactor only removes the runtime managed
    list, not installed metadata.
 
-## Open Questions
+## Decisions
 
-1. Should `SpoonManager.install({ defA, defB })` be supported immediately, or
-   should only varargs be accepted first?
+1. Support explicit lists immediately.
 
-2. Should `.add()` be removed in one breaking change, or should it first throw a
-   message pointing users to explicit lists?
+   Varargs and list input are both allowed at the public boundary. Varargs are
+   converted into a list first, and all later code works with that list.
 
-3. What should the future registry-backed API be called?
+2. Remove managed-list APIs directly.
 
-   Possible names:
+   `.add()`, `.clear()`, argument-less `.install()`, argument-less `.update()`,
+   `obj.definitions`, and `obj.definitionIndexByName` can be removed without a
+   legacy compatibility layer. There is no established external API to preserve
+   yet.
 
-   - `updateInstalled()`
-   - `updateRegistry()`
-   - `updateKnown()`
-   - `updateAllInstalled()`
+3. Put registry-backed workflows under `SpoonManager.installed`.
 
-4. Should `definition.install()` return only the single item result, while
-   `SpoonManager.install(defA, defB)` returns a batch result? This is currently
-   convenient, but the result shape should stay easy to inspect in the
-   Hammerspoon console.
+   `SpoonManager.installed.update()` and `SpoonManager.installed.outdated()` are
+   the preferred direction for actions based on the installed registry. Shortcuts
+   may exist later, but they should delegate to this API.
+
+4. Use one result format everywhere.
+
+   `definition.install()` is a shortcut for `SpoonManager.install(definition)`,
+   not a separate single-item result API. Single and batch actions should both
+   return the same result structure, with the individual executions stored in a
+   section such as `runs = { ... }`.
 
 ## Non-Goals
 
