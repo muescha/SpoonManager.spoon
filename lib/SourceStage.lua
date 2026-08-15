@@ -16,7 +16,7 @@ return function(context)
         }
     end
 
-    function SourceStage.stageFolder(stage, sourceFolder)
+    function SourceStage.copyFolderIntoStage(stage, sourceFolder)
         stage.folder = util.pathJoin(stage.root, "source.spoon")
         local _, copied = util.copyPath(sourceFolder, stage.folder, logger)
         if not copied then
@@ -26,7 +26,7 @@ return function(context)
         return stage
     end
 
-    function SourceStage.stageZipFile(stage, zipFile, selection)
+    function SourceStage.copyZipSelectionIntoStage(stage, zipFile, selection)
         if not util.isZipPath(zipFile) then
             return nil, "ZIP source must point to a .zip file"
         end
@@ -57,7 +57,7 @@ return function(context)
             return nil, fetchErr
         end
 
-        local result, stageErr = SourceStage.stageFolder(stage, artifact.path)
+        local result, stageErr = SourceStage.copyFolderIntoStage(stage, artifact.path)
         if not result then
             SourceStage.cleanup(stage)
             return nil, stageErr
@@ -86,7 +86,7 @@ return function(context)
             return nil, fetchErr
         end
 
-        local result, stageErr = SourceStage.stageZipFile(stage, artifact.path, selection)
+        local result, stageErr = SourceStage.copyZipSelectionIntoStage(stage, artifact.path, selection)
         if not result then
             SourceStage.cleanup(stage)
             return nil, stageErr
