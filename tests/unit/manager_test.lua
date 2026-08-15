@@ -328,6 +328,7 @@ return function(T)
 
             T.assertEqual(installed.kind, "installed")
             T.assertEqual(installed.scope, "all")
+            T.assertEqual(installed.registered, true)
             T.assertEqual(installed.count, 2)
             T.assertEqual(installed.names[1], "Emojis")
             T.assertEqual(installed.names[2], "TimeMachineProgress")

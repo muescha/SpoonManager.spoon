@@ -33,6 +33,8 @@ return function(context)
         }
         if selection.names then
             api.registered = installed[api.name] ~= nil
+        else
+            api.registered = true
         end
 
         function api.list()
