@@ -18,18 +18,6 @@ return function(context)
         }
     end
 
-    local function storedTargetFolderHash(installed)
-        if not installed then
-            return nil
-        end
-
-        if installed.fingerprints and installed.fingerprints.targetFolderHash then
-            return installed.fingerprints.targetFolderHash
-        end
-
-        return nil
-    end
-
     function Installer.prepareDefinition(definition, action)
         local def = definition.config and util.copyTable(definition) or {
             config = util.copyTable(definition),
@@ -78,7 +66,7 @@ return function(context)
 
         local behavior = run.options.conflictStrategy or manager.options.conflictStrategy.abort
 
-        local knownTargetFolderHash = storedTargetFolderHash(installed)
+        local knownTargetFolderHash = installed and installed.fingerprints and installed.fingerprints.targetFolderHash
         if not installed or not knownTargetFolderHash then
             if behavior == manager.options.conflictStrategy.overwrite then
                 return true
@@ -128,18 +116,6 @@ return function(context)
         return hs.spoons.use(run.name, arg, false)
     end
 
-    function Installer.storedSourceHash(installed)
-        if not installed then
-            return nil
-        end
-
-        if installed.fingerprints and installed.fingerprints.stagedSourceHash then
-            return installed.fingerprints.stagedSourceHash
-        end
-
-        return nil
-    end
-
     function Installer.skipUnchangedUpdate(definition, destination, stagedSourceHash)
         local run = task(definition)
         local installed = registry.read()[run.name]
@@ -147,7 +123,7 @@ return function(context)
             return nil, "Spoon is not installed by SpoonManager. Use install() first."
         end
 
-        local storedSourceHash = Installer.storedSourceHash(installed)
+        local storedSourceHash = installed.fingerprints and installed.fingerprints.stagedSourceHash
         if stagedSourceHash and stagedSourceHash == storedSourceHash then
             Installer.applyUse(definition)
             return {
