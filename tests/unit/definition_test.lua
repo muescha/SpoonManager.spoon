@@ -92,7 +92,7 @@ return function(T)
             T.SpoonManager.from.localFolder("~/Projects/EmmyLua.spoon")
                 .excludeFolders("annotations", "docs")
                 .excludeFolders("build", "tmp")
-        end, "%.excludeFolders%('annotations, docs'%) already set; cannot call %.excludeFolders%('build, tmp'%)")
+        end, "%.excludeFolders%('annotations', 'docs'%) already set; cannot call %.excludeFolders%('build', 'tmp'%)")
     end)
 
     T.test("definition rejects duplicate spoon pattern group", function()

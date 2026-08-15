@@ -293,7 +293,11 @@ function Util.createLabel(method, value)
     end
 
     if type(value) == "table" then
-        value = table.concat(value, ", ")
+        local args = {}
+        for _, entry in ipairs(value) do
+            args[#args + 1] = "'" .. tostring(entry):gsub("'", "\\'") .. "'"
+        end
+        return "." .. method .. "(" .. table.concat(args, ", ") .. ")"
     end
 
     local escaped = tostring(value):gsub("'", "\\'")

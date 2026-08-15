@@ -151,9 +151,6 @@ return function(context)
             validate = function(value)
                 util.requireSafeFileNames(value, "Excluded folder", "source.excludeFolders")
             end,
-            labelValue = function(value)
-                return table.concat(value, ", ")
-            end,
             section = "source",
         },
         {
@@ -203,10 +200,9 @@ return function(context)
                     spec.validate(value, spec.label)
                 end
 
-                local labelValue = spec.labelValue and spec.labelValue(value) or value
                 local nextDef = util.copyTable(def)
-                ensureState(nextDef, "config", spec.method, labelValue)
-                requireCapability(nextDef, spec.method, spec.method, labelValue)
+                ensureState(nextDef, "config", spec.method, value)
+                requireCapability(nextDef, spec.method, spec.method, value)
                 setExclusive(ensureSection(nextDef.config, spec.section), spec.group, spec.method, value)
                 return createBuilder(nextDef)
             end
