@@ -29,7 +29,6 @@ return function(context)
 
     function Registry.persistInstall(definition, destination, fingerprints)
         local registry = Registry.read()
-        fingerprints = fingerprints or {}
         local now = os.date("!%Y-%m-%dT%H:%M:%SZ")
         local task = definition.task or {}
         local name = task.name or definition.name

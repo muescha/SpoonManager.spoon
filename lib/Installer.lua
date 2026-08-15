@@ -66,7 +66,7 @@ return function(context)
 
         local behavior = run.options.conflictStrategy or manager.options.conflictStrategy.abort
 
-        local knownTargetFolderHash = installed and installed.fingerprints and installed.fingerprints.targetFolderHash
+        local knownTargetFolderHash = installed and installed.fingerprints.targetFolderHash
         if not installed or not knownTargetFolderHash then
             if behavior == manager.options.conflictStrategy.overwrite then
                 return true
@@ -123,7 +123,7 @@ return function(context)
             return nil, "Spoon is not installed by SpoonManager. Use install() first."
         end
 
-        local storedSourceHash = installed.fingerprints and installed.fingerprints.stagedSourceHash
+        local storedSourceHash = installed.fingerprints.stagedSourceHash
         if stagedSourceHash and stagedSourceHash == storedSourceHash then
             Installer.applyUse(definition)
             return {
