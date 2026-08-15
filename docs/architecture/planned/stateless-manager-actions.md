@@ -407,10 +407,10 @@ rewires its caller in the same commit.
    return the same result structure, with the individual executions stored in a
    section such as `runs = { ... }`.
 
-5. Start with a flat `SpoonManager.installed` registry API.
+5. Build `SpoonManager.installed` as a registry view with selection.
 
    `installed` should be a registry view for already installed Spoons. It should
-   start as a small flat API:
+   support direct whole-registry actions:
 
    ```lua
    spoon.SpoonManager.installed.list()
@@ -419,6 +419,18 @@ rewires its caller in the same commit.
    spoon.SpoonManager.installed.doctor()
    spoon.SpoonManager.installed.delete("Emojis")
    ```
+
+   It should also support query-like selection from the beginning:
+
+   ```lua
+   spoon.SpoonManager.installed.spoon("Emojis").update()
+   spoon.SpoonManager.installed.spoon("Emojis").delete()
+   spoon.SpoonManager.installed.outdated().update()
+   ```
+
+   The flat methods are convenience calls for common whole-registry operations.
+   The selection methods provide the more precise API surface for one item or a
+   filtered collection.
 
    This keeps the public meaning clear:
 
@@ -433,16 +445,6 @@ rewires its caller in the same commit.
    ```
 
    loads definitions from the installed registry and updates those entries.
-
-   More query-like selection can be added later if needed:
-
-   ```lua
-   spoon.SpoonManager.installed.spoon("Emojis").update()
-   spoon.SpoonManager.installed.outdated().update()
-   ```
-
-   The first implementation should not start with that extra builder/collection
-   layer unless a concrete workflow needs it.
 
 ## Non-Goals
 
