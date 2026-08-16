@@ -160,16 +160,15 @@ local function loadProvider(name)
     return dofile(spoonPath .. "/lib/providers/" .. name .. ".lua")
 end
 
-local Util = loadLib("Util")
-
-obj.configDir = Util.pathJoin(hs.configdir, ".config", "SpoonManager")
-
 local context = {
     logger = obj.logger,
     manager = obj,
-    util = Util,
     ports = loadLib("Ports"),
 }
+context.util = loadLib("Util")(context)
+local util = context.util
+
+obj.configDir = util.pathJoin(context.ports.config.dir(), ".config", "SpoonManager")
 
 context.nameResolver = loadLib("NameResolver")(context)
 context.paths = loadLib("Paths")(context)
@@ -230,10 +229,10 @@ local function definitionConfig(definition)
     end
 
     if definition.config then
-        return Util.copyTable(definition.config)
+        return util.copyTable(definition.config)
     end
 
-    return Util.copyTable(definition)
+    return util.copyTable(definition)
 end
 
 local function runDefinition(definition, action)

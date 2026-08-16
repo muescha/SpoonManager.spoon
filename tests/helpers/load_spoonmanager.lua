@@ -2,14 +2,13 @@ return function(repoRoot)
     dofile(repoRoot .. "/tests/helpers/hammerspoon_stub.lua")(repoRoot)
 
     local SpoonManager = dofile(repoRoot .. "/init.lua")
-    local util = dofile(repoRoot .. "/lib/Util.lua")
 
     local context = {
         manager = SpoonManager,
-        util = util,
         logger = SpoonManager.logger,
         ports = dofile(repoRoot .. "/lib/Ports.lua"),
     }
+    context.util = dofile(repoRoot .. "/lib/Util.lua")(context)
 
     context.nameResolver = dofile(repoRoot .. "/lib/NameResolver.lua")(context)
     context.paths = dofile(repoRoot .. "/lib/Paths.lua")(context)

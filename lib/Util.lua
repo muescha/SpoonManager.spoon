@@ -1,4 +1,6 @@
-local Util = {}
+return function(context)
+    local ports = context.ports
+    local Util = {}
 
 function Util.shellQuote(value)
     return "'" .. tostring(value):gsub("'", "'\\''") .. "'"
@@ -132,7 +134,7 @@ function Util.debugTable(value)
 end
 
 function Util.execute(command, logger, errfmt, ...)
-    local output, ok = hs.execute(command)
+    local output, ok = ports.exec.run(command)
     if ok then
         return Util.trim(output), true
     end
@@ -188,7 +190,7 @@ function Util.movePath(source, destination, logger)
 end
 
 function Util.fileExists(path)
-    return hs.fs.attributes(path) ~= nil
+    return ports.fs.attributes(path) ~= nil
 end
 
 local function ignoredNames(options)
@@ -271,8 +273,8 @@ end
 function Util.localPath(path)
     Util.requireString(path, "Local path")
 
-    if hs.fs.pathToAbsolute then
-        return hs.fs.pathToAbsolute(path) or path
+    if ports.fs.absolute then
+        return ports.fs.absolute(path) or path
     end
 
     return path
@@ -399,4 +401,5 @@ function Util.requireZipPath(value, label, sourceRef)
     return value
 end
 
-return Util
+    return Util
+end
