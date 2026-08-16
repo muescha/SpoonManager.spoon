@@ -801,6 +801,36 @@ return function(T)
         end)
     end)
 
+    T.test("checkLocalChanges reports a missing hash on a managed spoon", function()
+        local destination = "/tmp/hammerspoon-test/Spoons/Emojis.spoon"
+
+        withPatched({
+            {
+                table = T.context.util,
+                key = "fileExists",
+                value = function(path)
+                    return path == destination
+                end,
+            },
+            {
+                table = T.context.registry,
+                key = "read",
+                value = function()
+                    return {
+                        Emojis = {
+                            fingerprints = {},
+                        },
+                    }
+                end,
+            },
+        }, function()
+            local ok, err = T.context.installer.checkLocalChanges(preparedTask("Emojis"), destination)
+
+            T.assertFalse(ok)
+            T.assertEqual(err, "Cannot detect local changes: the baseline hash is missing. Use .conflictStrategy(\"backup\") or .conflictStrategy(\"overwrite\") to update anyway.")
+        end)
+    end)
+
     T.test("update allows unchanged managed spoon", function()
         local destination = "/tmp/hammerspoon-test/Spoons/Emojis.spoon"
 

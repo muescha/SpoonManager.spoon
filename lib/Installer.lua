@@ -23,12 +23,23 @@ return function(context)
         }
     end
 
-    local function installedFingerprints(installed)
-        if not installed then
-            return nil
+    -- Existing files at the destination: overwrite proceeds, backup moves them
+    -- aside, anything else (including a nil/abort strategy) aborts with the message.
+    local function resolveExistingConflict(behavior, destination, backupError, abortError)
+        if behavior == manager.options.conflictStrategy.overwrite then
+            return true
         end
 
-        return installed.fingerprints
+        if behavior == manager.options.conflictStrategy.backup then
+            local backupPath = destination .. ".backup-" .. ports.clock.stamp()
+            local _, ok = util.movePath(destination, backupPath, logger)
+            if ok then
+                return true
+            end
+            return nil, backupError
+        end
+
+        return nil, abortError
     end
 
     function Installer.prepareDefinition(definition, action)
@@ -77,46 +88,30 @@ return function(context)
             return true
         end
 
-        local behavior = run.options.conflictStrategy or manager.options.conflictStrategy.abort
+        local behavior = run.options.conflictStrategy
 
-        local fingerprints = installedFingerprints(installed)
-        local knownTargetFolderHash = fingerprints and fingerprints.targetFolderHash
-        if not installed or not knownTargetFolderHash then
-            if behavior == manager.options.conflictStrategy.overwrite then
-                return true
-            end
-
-            if behavior == manager.options.conflictStrategy.backup then
-                local backupPath = destination .. ".backup-" .. ports.clock.stamp()
-                local _, ok = util.movePath(destination, backupPath, logger)
-                if ok then
-                    return true
-                end
-                return nil, "Could not backup existing unmanaged Spoon"
-            end
-
-            return nil, "Spoon already exists but is not managed by SpoonManager. Use .conflictStrategy(\"backup\") or .conflictStrategy(\"overwrite\") to install anyway."
+        if not installed then
+            return resolveExistingConflict(behavior, destination,
+                "Could not backup existing unmanaged Spoon",
+                "Spoon already exists but is not managed by SpoonManager. Use .conflictStrategy(\"backup\") or .conflictStrategy(\"overwrite\") to install anyway.")
         end
 
-        local currentChecksum = util.hashDirectory(destination, nil, logger)
-        if currentChecksum == knownTargetFolderHash then
+        -- Managed Spoon: without a stored hash we cannot verify integrity, so we
+        -- can neither confirm it is unchanged nor prove local changes.
+        local knownHash = installed.fingerprints and installed.fingerprints.targetFolderHash
+        if not knownHash then
+            return resolveExistingConflict(behavior, destination,
+                "Could not backup Spoon with a missing baseline hash",
+                "Cannot detect local changes: the baseline hash is missing. Use .conflictStrategy(\"backup\") or .conflictStrategy(\"overwrite\") to update anyway.")
+        end
+
+        if util.hashDirectory(destination, nil, logger) == knownHash then
             return true
         end
 
-        if behavior == manager.options.conflictStrategy.overwrite then
-            return true
-        end
-
-        if behavior == manager.options.conflictStrategy.backup then
-            local backupPath = destination .. ".backup-" .. ports.clock.stamp()
-            local _, ok = util.movePath(destination, backupPath, logger)
-            if ok then
-                return true
-            end
-            return nil, "Could not backup locally changed Spoon"
-        end
-
-        return nil, "Local changes detected. Use .conflictStrategy(\"backup\") or .conflictStrategy(\"overwrite\") to update anyway."
+        return resolveExistingConflict(behavior, destination,
+            "Could not backup locally changed Spoon",
+            "Local changes detected. Use .conflictStrategy(\"backup\") or .conflictStrategy(\"overwrite\") to update anyway.")
     end
 
     function Installer.applyUse(definition)
@@ -137,7 +132,7 @@ return function(context)
             return nil, "Spoon is not installed by SpoonManager. Use install() first."
         end
 
-        local installedHashes = installedFingerprints(installed) or {}
+        local installedHashes = installed.fingerprints or {}
         local storedSourceHash = installedHashes.stagedSourceHash
         if stagedSourceHash and stagedSourceHash == storedSourceHash then
             Installer.applyUse(definition)
