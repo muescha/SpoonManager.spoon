@@ -3,6 +3,7 @@ return function(context)
     local util = context.util
     local paths = context.paths
     local logger = context.logger
+    local ports = context.ports
 
     function Registry.read()
         local path = paths.registryPath()
@@ -10,7 +11,7 @@ return function(context)
             return {}
         end
 
-        return hs.json.read(path) or {}
+        return ports.json.read(path) or {}
     end
 
     function Registry.write(registry)
@@ -22,14 +23,14 @@ return function(context)
             return nil, err
         end
 
-        file:write(hs.json.encode(registry, true))
+        file:write(ports.json.encode(registry, true))
         file:close()
         return true
     end
 
     function Registry.persistInstall(definition, destination, fingerprints)
         local registry = Registry.read()
-        local now = os.date("!%Y-%m-%dT%H:%M:%SZ")
+        local now = ports.clock.nowIso()
         local task = definition.task
         local name = task.name
         local previous = registry[name] or {}
