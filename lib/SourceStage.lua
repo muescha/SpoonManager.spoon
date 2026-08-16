@@ -4,9 +4,10 @@ return function(context)
     local logger = context.logger
     local spoonExtractor = context.spoonExtractor
     local sourceFetcher = context.sourceFetcher
+    local ports = context.ports
 
     function SourceStage.create()
-        local root = util.trim(hs.execute("/usr/bin/mktemp -d"))
+        local root = util.trim(ports.exec.run("/usr/bin/mktemp -d"))
         if not root or root == "" then
             return nil, "Could not create temporary directory"
         end
