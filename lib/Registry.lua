@@ -28,29 +28,27 @@ return function(context)
         return true
     end
 
+    -- Narrow, versioned record for one installed Spoon. Only the fields needed to
+    -- reproduce (config) and to detect change (fingerprints), plus identity and
+    -- timestamps — never a dump of the runtime definition.
     function Registry.persistInstall(definition, destination, fingerprints)
         local registry = Registry.read()
         local now = ports.clock.nowIso()
-        local task = definition.task
-        local name = task.name
+        local name = definition.task.name
         local previous = registry[name] or {}
-        local previousMeta = previous.registryMeta or {}
-        definition.registryMeta = util.mergeTables(definition.registryMeta or {}, {
-            installedAt = previousMeta.installedAt or previous.installedAt or now,
-            updatedAt = now,
+
+        registry[name] = {
+            schemaVersion = 1,
+            name = name,
             path = destination,
-            previousFingerprints = (
-                previousMeta.persistedFingerprints
-                or (previous.result and previous.result.fingerprints)
-                or previous.fingerprints
-            ),
-            persistedFingerprints = {
+            config = util.copyTable(definition.config or {}),
+            fingerprints = {
                 stagedSourceHash = fingerprints.stagedSourceHash,
                 targetFolderHash = fingerprints.targetFolderHash,
             },
-        })
-
-        registry[name] = util.copyTable(definition)
+            installedAt = previous.installedAt or now,
+            updatedAt = now,
+        }
 
         return Registry.write(registry)
     end

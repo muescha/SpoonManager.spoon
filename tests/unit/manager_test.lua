@@ -493,19 +493,13 @@ return function(T)
                 value = function()
                     return {
                         Emojis = {
-                            registryMeta = {
-                                path = "/tmp/hammerspoon-test/Spoons/Emojis.spoon",
-                            },
+                            path = "/tmp/hammerspoon-test/Spoons/Emojis.spoon",
                         },
                         MissingPath = {
-                            task = {
-                                name = "MissingPath",
-                            },
+                            name = "MissingPath",
                         },
                         TimeMachineProgress = {
-                            result = {
-                                path = "/tmp/hammerspoon-test/Spoons/TimeMachineProgress.spoon",
-                            },
+                            path = "/tmp/hammerspoon-test/Spoons/TimeMachineProgress.spoon",
                         },
                     }
                 end,
@@ -542,11 +536,7 @@ return function(T)
                 value = function()
                     return {
                         Emojis = {
-                            command = {
-                                target = {
-                                    path = "/tmp/hammerspoon-test/Spoons/Emojis.spoon",
-                                },
-                            },
+                            path = "/tmp/hammerspoon-test/Spoons/Emojis.spoon",
                         },
                     }
                 end,
@@ -724,7 +714,7 @@ return function(T)
         T.assertFalse(prepared.use)
     end)
 
-    T.test("registry stores full BOM snapshot with metadata section", function()
+    T.test("registry stores a narrow versioned record", function()
         local written
 
         withPatched({
@@ -755,7 +745,11 @@ return function(T)
                         start = true,
                     },
                 },
-                config = {},
+                config = {
+                    source = {
+                        selection_spoon = "Emojis",
+                    },
+                },
                 resolved = {},
                 command = {},
             }, "/tmp/hammerspoon-test/Spoons/Emojis.spoon", {
@@ -764,62 +758,20 @@ return function(T)
             })
 
             T.assertTrue(ok, err)
-            T.assertEqual(written.Emojis.registryMeta.installedAt, "2026-08-01T00:00:00Z")
-            T.assertTrue(written.Emojis.config)
-            T.assertTrue(written.Emojis.resolved)
-            T.assertTrue(written.Emojis.command)
-            T.assertTrue(written.Emojis.task)
-            T.assertTrue(written.Emojis.registryMeta.updatedAt)
-            T.assertEqual(written.Emojis.registryMeta.path, "/tmp/hammerspoon-test/Spoons/Emojis.spoon")
-            T.assertEqual(written.Emojis.registryMeta.persistedFingerprints.stagedSourceHash, "source-hash")
-            T.assertEqual(written.Emojis.registryMeta.persistedFingerprints.targetFolderHash, "target-hash")
-            T.assertFalse(written.Emojis.fingerprints)
-            T.assertFalse(written.Emojis.checksum)
-            T.assertFalse(written.Emojis.use)
-            T.assertEqual(written.Emojis.task.use.start, true)
-        end)
-    end)
-
-    T.test("registry metadata remains on the runtime definition", function()
-        local definition = {
-            task = {
-                name = "Emojis",
-            },
-            config = {},
-            resolved = {},
-            command = {},
-            result = {
-                fingerprints = {
-                    stagedSourceHash = "source-hash",
-                    targetFolderHash = "target-hash",
-                },
-            },
-        }
-
-        withPatched({
-            {
-                table = T.context.registry,
-                key = "read",
-                value = function()
-                    return {}
-                end,
-            },
-            {
-                table = T.context.registry,
-                key = "write",
-                value = function()
-                    return true
-                end,
-            },
-        }, function()
-            local ok, err = T.context.registry.persistInstall(definition, "/tmp/hammerspoon-test/Spoons/Emojis.spoon", {
-                stagedSourceHash = "source-hash",
-                targetFolderHash = "target-hash",
-            })
-
-            T.assertTrue(ok, err)
-            T.assertEqual(definition.registryMeta.persistedFingerprints.stagedSourceHash, "source-hash")
-            T.assertEqual(definition.registryMeta.path, "/tmp/hammerspoon-test/Spoons/Emojis.spoon")
+            local record = written.Emojis
+            T.assertEqual(record.schemaVersion, 1)
+            T.assertEqual(record.name, "Emojis")
+            T.assertEqual(record.path, "/tmp/hammerspoon-test/Spoons/Emojis.spoon")
+            T.assertEqual(record.config.source.selection_spoon, "Emojis")
+            T.assertEqual(record.fingerprints.stagedSourceHash, "source-hash")
+            T.assertEqual(record.fingerprints.targetFolderHash, "target-hash")
+            T.assertEqual(record.installedAt, "2026-08-01T00:00:00Z")
+            T.assertTrue(record.updatedAt)
+            -- runtime scaffolding is NOT persisted
+            T.assertFalse(record.resolved)
+            T.assertFalse(record.command)
+            T.assertFalse(record.task)
+            T.assertFalse(record.registryMeta)
         end)
     end)
 

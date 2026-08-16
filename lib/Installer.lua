@@ -28,14 +28,6 @@ return function(context)
             return nil
         end
 
-        if installed.registryMeta and installed.registryMeta.persistedFingerprints then
-            return installed.registryMeta.persistedFingerprints
-        end
-
-        if installed.result and installed.result.fingerprints then
-            return installed.result.fingerprints
-        end
-
         return installed.fingerprints
     end
 

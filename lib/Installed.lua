@@ -4,22 +4,6 @@ return function(context)
     local registry = context.registry
     local util = context.util
 
-    local function entryPath(entry)
-        if entry.registryMeta and entry.registryMeta.path then
-            return entry.registryMeta.path
-        end
-
-        if entry.result and entry.result.path then
-            return entry.result.path
-        end
-
-        if entry.command and entry.command.target and entry.command.target.path then
-            return entry.command.target.path
-        end
-
-        return nil
-    end
-
     local function create(selection)
         selection = selection or {}
         local installed = registry.read()
@@ -110,7 +94,7 @@ return function(context)
                         reason = "missing-registry-entry",
                     }
                 else
-                    local path = entryPath(entry)
+                    local path = entry.path
                     local check = {
                         name = name,
                         path = path,
