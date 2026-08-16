@@ -37,6 +37,18 @@ return function(context)
             api.registered = true
         end
 
+        -- TODO:
+        -- SpoonManager.installed.outdated()
+        -- SpoonManager.installed.outdated()
+        -- SpoonManager.installed.outdated().update()
+        -- SpoonManager.installed.outdated().spoon(...).update()
+        -- SpoonManager.installed.spoon(...).outdated().update()
+
+        -- SpoonManager.installed.delete(...)
+        -- SpoonManager.installed.uninstall(...)
+        -- SpoonManager.installed.deleteFromDisk(...)
+        -- SpoonManager.installed.removeDefinition(...)
+
         function api.list()
             local installed = registry.read()
             local entries = {}
