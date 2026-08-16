@@ -166,10 +166,6 @@ local context = {
     ports = loadLib("Ports"),
 }
 context.util = loadLib("Util")(context)
-local util = context.util
-
-obj.configDir = util.pathJoin(context.ports.config.dir(), ".config", "SpoonManager")
-
 context.nameResolver = loadLib("NameResolver")(context)
 context.paths = loadLib("Paths")(context)
 context.registry = loadLib("Registry")(context)
@@ -182,6 +178,8 @@ context.installer = loadLib("Installer")(context)
 context.installed = loadLib("Installed")(context)
 context.definitionBuilder = loadLib("DefinitionBuilder")(context)
 
+local util = context.util
+obj.configDir = util.pathJoin(context.ports.config.dir(), ".config", "SpoonManager")
 obj.installed = context.installed.create()
 
 function obj.registerProvider(provider)
