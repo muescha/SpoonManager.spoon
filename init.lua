@@ -168,6 +168,7 @@ local context = {
     logger = obj.logger,
     manager = obj,
     util = Util,
+    ports = loadLib("Ports"),
 }
 
 context.nameResolver = loadLib("NameResolver")(context)

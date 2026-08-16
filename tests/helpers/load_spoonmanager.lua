@@ -8,6 +8,7 @@ return function(repoRoot)
         manager = SpoonManager,
         util = util,
         logger = SpoonManager.logger,
+        ports = dofile(repoRoot .. "/lib/Ports.lua"),
     }
 
     context.nameResolver = dofile(repoRoot .. "/lib/NameResolver.lua")(context)
