@@ -8,6 +8,7 @@ return function(context)
     local registry = context.registry
     local definitionResolver = context.definitionResolver
     local util = context.util
+    local ports = context.ports
 
     local function task(definition)
         return definition.task or error("Prepared definition requires task section", 3)
@@ -94,7 +95,7 @@ return function(context)
             end
 
             if behavior == manager.options.conflictStrategy.backup then
-                local backupPath = destination .. ".backup-" .. os.date("!%Y%m%dT%H%M%SZ")
+                local backupPath = destination .. ".backup-" .. ports.clock.stamp()
                 local _, ok = util.movePath(destination, backupPath, logger)
                 if ok then
                     return true
@@ -115,7 +116,7 @@ return function(context)
         end
 
         if behavior == manager.options.conflictStrategy.backup then
-            local backupPath = destination .. ".backup-" .. os.date("!%Y%m%dT%H%M%SZ")
+            local backupPath = destination .. ".backup-" .. ports.clock.stamp()
             local _, ok = util.movePath(destination, backupPath, logger)
             if ok then
                 return true
@@ -134,7 +135,7 @@ return function(context)
 
         local arg = util.copyTable(run.use)
         arg.disable = nil
-        return hs.spoons.use(run.name, arg, false)
+        return ports.spoons.use(run.name, arg, false)
     end
 
     function Installer.skipUnchangedUpdate(definition, destination, stagedSourceHash)
