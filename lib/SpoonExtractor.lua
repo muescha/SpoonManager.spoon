@@ -2,6 +2,7 @@ return function(context)
     local SpoonExtractor = {}
     local util = context.util
     local logger = context.logger
+    local ports = context.ports
 
     function SpoonExtractor.validateInstalledFolder(path)
         if not util.fileExists(util.pathJoin(path, "init.lua")) then
@@ -13,8 +14,8 @@ return function(context)
 
     -- Zip-slip guard: ensure a located folder resolves inside the extraction dir.
     local function isWithin(base, path)
-        local absBase = hs.fs.pathToAbsolute(base)
-        local absPath = hs.fs.pathToAbsolute(path)
+        local absBase = ports.fs.absolute(base)
+        local absPath = ports.fs.absolute(path)
         if not absBase or not absPath then
             return false
         end

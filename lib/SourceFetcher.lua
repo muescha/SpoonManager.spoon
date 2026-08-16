@@ -1,9 +1,10 @@
 return function(context)
     local SourceFetcher = {}
     local util = context.util
+    local ports = context.ports
 
     function SourceFetcher.downloadToFile(url, destination)
-        local status, body = hs.http.get(url)
+        local status, body = ports.http.get(url)
         if status < 100 or status >= 400 then
             return nil, string.format("Download failed with HTTP status %s for %s", tostring(status), url)
         end

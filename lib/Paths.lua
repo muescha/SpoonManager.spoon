@@ -2,9 +2,10 @@ return function(context)
     local Paths = {}
     local util = context.util
     local manager = context.manager
+    local ports = context.ports
 
     function Paths.installRoot()
-        return util.pathJoin(hs.configdir, "Spoons")
+        return util.pathJoin(ports.config.dir(), "Spoons")
     end
 
     function Paths.targetPath(name)
