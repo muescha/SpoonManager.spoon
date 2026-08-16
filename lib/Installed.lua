@@ -1,5 +1,4 @@
 return function(context)
-    local Installed = {}
     local manager = context.manager
     local registry = context.registry
     local util = context.util
